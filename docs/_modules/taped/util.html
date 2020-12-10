@@ -1,0 +1,208 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>taped.util &#8212; taped 0.0.2 documentation</title>
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for taped.util</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">io</span> <span class="kn">import</span> <span class="n">BytesIO</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">soundfile</span> <span class="k">as</span> <span class="nn">sf</span>
+<span class="kn">from</span> <span class="nn">stream2py.sources.audio</span> <span class="kn">import</span> <span class="n">PyAudioSourceReader</span>
+
+<span class="c1"># TODO: (wish) service this will builtins only</span>
+
+
+<span class="c1"># DFLT_INPUT_DEVICE_INDEX = find_a_default_input_device_index()</span>
+<span class="n">DFLT_SR</span> <span class="o">=</span> <span class="mi">44100</span>
+<span class="n">DFLT_N_CHANNELS</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">DFLT_SAMPLE_WIDTH</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">DFLT_CHK_SIZE</span> <span class="o">=</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">4</span>
+<span class="n">DFLT_STREAM_BUF_SIZE_S</span> <span class="o">=</span> <span class="mi">60</span>
+<span class="n">read_kwargs_for_sample_width</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="mi">2</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">format</span><span class="o">=</span><span class="s1">&#39;RAW&#39;</span><span class="p">,</span> <span class="n">subtype</span><span class="o">=</span><span class="s1">&#39;PCM_16&#39;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;int16&#39;</span><span class="p">),</span>
+    <span class="mi">3</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">format</span><span class="o">=</span><span class="s1">&#39;RAW&#39;</span><span class="p">,</span> <span class="n">subtype</span><span class="o">=</span><span class="s1">&#39;PCM_24&#39;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;int32&#39;</span><span class="p">),</span>
+    <span class="mi">4</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">format</span><span class="o">=</span><span class="s1">&#39;RAW&#39;</span><span class="p">,</span> <span class="n">subtype</span><span class="o">=</span><span class="s1">&#39;PCM_32&#39;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;int32&#39;</span><span class="p">),</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="bytes_to_waveform"><a class="viewcode-back" href="../../module_docs/taped/util.html#taped.util.bytes_to_waveform">[docs]</a><span class="k">def</span> <span class="nf">bytes_to_waveform</span><span class="p">(</span><span class="n">b</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">sr</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">n_channels</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">sample_width</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;int16&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Convert raw bytes to a numpy array cast to dtype</span>
+
+<span class="sd">    :param b: bytes</span>
+<span class="sd">    :param sr: sample rate</span>
+<span class="sd">    :param n_channels: number of channels</span>
+<span class="sd">    :param sample_width: sample byte width [2, 3, 4]</span>
+<span class="sd">    :param dtype: data type used by numpy, i.e. dtype=np.int16 is the same as dtype=&#39;int16&#39;</span>
+<span class="sd">    :return: numpy.array</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sample_width_to_subtype</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="mi">2</span><span class="p">:</span> <span class="s1">&#39;PCM_16&#39;</span><span class="p">,</span>
+        <span class="mi">3</span><span class="p">:</span> <span class="s1">&#39;PCM_24&#39;</span><span class="p">,</span>
+        <span class="mi">4</span><span class="p">:</span> <span class="s1">&#39;PCM_32&#39;</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">sf</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">b</span><span class="p">),</span> <span class="n">samplerate</span><span class="o">=</span><span class="n">sr</span><span class="p">,</span> <span class="n">channels</span><span class="o">=</span><span class="n">n_channels</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;RAW&#39;</span><span class="p">,</span>
+                   <span class="n">subtype</span><span class="o">=</span><span class="n">sample_width_to_subtype</span><span class="p">[</span><span class="n">sample_width</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="list_recording_device_index_names"><a class="viewcode-back" href="../../module_docs/taped/util.html#taped.util.list_recording_device_index_names">[docs]</a><span class="k">def</span> <span class="nf">list_recording_device_index_names</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;List (index, name) of available recording devices&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">sorted</span><span class="p">((</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">])</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">PyAudioSourceReader</span><span class="o">.</span><span class="n">list_device_info</span><span class="p">()</span> <span class="k">if</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;maxInputChannels&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span></div>
+
+
+<span class="c1"># TODO: Merge with find_a_device_index</span>
+<span class="k">def</span> <span class="nf">find_a_default_input_device_index</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">list_recording_device_index_names</span><span class="p">():</span>
+        <span class="k">if</span> <span class="s1">&#39;microphone&#39;</span> <span class="ow">in</span> <span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Found </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">. Will use it as the default input device. It&#39;s index is </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">index</span>
+    <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">list_recording_device_index_names</span><span class="p">():</span>
+        <span class="k">if</span> <span class="s1">&#39;mic&#39;</span> <span class="ow">in</span> <span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Found </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">. Will use it as the default input device. It&#39;s index is </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">index</span>
+
+
+<span class="k">def</span> <span class="nf">audio_pokes_version_of_bytes_to_waveform</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">sr</span><span class="o">=</span><span class="n">DFLT_SR</span><span class="p">,</span> <span class="n">n_channels</span><span class="o">=</span><span class="n">DFLT_N_CHANNELS</span><span class="p">,</span> <span class="n">sample_width</span><span class="o">=</span><span class="n">DFLT_SAMPLE_WIDTH</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">sf</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">b</span><span class="p">),</span> <span class="n">samplerate</span><span class="o">=</span><span class="n">sr</span><span class="p">,</span> <span class="n">channels</span><span class="o">=</span><span class="n">n_channels</span><span class="p">,</span> <span class="o">**</span><span class="n">read_kwargs_for_sample_width</span><span class="p">[</span><span class="n">sample_width</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">waveform_to_bytes</span><span class="p">(</span><span class="n">wf</span><span class="p">,</span> <span class="n">sr</span><span class="o">=</span><span class="n">DFLT_SR</span><span class="p">,</span> <span class="n">sample_width</span><span class="o">=</span><span class="n">DFLT_SAMPLE_WIDTH</span><span class="p">):</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">()</span>
+    <span class="n">subtype</span> <span class="o">=</span> <span class="n">read_kwargs_for_sample_width</span><span class="p">[</span><span class="n">sample_width</span><span class="p">][</span><span class="s1">&#39;subtype&#39;</span><span class="p">]</span>
+    <span class="n">sf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">wf</span><span class="p">,</span> <span class="n">samplerate</span><span class="o">=</span><span class="n">sr</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;RAW&#39;</span><span class="p">,</span> <span class="n">subtype</span><span class="o">=</span><span class="n">subtype</span><span class="p">)</span>
+    <span class="n">b</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">b</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+
+<span class="c1"># TODO: Test and merge with find_a_default_input_device_index</span>
+<span class="k">def</span> <span class="nf">find_a_device_index</span><span class="p">(</span><span class="n">filt</span><span class="o">=</span><span class="s1">&#39;microphone&#39;</span><span class="p">,</span> <span class="n">dflt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filt</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">match_str</span> <span class="o">=</span> <span class="n">filt</span>
+
+        <span class="k">def</span> <span class="nf">filt</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">match_str</span> <span class="ow">in</span> <span class="n">x</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="n">match_str</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="n">match</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="n">filt</span><span class="p">,</span> <span class="n">PyAudioSourceReader</span><span class="o">.</span><span class="n">list_device_info</span><span class="p">()),</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">match</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">match</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">])</span> <span class="ow">or</span> <span class="n">dflt</span>
+
+
+<span class="k">def</span> <span class="nf">ensure_source_input_device_index</span><span class="p">(</span><span class="n">input_device_index</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">input_device_index</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">input_device_index</span> <span class="o">=</span> <span class="n">find_a_default_input_device_index</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">input_device_index</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">input_device_index</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># TODO: Nicer way to print info (perhaps only relevant info, formated as table)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Need a valid input_device_index. Calling live_audio_chks.list_device_info() to information about the &quot;</span>
+              <span class="s2">&quot;devices I can detect:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">PyAudioSourceReader</span><span class="o">.</span><span class="n">list_device_info</span><span class="p">():</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;---&gt; Look in the list above and choose an input_device_index (it&#39;s called index in the printout above) &quot;</span>
+              <span class="s2">&quot;that seems to be right for you!&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Need a valid input_device_index&quot;</span><span class="p">)</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">taped</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/taped.html">taped</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/taped/audio_pokes.html">taped.audio_pokes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/taped/display.html">taped.display</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/taped/examples/listen_and_feedback.html">taped.examples.listen_and_feedback</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/taped/examples/record_audio_to_files.html">Recording audio to wav file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/taped/live_audio.html">taped.live_audio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/taped/live_audio_pipelining.html">taped.live_audio_pipelining</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/taped/util.html">taped.util</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

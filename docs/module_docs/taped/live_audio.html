@@ -1,0 +1,165 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>taped.live_audio &#8212; taped 0.0.2 documentation</title>
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="taped.live_audio_pipelining" href="live_audio_pipelining.html" />
+    <link rel="prev" title="Recording audio to wav file" href="examples/record_audio_to_files.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-taped.live_audio">
+<span id="taped-live-audio"></span><h1>taped.live_audio<a class="headerlink" href="#module-taped.live_audio" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="taped.live_audio.AudioStreamBuffer">
+<em class="property">class </em><code class="sig-prename descclassname">taped.live_audio.</code><code class="sig-name descname">AudioStreamBuffer</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span></em>, <em class="sig-param"><span class="n">buffer_size_seconds</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>int<span class="p">, </span>float<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">60.0</span></em>, <em class="sig-param"><span class="n">input_device_index</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">sr</span><span class="o">=</span><span class="default_value">44100</span></em>, <em class="sig-param"><span class="n">width</span><span class="o">=</span><span class="default_value">2</span></em>, <em class="sig-param"><span class="n">frames_per_buffer</span><span class="o">=</span><span class="default_value">2048</span></em>, <em class="sig-param"><span class="n">sleep_time_on_read_none_s</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span>int<span class="p">, </span>float<span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">0.05</span></em>, <em class="sig-param"><span class="n">auto_drop</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/taped/live_audio.html#AudioStreamBuffer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#taped.live_audio.AudioStreamBuffer" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt id="taped.live_audio.VisualizationStream">
+<em class="property">class </em><code class="sig-prename descclassname">taped.live_audio.</code><code class="sig-name descname">VisualizationStream</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mk_int16_array_gen</span><span class="p">:</span> <span class="n">Callable</span></em>, <em class="sig-param"><span class="n">chk_to_viz</span><span class="p">:</span> <span class="n">Callable</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/taped/live_audio.html#VisualizationStream"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#taped.live_audio.VisualizationStream" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt id="taped.live_audio.VisualizationStream.close">
+<code class="sig-name descname">close</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/taped/live_audio.html#VisualizationStream.close"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#taped.live_audio.VisualizationStream.close" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clean up if needed</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="taped.live_audio.VisualizationStream.info">
+<em class="property">property </em><code class="sig-name descname">info</code><a class="headerlink" href="#taped.live_audio.VisualizationStream.info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Whatever info is useful to you
+StreamBuffer will record info right after open</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="taped.live_audio.VisualizationStream.key">
+<code class="sig-name descname">key</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/taped/live_audio.html#VisualizationStream.key"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#taped.live_audio.VisualizationStream.key" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert data to a sortable value that increases with each read.
+the enumerate index in this case</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="taped.live_audio.VisualizationStream.open">
+<code class="sig-name descname">open</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/taped/live_audio.html#VisualizationStream.open"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#taped.live_audio.VisualizationStream.open" title="Permalink to this definition">¶</a></dt>
+<dd><p>Setup data generator</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="taped.live_audio.VisualizationStream.read">
+<code class="sig-name descname">read</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/taped/live_audio.html#VisualizationStream.read"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#taped.live_audio.VisualizationStream.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Must return data that is sortable with ‘key’ method or None. Data that is not readily sortable such as
+ordered words of a sentence can be wrapped in a tuple (word_index, word).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>data or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">taped</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../taped.html">taped</a></li>
+<li class="toctree-l1"><a class="reference internal" href="audio_pokes.html">taped.audio_pokes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="display.html">taped.display</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/listen_and_feedback.html">taped.examples.listen_and_feedback</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/record_audio_to_files.html">Recording audio to wav file</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">taped.live_audio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="live_audio_pipelining.html">taped.live_audio_pipelining</a></li>
+<li class="toctree-l1"><a class="reference internal" href="util.html">taped.util</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="examples/record_audio_to_files.html" title="previous chapter">Recording audio to wav file</a></li>
+      <li>Next: <a href="live_audio_pipelining.html" title="next chapter">taped.live_audio_pipelining</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../../_sources/module_docs/taped/live_audio.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

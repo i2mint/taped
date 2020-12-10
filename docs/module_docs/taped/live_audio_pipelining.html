@@ -1,0 +1,146 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>taped.live_audio_pipelining &#8212; taped 0.0.2 documentation</title>
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="taped.util" href="util.html" />
+    <link rel="prev" title="taped.live_audio" href="live_audio.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-taped.live_audio_pipelining">
+<span id="taped-live-audio-pipelining"></span><h1>taped.live_audio_pipelining<a class="headerlink" href="#module-taped.live_audio_pipelining" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="taped.live_audio_pipelining.CallableDeque">
+<em class="property">class </em><code class="sig-prename descclassname">taped.live_audio_pipelining.</code><code class="sig-name descname">CallableDeque</code><a class="reference internal" href="../../_modules/taped/live_audio_pipelining.html#CallableDeque"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#taped.live_audio_pipelining.CallableDeque" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="taped.live_audio_pipelining.chk_to_fv_viz">
+<code class="sig-prename descclassname">taped.live_audio_pipelining.</code><code class="sig-name descname">chk_to_fv_viz</code><span class="sig-paren">(</span><em class="sig-param">chk: numpy.ndarray</em>, <em class="sig-param">chk_to_fv=&lt;function log_max_chk_to_fv&gt;</em>, <em class="sig-param">fv_to_str=functools.partial(&lt;function multipart_fv_str&gt;</em>, <em class="sig-param">num_to_viz_str=&lt;function ascii_levels&gt;</em>, <em class="sig-param">fv_num_sep='\n')</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/taped/live_audio_pipelining.html#chk_to_fv_viz"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#taped.live_audio_pipelining.chk_to_fv_viz" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes a chk and returns a string representing the fv. Meant to be displayed dynamically</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="taped.live_audio_pipelining.dflt_chk_to_fv">
+<code class="sig-prename descclassname">taped.live_audio_pipelining.</code><code class="sig-name descname">dflt_chk_to_fv</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">chk</span><span class="p">:</span> <span class="n">numpy.ndarray</span></em>, <em class="sig-param"><span class="n">gain</span><span class="o">=</span><span class="default_value">50</span></em><span class="sig-paren">)</span><a class="headerlink" href="#taped.live_audio_pipelining.dflt_chk_to_fv" title="Permalink to this definition">¶</a></dt>
+<dd><p>A chk_to_fv that has to do with volume</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="taped.live_audio_pipelining.log_max_chk_to_fv">
+<code class="sig-prename descclassname">taped.live_audio_pipelining.</code><code class="sig-name descname">log_max_chk_to_fv</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">chk</span><span class="p">:</span> <span class="n">numpy.ndarray</span></em>, <em class="sig-param"><span class="n">gain</span><span class="o">=</span><span class="default_value">50</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/taped/live_audio_pipelining.html#log_max_chk_to_fv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#taped.live_audio_pipelining.log_max_chk_to_fv" title="Permalink to this definition">¶</a></dt>
+<dd><p>A chk_to_fv that has to do with volume</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="taped.live_audio_pipelining.make_and_consume_iterator">
+<code class="sig-prename descclassname">taped.live_audio_pipelining.</code><code class="sig-name descname">make_and_consume_iterator</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">iterator_func</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">iterator_func_args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">iterator_func_kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/taped/live_audio_pipelining.html#make_and_consume_iterator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#taped.live_audio_pipelining.make_and_consume_iterator" title="Permalink to this definition">¶</a></dt>
+<dd><p>make an consume and iterator</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">taped</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../taped.html">taped</a></li>
+<li class="toctree-l1"><a class="reference internal" href="audio_pokes.html">taped.audio_pokes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="display.html">taped.display</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/listen_and_feedback.html">taped.examples.listen_and_feedback</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/record_audio_to_files.html">Recording audio to wav file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="live_audio.html">taped.live_audio</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">taped.live_audio_pipelining</a></li>
+<li class="toctree-l1"><a class="reference internal" href="util.html">taped.util</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="live_audio.html" title="previous chapter">taped.live_audio</a></li>
+      <li>Next: <a href="util.html" title="next chapter">taped.util</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../../_sources/module_docs/taped/live_audio_pipelining.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

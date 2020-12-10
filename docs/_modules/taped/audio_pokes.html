@@ -1,0 +1,321 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>taped.audio_pokes &#8212; taped 0.0.2 documentation</title>
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for taped.audio_pokes</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">chain</span>
+<span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">contextmanager</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Callable</span>
+
+<span class="kn">from</span> <span class="nn">stream2py</span> <span class="kn">import</span> <span class="n">StreamBuffer</span>
+<span class="kn">from</span> <span class="nn">stream2py.sources.audio</span> <span class="kn">import</span> <span class="n">PyAudioSourceReader</span>
+<span class="kn">from</span> <span class="nn">taped.util</span> <span class="kn">import</span> <span class="n">DFLT_SR</span><span class="p">,</span> <span class="n">DFLT_N_CHANNELS</span><span class="p">,</span> <span class="n">DFLT_SAMPLE_WIDTH</span><span class="p">,</span> <span class="n">DFLT_CHK_SIZE</span><span class="p">,</span> \
+    <span class="n">DFLT_STREAM_BUF_SIZE_S</span><span class="p">,</span> <span class="n">audio_pokes_version_of_bytes_to_waveform</span><span class="p">,</span> <span class="n">ensure_source_input_device_index</span>
+
+
+<div class="viewcode-block" id="live_audio_chks"><a class="viewcode-back" href="../../module_docs/taped/audio_pokes.html#taped.audio_pokes.live_audio_chks">[docs]</a><span class="nd">@contextmanager</span>
+<span class="k">def</span> <span class="nf">live_audio_chks</span><span class="p">(</span><span class="n">input_device_index</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sr</span><span class="o">=</span><span class="n">DFLT_SR</span><span class="p">,</span> <span class="n">sample_width</span><span class="o">=</span><span class="n">DFLT_SAMPLE_WIDTH</span><span class="p">,</span> <span class="n">n_channels</span><span class="o">=</span><span class="n">DFLT_N_CHANNELS</span><span class="p">,</span>
+                    <span class="n">chk_size</span><span class="o">=</span><span class="n">DFLT_CHK_SIZE</span><span class="p">,</span> <span class="n">stream_buffer_size_s</span><span class="o">=</span><span class="n">DFLT_STREAM_BUF_SIZE_S</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A generator of live chunks of audio bytes taken from a stream sourced from specified microphone.</span>
+
+<span class="sd">    :param input_device_index: Index of Input Device to use. Unspecified (or None) uses default device.</span>
+<span class="sd">    :param sr: Specifies the desired sample rate (in Hz)</span>
+<span class="sd">    :param sample_bytes: Sample width in bytes (1, 2, 3, or 4)</span>
+<span class="sd">    :param n_channels: The desired number of input channels. Ignored if input_device is not specified (or None).</span>
+<span class="sd">    :param sample_width: Specifies the number of frames per buffer.</span>
+<span class="sd">    :param stream_buffer_size_s: How many seconds of data to keep in the buffer (i.e. how far in the past you can see)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">input_device_index</span> <span class="o">=</span> <span class="n">ensure_source_input_device_index</span><span class="p">(</span><span class="n">input_device_index</span><span class="p">)</span>
+
+    <span class="n">seconds_per_read</span> <span class="o">=</span> <span class="n">chk_size</span> <span class="o">/</span> <span class="n">sr</span>
+
+    <span class="n">maxlen</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">stream_buffer_size_s</span> <span class="o">/</span> <span class="n">seconds_per_read</span><span class="p">)</span>
+    <span class="c1"># print(maxlen)</span>
+    <span class="n">source_reader</span> <span class="o">=</span> <span class="n">PyAudioSourceReader</span><span class="p">(</span><span class="n">rate</span><span class="o">=</span><span class="n">sr</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">sample_width</span><span class="p">,</span> <span class="n">channels</span><span class="o">=</span><span class="n">n_channels</span><span class="p">,</span> <span class="n">unsigned</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                        <span class="n">input_device_index</span><span class="o">=</span><span class="n">input_device_index</span><span class="p">,</span>
+                                        <span class="n">frames_per_buffer</span><span class="o">=</span><span class="n">chk_size</span><span class="p">)</span>
+
+    <span class="n">_bytes_to_waveform</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">audio_pokes_version_of_bytes_to_waveform</span><span class="p">,</span> <span class="n">sr</span><span class="o">=</span><span class="n">sr</span><span class="p">,</span> <span class="n">n_channels</span><span class="o">=</span><span class="n">n_channels</span><span class="p">,</span>
+                                 <span class="n">sample_width</span><span class="o">=</span><span class="n">sample_width</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">StreamBuffer</span><span class="p">(</span><span class="n">source_reader</span><span class="o">=</span><span class="n">source_reader</span><span class="p">,</span> <span class="n">maxlen</span><span class="o">=</span><span class="n">maxlen</span><span class="p">)</span> <span class="k">as</span> <span class="n">stream_buffer</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;keep open and save to file until stop event&quot;&quot;&quot;</span>
+        <span class="k">yield</span> <span class="nb">iter</span><span class="p">(</span><span class="n">stream_buffer</span><span class="p">)</span></div>
+
+
+<span class="n">live_audio_chks</span><span class="o">.</span><span class="n">list_device_info</span> <span class="o">=</span> <span class="n">PyAudioSourceReader</span><span class="o">.</span><span class="n">list_device_info</span>
+
+
+<span class="c1"># TODO: live_wf_ctx and live_wf: Lot&#39;s of repeated code. Address this.</span>
+<div class="viewcode-block" id="live_wf_ctx"><a class="viewcode-back" href="../../module_docs/taped/audio_pokes.html#taped.audio_pokes.live_wf_ctx">[docs]</a><span class="nd">@contextmanager</span>
+<span class="k">def</span> <span class="nf">live_wf_ctx</span><span class="p">(</span><span class="n">input_device_index</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sr</span><span class="o">=</span><span class="n">DFLT_SR</span><span class="p">,</span> <span class="n">sample_width</span><span class="o">=</span><span class="n">DFLT_SAMPLE_WIDTH</span><span class="p">,</span> <span class="n">n_channels</span><span class="o">=</span><span class="n">DFLT_N_CHANNELS</span><span class="p">,</span>
+                <span class="n">chk_size</span><span class="o">=</span><span class="n">DFLT_CHK_SIZE</span><span class="p">,</span> <span class="n">stream_buffer_size_s</span><span class="o">=</span><span class="n">DFLT_STREAM_BUF_SIZE_S</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A context manager providing a generator of live waveform sample values taken from a stream sourced</span>
+<span class="sd">    from specified microphone.</span>
+
+<span class="sd">    :param input_device_index: Index of Input Device to use. Unspecified (or None) uses default device.</span>
+<span class="sd">    :param sr: Specifies the desired sample rate (in Hz)</span>
+<span class="sd">    :param sample_width: Sample width in bytes (1, 2, 3, or 4)</span>
+<span class="sd">    :param n_channels: The desired number of input channels. Ignored if input_device is not specified (or None).</span>
+<span class="sd">    :param stream_buffer_size_s: How many seconds of data to keep in the buffer (i.e. how far in the past you can see)</span>
+
+<span class="sd">    &gt;&gt;&gt; from time import sleep</span>
+<span class="sd">    &gt;&gt;&gt; from itertools import islice</span>
+<span class="sd">    &gt;&gt;&gt; # enter the id of your microphone and get a live waveform source!</span>
+<span class="sd">    &gt;&gt;&gt; # (if None, will try to figure it out)</span>
+<span class="sd">    &gt;&gt;&gt; with live_wf_ctx(input_device_index=None) as wf_gen:</span>
+<span class="sd">    ...</span>
+<span class="sd">    ...     # Now wait a bit, say some silly things, then ask for a few samples...</span>
+<span class="sd">    ...     sleep(1.1)</span>
+<span class="sd">    ...     wf = list(islice(wf_gen, 0, 44100 * 1))</span>
+<span class="sd">    &gt;&gt;&gt; # and now listen to that wf and be embarrassed...</span>
+<span class="sd">    &gt;&gt;&gt; # ... or just look at the size (less fun though)</span>
+<span class="sd">    &gt;&gt;&gt; len(wf)</span>
+<span class="sd">    44100</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="n">live_audio_chks</span><span class="p">(</span><span class="n">input_device_index</span><span class="o">=</span><span class="n">input_device_index</span><span class="p">,</span>
+                         <span class="n">sr</span><span class="o">=</span><span class="n">sr</span><span class="p">,</span> <span class="n">sample_width</span><span class="o">=</span><span class="n">sample_width</span><span class="p">,</span> <span class="n">n_channels</span><span class="o">=</span><span class="n">n_channels</span><span class="p">,</span>
+                         <span class="n">chk_size</span><span class="o">=</span><span class="n">chk_size</span><span class="p">,</span>
+                         <span class="n">stream_buffer_size_s</span><span class="o">=</span><span class="n">stream_buffer_size_s</span><span class="p">)</span> <span class="k">as</span> <span class="n">live_audio_chunks</span><span class="p">:</span>
+        <span class="n">_bytes_to_waveform</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">audio_pokes_version_of_bytes_to_waveform</span><span class="p">,</span> <span class="n">sr</span><span class="o">=</span><span class="n">sr</span><span class="p">,</span> <span class="n">n_channels</span><span class="o">=</span><span class="n">n_channels</span><span class="p">,</span>
+                                     <span class="n">sample_width</span><span class="o">=</span><span class="n">sample_width</span><span class="p">)</span>
+        <span class="k">yield</span> <span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">_bytes_to_waveform</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">live_audio_chunks</span><span class="p">))</span>
+    <span class="n">live_audio_chunks</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="live_wf"><a class="viewcode-back" href="../../module_docs/taped/audio_pokes.html#taped.audio_pokes.live_wf">[docs]</a><span class="k">def</span> <span class="nf">live_wf</span><span class="p">(</span><span class="n">input_device_index</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sr</span><span class="o">=</span><span class="n">DFLT_SR</span><span class="p">,</span> <span class="n">sample_width</span><span class="o">=</span><span class="n">DFLT_SAMPLE_WIDTH</span><span class="p">,</span> <span class="n">n_channels</span><span class="o">=</span><span class="n">DFLT_N_CHANNELS</span><span class="p">,</span>
+            <span class="n">chk_size</span><span class="o">=</span><span class="n">DFLT_CHK_SIZE</span><span class="p">,</span> <span class="n">stream_buffer_size_s</span><span class="o">=</span><span class="n">DFLT_STREAM_BUF_SIZE_S</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A generator of live waveform sample values taken from a stream sourced from specified microphone.</span>
+
+<span class="sd">    :param input_device_index: Index of Input Device to use. Unspecified (or None) uses default device.</span>
+<span class="sd">    :param sr: Specifies the desired sample rate (in Hz)</span>
+<span class="sd">    :param sample_width: Sample width in bytes (1, 2, 3, or 4)</span>
+<span class="sd">    :param n_channels: The desired number of input channels. Ignored if input_device is not specified (or None).</span>
+<span class="sd">    :param stream_buffer_size_s: How many seconds of data to keep in the buffer (i.e. how far in the past you can see)</span>
+
+<span class="sd">    &gt;&gt;&gt; from time import sleep</span>
+<span class="sd">    &gt;&gt;&gt; from itertools import islice</span>
+<span class="sd">    &gt;&gt;&gt; # enter the id of your microphone and get a live waveform source!</span>
+<span class="sd">    &gt;&gt;&gt; # (if None, will try to figure it out)</span>
+<span class="sd">    &gt;&gt;&gt; wf_gen = live_wf(input_device_index=None)</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; # Now wait a bit, say some silly things, then ask for a few samples...</span>
+<span class="sd">    &gt;&gt;&gt; sleep(1.2)</span>
+<span class="sd">    &gt;&gt;&gt; wf = list(islice(wf_gen, 0, 44100 * 1))</span>
+<span class="sd">    &gt;&gt;&gt; # and now listen to that wf and be embarrassed...</span>
+<span class="sd">    &gt;&gt;&gt; # ... or just look at the size (less fun though)</span>
+<span class="sd">    &gt;&gt;&gt; len(wf)</span>
+<span class="sd">    44100</span>
+
+<span class="sd">    Don&#39;t forget to close! (or use live_wf_ctx context manager).</span>
+<span class="sd">    &gt;&gt;&gt; wf_gen.close()</span>
+
+<span class="sd">    After wf_gen is closed, you can still ask it for data.</span>
+<span class="sd">    It just won&#39;t give you any.</span>
+<span class="sd">    &gt;&gt;&gt; wf = list(islice(wf_gen, 0, 44100 * 1))</span>
+<span class="sd">    &gt;&gt;&gt; len(wf)</span>
+<span class="sd">    0</span>
+
+<span class="sd">    Here wf_gen is a generator, so closing means: https://docs.python.org/2.5/whatsnew/pep-342.html</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># TODO: Find a way to copy from containing function&#39;s signature and calling LiveAudioChunks with that</span>
+    <span class="k">with</span> <span class="n">live_wf_ctx</span><span class="p">(</span><span class="n">input_device_index</span><span class="o">=</span><span class="n">input_device_index</span><span class="p">,</span>
+                     <span class="n">sr</span><span class="o">=</span><span class="n">sr</span><span class="p">,</span> <span class="n">sample_width</span><span class="o">=</span><span class="n">sample_width</span><span class="p">,</span> <span class="n">n_channels</span><span class="o">=</span><span class="n">n_channels</span><span class="p">,</span>
+                     <span class="n">chk_size</span><span class="o">=</span><span class="n">chk_size</span><span class="p">,</span>
+                     <span class="n">stream_buffer_size_s</span><span class="o">=</span><span class="n">stream_buffer_size_s</span><span class="p">)</span> <span class="k">as</span> <span class="n">live_wf</span><span class="p">:</span>
+        <span class="k">yield from</span> <span class="n">live_wf</span></div>
+
+
+<span class="n">live_wf</span><span class="o">.</span><span class="n">list_device_info</span> <span class="o">=</span> <span class="n">PyAudioSourceReader</span><span class="o">.</span><span class="n">list_device_info</span>
+
+
+<div class="viewcode-block" id="simple_chunker"><a class="viewcode-back" href="../../module_docs/taped/audio_pokes.html#taped.audio_pokes.simple_chunker">[docs]</a><span class="k">def</span> <span class="nf">simple_chunker</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">,</span>
+                   <span class="n">chk_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Generate fixed sized non-overlapping chunks of an iterable ``a``.</span>
+
+<span class="sd">    &gt;&gt;&gt; list(simple_chunker(range(7), 3))</span>
+<span class="sd">    [(0, 1, 2), (3, 4, 5)]</span>
+
+<span class="sd">    Most of the time, you&#39;ll want to fix the parameters of the chunker like this:</span>
+
+<span class="sd">    &gt;&gt;&gt; from functools import partial</span>
+<span class="sd">    &gt;&gt;&gt; chunker = partial(simple_chunker, chk_size=3)</span>
+<span class="sd">    &gt;&gt;&gt; list(chunker(range(7)))</span>
+<span class="sd">    [(0, 1, 2), (3, 4, 5)]</span>
+
+<span class="sd">    Note, the type of the chunks is always tuples, but you can easily change that using ``map``.</span>
+<span class="sd">    For example, to change the type to be list:</span>
+
+<span class="sd">    &gt;&gt;&gt; list(map(list, chunker(range(7))))</span>
+<span class="sd">    [[0, 1, 2], [3, 4, 5]]</span>
+
+<span class="sd">    &gt;&gt;&gt; a = range(6)</span>
+<span class="sd">    &gt;&gt;&gt; list(simple_chunker(a, 3))</span>
+<span class="sd">    [(0, 1, 2), (3, 4, 5)]</span>
+<span class="sd">    &gt;&gt;&gt; list(simple_chunker(a, 2))</span>
+<span class="sd">    [(0, 1), (2, 3), (4, 5)]</span>
+<span class="sd">    &gt;&gt;&gt; list(simple_chunker(a, 1))</span>
+<span class="sd">    [(0,), (1,), (2,), (3,), (4,), (5,)]</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="p">([</span><span class="nb">iter</span><span class="p">(</span><span class="n">a</span><span class="p">)]</span> <span class="o">*</span> <span class="n">chk_size</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="rechunker"><a class="viewcode-back" href="../../module_docs/taped/audio_pokes.html#taped.audio_pokes.rechunker">[docs]</a><span class="k">def</span> <span class="nf">rechunker</span><span class="p">(</span><span class="n">chks</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Iterable</span><span class="p">],</span>
+              <span class="n">chunker</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Callable</span><span class="p">,</span> <span class="nb">int</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;Generate fixed sized non-overlapping chunks of an iterable of chunks.</span>
+<span class="sd">    That is, the rechunker applies a chunker to an unraveled stream of chunks,</span>
+<span class="sd">    or more generally of iterables since they can be of varied sizes and types.</span>
+
+<span class="sd">    &gt;&gt;&gt; from functools import partial</span>
+<span class="sd">    &gt;&gt;&gt; chunker = partial(simple_chunker, chk_size=3)</span>
+<span class="sd">    &gt;&gt;&gt; chks = [[0], (1, 2, 3), [4, 5], iter((6, 7))]  # iterable of (different types of) iterables</span>
+<span class="sd">    &gt;&gt;&gt; list(rechunker(chks, chunker))</span>
+<span class="sd">    [(0, 1, 2), (3, 4, 5)]</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">chunker</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>  <span class="c1"># if chunker is an int, take it to be a the chk_size of a simple_chunker</span>
+        <span class="n">chk_size</span> <span class="o">=</span> <span class="n">chunker</span>
+        <span class="n">chunker</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">simple_chunker</span><span class="p">,</span> <span class="n">chk_size</span><span class="p">)</span>
+    <span class="k">yield from</span> <span class="n">chunker</span><span class="p">(</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">chks</span><span class="p">))</span></div>
+
+
+<span class="k">def</span> <span class="nf">record_some_sound</span><span class="p">(</span><span class="n">save_to_file</span><span class="p">,</span>
+                      <span class="n">input_device_index</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sr</span><span class="o">=</span><span class="n">DFLT_SR</span><span class="p">,</span> <span class="n">sample_width</span><span class="o">=</span><span class="n">DFLT_SAMPLE_WIDTH</span><span class="p">,</span> <span class="n">n_channels</span><span class="o">=</span><span class="n">DFLT_N_CHANNELS</span><span class="p">,</span>
+                      <span class="n">chk_size</span><span class="o">=</span><span class="n">DFLT_CHK_SIZE</span><span class="p">,</span> <span class="n">stream_buffer_size_s</span><span class="o">=</span><span class="n">DFLT_STREAM_BUF_SIZE_S</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                      <span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get_write_file_stream</span><span class="p">():</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">save_to_file</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">open</span><span class="p">(</span><span class="n">save_to_file</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">save_to_file</span>  <span class="c1"># assume it&#39;s already a stream</span>
+
+    <span class="k">def</span> <span class="nf">clog</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="n">seconds_per_read</span> <span class="o">=</span> <span class="n">chk_size</span> <span class="o">/</span> <span class="n">sr</span>
+    <span class="n">maxlen</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">stream_buffer_size_s</span> <span class="o">/</span> <span class="n">seconds_per_read</span><span class="p">)</span>
+
+    <span class="n">source_reader</span> <span class="o">=</span> <span class="n">PyAudioSourceReader</span><span class="p">(</span><span class="n">rate</span><span class="o">=</span><span class="n">sr</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">sample_width</span><span class="p">,</span> <span class="n">channels</span><span class="o">=</span><span class="n">n_channels</span><span class="p">,</span> <span class="n">unsigned</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                        <span class="n">input_device_index</span><span class="o">=</span><span class="n">input_device_index</span><span class="p">,</span>
+                                        <span class="n">frames_per_buffer</span><span class="o">=</span><span class="n">chk_size</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">StreamBuffer</span><span class="p">(</span><span class="n">source_reader</span><span class="o">=</span><span class="n">source_reader</span><span class="p">,</span> <span class="n">maxlen</span><span class="o">=</span><span class="n">maxlen</span><span class="p">)</span> <span class="k">as</span> <span class="n">stream_buffer</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;keep open and save to file until stop event&quot;&quot;&quot;</span>
+        <span class="n">clog</span><span class="p">(</span><span class="s2">&quot;starting the recording...&quot;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">get_write_file_stream</span><span class="p">()</span> <span class="k">as</span> <span class="n">write_stream</span><span class="p">:</span>
+            <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">chk</span> <span class="o">=</span> <span class="n">source_reader</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">chk</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">chk</span><span class="p">))</span>
+                <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+                    <span class="n">clog</span><span class="p">(</span><span class="s2">&quot;stopping the recording...&quot;</span><span class="p">)</span>
+                    <span class="k">break</span>
+
+    <span class="n">clog</span><span class="p">(</span><span class="s1">&#39;Done.&#39;</span><span class="p">)</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">taped</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/taped.html">taped</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/taped/audio_pokes.html">taped.audio_pokes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/taped/display.html">taped.display</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/taped/examples/listen_and_feedback.html">taped.examples.listen_and_feedback</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/taped/examples/record_audio_to_files.html">Recording audio to wav file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/taped/live_audio.html">taped.live_audio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/taped/live_audio_pipelining.html">taped.live_audio_pipelining</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/taped/util.html">taped.util</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

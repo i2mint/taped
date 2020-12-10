@@ -1,0 +1,234 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>taped.live_audio_pipelining &#8212; taped 0.0.2 documentation</title>
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for taped.live_audio_pipelining</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">IPython.core.display</span> <span class="kn">import</span> <span class="n">clear_output</span>
+
+<span class="kn">from</span> <span class="nn">taped.live_audio</span> <span class="kn">import</span> <span class="n">launch_audio_tracking</span>
+<span class="kn">from</span> <span class="nn">taped.util</span> <span class="kn">import</span> <span class="n">find_a_default_input_device_index</span>
+
+<span class="kn">from</span> <span class="nn">lined.tools</span> <span class="kn">import</span> <span class="n">iterize</span>
+<span class="kn">from</span> <span class="nn">lined</span> <span class="kn">import</span> <span class="n">Pipeline</span>
+
+<span class="n">int16_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">iinfo</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">)</span><span class="o">.</span><span class="n">max</span>
+
+
+<div class="viewcode-block" id="log_max_chk_to_fv"><a class="viewcode-back" href="../../module_docs/taped/live_audio_pipelining.html#taped.live_audio_pipelining.log_max_chk_to_fv">[docs]</a><span class="k">def</span> <span class="nf">log_max_chk_to_fv</span><span class="p">(</span><span class="n">chk</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">gain</span><span class="o">=</span><span class="mi">50</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A chk_to_fv that has to do with volume&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">chk</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="nb">abs</span><span class="p">(</span><span class="n">chk</span><span class="o">.</span><span class="n">min</span><span class="p">()),</span> <span class="mi">1</span><span class="p">))</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">int16_max</span><span class="p">)</span> <span class="o">*</span> <span class="n">gain</span><span class="p">]</span></div>
+    <span class="c1"># return np.log(min(1, max(np.abs(chk)))) / np.log(int16_max) * gain</span>
+
+
+<span class="n">dflt_chk_to_fv</span> <span class="o">=</span> <span class="n">log_max_chk_to_fv</span>
+
+
+<span class="k">def</span> <span class="nf">ap_fv_to_viz</span><span class="p">(</span><span class="n">fv</span><span class="p">):</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;/&gt;&lt;</span><span class="si">{</span><span class="sa">r</span><span class="s2">&quot;{&quot;</span> <span class="o">*</span> <span class="nb">int</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">fv</span><span class="p">))</span><span class="si">}</span><span class="s1">&quot;&gt;&#39;</span>
+
+
+<span class="n">dflt_fv_to_viz</span> <span class="o">=</span> <span class="n">ap_fv_to_viz</span>
+
+
+<span class="k">def</span> <span class="nf">ap_chk_to_viz</span><span class="p">(</span><span class="n">chk</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">gain</span><span class="o">=</span><span class="mi">50</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">ap_fv_to_viz</span><span class="p">(</span><span class="n">log_max_chk_to_fv</span><span class="p">(</span><span class="n">chk</span><span class="p">,</span> <span class="n">gain</span><span class="p">))</span>
+
+
+<span class="n">dflt_chk_to_viz</span> <span class="o">=</span> <span class="n">ap_chk_to_viz</span>
+
+
+<span class="k">class</span> <span class="nc">DFLT</span><span class="p">:</span>
+    <span class="n">gain</span> <span class="o">=</span> <span class="mi">10</span>
+    <span class="n">cutoff</span> <span class="o">=</span> <span class="mi">50</span>
+    <span class="n">dispstr</span> <span class="o">=</span> <span class="s1">&#39;*&#39;</span>
+    <span class="n">prefix</span> <span class="o">=</span> <span class="s1">&#39;|&#39;</span>
+    <span class="n">fv_num_sep</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+
+
+<span class="k">def</span> <span class="nf">viz_norm</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">gain</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">cutoff</span><span class="o">=</span><span class="mi">50</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="n">cutoff</span><span class="p">,</span> <span class="n">x</span> <span class="o">*</span> <span class="n">gain</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">ascii_levels</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">viz_norm</span><span class="o">=</span><span class="n">viz_norm</span><span class="p">,</span> <span class="n">dispstr</span><span class="o">=</span><span class="n">DFLT</span><span class="o">.</span><span class="n">dispstr</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="n">DFLT</span><span class="o">.</span><span class="n">prefix</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">prefix</span> <span class="o">+</span> <span class="n">dispstr</span> <span class="o">*</span> <span class="nb">int</span><span class="p">(</span><span class="n">viz_norm</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+
+
+<span class="n">dflt_num_to_viz_str</span> <span class="o">=</span> <span class="n">ascii_levels</span>
+
+
+<span class="k">def</span> <span class="nf">multipart_fv_str</span><span class="p">(</span><span class="n">fv</span><span class="p">,</span>
+                     <span class="n">num_to_viz_str</span><span class="o">=</span><span class="n">dflt_num_to_viz_str</span><span class="p">,</span>
+                     <span class="n">fv_num_sep</span><span class="o">=</span><span class="n">DFLT</span><span class="o">.</span><span class="n">fv_num_sep</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">fv_num_sep</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">num_to_viz_str</span><span class="p">,</span> <span class="n">fv</span><span class="p">))</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+
+
+<span class="n">ascii_levels_fv_to_str</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">multipart_fv_str</span><span class="p">,</span>
+                                 <span class="n">num_to_viz_str</span><span class="o">=</span><span class="n">ascii_levels</span><span class="p">,</span>
+                                 <span class="n">fv_num_sep</span><span class="o">=</span><span class="n">DFLT</span><span class="o">.</span><span class="n">fv_num_sep</span><span class="p">)</span>
+
+<span class="n">raw_fv_to_str</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">multipart_fv_str</span><span class="p">,</span>
+                        <span class="n">num_to_viz_str</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+                        <span class="n">fv_num_sep</span><span class="o">=</span><span class="n">DFLT</span><span class="o">.</span><span class="n">fv_num_sep</span><span class="p">)</span>
+
+<span class="n">dflt_fv_to_str</span> <span class="o">=</span> <span class="n">ascii_levels_fv_to_str</span>
+
+
+<div class="viewcode-block" id="chk_to_fv_viz"><a class="viewcode-back" href="../../module_docs/taped/live_audio_pipelining.html#taped.live_audio_pipelining.chk_to_fv_viz">[docs]</a><span class="k">def</span> <span class="nf">chk_to_fv_viz</span><span class="p">(</span><span class="n">chk</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+                  <span class="n">chk_to_fv</span><span class="o">=</span><span class="n">dflt_chk_to_fv</span><span class="p">,</span>
+                  <span class="n">fv_to_str</span><span class="o">=</span><span class="n">dflt_fv_to_str</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Takes a chk and returns a string representing the fv. Meant to be displayed dynamically&quot;&quot;&quot;</span>
+    <span class="n">fv</span> <span class="o">=</span> <span class="n">chk_to_fv</span><span class="p">(</span><span class="n">chk</span><span class="p">)</span>
+    <span class="n">fv_str</span> <span class="o">=</span> <span class="n">fv_to_str</span><span class="p">(</span><span class="n">fv</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">fv_str</span></div>
+
+
+<span class="k">def</span> <span class="nf">refresh_and_print</span><span class="p">(</span><span class="n">iterator_output</span><span class="p">):</span>
+    <span class="n">clear_output</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">n</span><span class="p">,</span> <span class="n">viz</span> <span class="o">=</span> <span class="n">iterator_output</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">viz</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+
+
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">deque</span>
+
+
+<div class="viewcode-block" id="CallableDeque"><a class="viewcode-back" href="../../module_docs/taped/live_audio_pipelining.html#taped.live_audio_pipelining.CallableDeque">[docs]</a><span class="k">class</span> <span class="nc">CallableDeque</span><span class="p">(</span><span class="n">deque</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+
+
+<span class="n">dflt_output_callback</span> <span class="o">=</span> <span class="n">refresh_and_print</span>
+
+
+<div class="viewcode-block" id="make_and_consume_iterator"><a class="viewcode-back" href="../../module_docs/taped/live_audio_pipelining.html#taped.live_audio_pipelining.make_and_consume_iterator">[docs]</a><span class="k">def</span> <span class="nf">make_and_consume_iterator</span><span class="p">(</span><span class="n">iterator_func</span><span class="p">,</span> <span class="o">*</span><span class="n">iterator_func_args</span><span class="p">,</span> <span class="o">**</span><span class="n">iterator_func_kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;make an consume and iterator&quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">iterator_func</span><span class="p">(</span><span class="o">*</span><span class="n">iterator_func_args</span><span class="p">,</span> <span class="o">**</span><span class="n">iterator_func_kwargs</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+
+<span class="k">def</span> <span class="nf">mk_launcher</span><span class="p">(</span><span class="n">chk_to_fv</span><span class="o">=</span><span class="n">dflt_chk_to_fv</span><span class="p">,</span>
+                <span class="n">fv_to_viz</span><span class="o">=</span><span class="n">dflt_fv_to_viz</span><span class="p">,</span>
+                <span class="n">input_device_index</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                <span class="n">output_callback</span><span class="o">=</span><span class="n">dflt_output_callback</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">input_device_index</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">input_device_index</span> <span class="o">=</span> <span class="n">find_a_default_input_device_index</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">chk_to_fv_viz</span><span class="p">(</span><span class="n">chk</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">fv_to_viz</span><span class="p">(</span><span class="n">chk_to_fv</span><span class="p">(</span><span class="n">chk</span><span class="p">))</span>
+
+    <span class="n">pipe</span> <span class="o">=</span> <span class="n">Pipeline</span><span class="p">(</span><span class="n">launch_audio_tracking</span><span class="p">,</span>
+                    <span class="n">iterize</span><span class="p">(</span><span class="n">output_callback</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">launch</span><span class="p">():</span>
+        <span class="n">make_and_consume_iterator</span><span class="p">(</span><span class="n">pipe</span><span class="p">,</span>
+                                  <span class="n">chk_callback</span><span class="o">=</span><span class="n">chk_to_fv_viz</span><span class="p">,</span>
+                                  <span class="n">input_device_index</span><span class="o">=</span><span class="n">input_device_index</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">launch</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">taped</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/taped.html">taped</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/taped/audio_pokes.html">taped.audio_pokes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/taped/display.html">taped.display</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/taped/examples/listen_and_feedback.html">taped.examples.listen_and_feedback</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/taped/examples/record_audio_to_files.html">Recording audio to wav file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/taped/live_audio.html">taped.live_audio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/taped/live_audio_pipelining.html">taped.live_audio_pipelining</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/taped/util.html">taped.util</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,271 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>taped.live_audio &#8212; taped 0.0.2 documentation</title>
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for taped.live_audio</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
+
+<span class="kn">from</span> <span class="nn">stream2py</span> <span class="kn">import</span> <span class="n">SourceReader</span><span class="p">,</span> <span class="n">StreamBuffer</span><span class="p">,</span> <span class="n">BufferReader</span>
+<span class="kn">from</span> <span class="nn">stream2py.sources.audio</span> <span class="kn">import</span> <span class="n">PyAudioSourceReader</span>
+
+<span class="kn">from</span> <span class="nn">taped.util</span> <span class="kn">import</span> <span class="n">bytes_to_waveform</span>
+
+<span class="n">DFLT_FRM_PER_BUFFER</span> <span class="o">=</span> <span class="mi">2048</span>
+
+
+<div class="viewcode-block" id="VisualizationStream"><a class="viewcode-back" href="../../module_docs/taped/live_audio.html#taped.live_audio.VisualizationStream">[docs]</a><span class="k">class</span> <span class="nc">VisualizationStream</span><span class="p">(</span><span class="n">SourceReader</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mk_int16_array_gen</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">chk_to_viz</span><span class="p">:</span> <span class="n">Callable</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mk_int16_array_gen</span> <span class="o">=</span> <span class="n">mk_int16_array_gen</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">chk_to_viz</span> <span class="o">=</span> <span class="n">chk_to_viz</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_viz_gen</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">_mk_viz_gen</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">a</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mk_int16_array_gen</span><span class="p">()):</span>
+            <span class="k">yield</span> <span class="n">i</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">chk_to_viz</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+
+<div class="viewcode-block" id="VisualizationStream.open"><a class="viewcode-back" href="../../module_docs/taped/live_audio.html#taped.live_audio.VisualizationStream.open">[docs]</a>    <span class="k">def</span> <span class="nf">open</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Setup data generator&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_viz_gen</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mk_viz_gen</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="VisualizationStream.read"><a class="viewcode-back" href="../../module_docs/taped/live_audio.html#taped.live_audio.VisualizationStream.read">[docs]</a>    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">next</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_viz_gen</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="VisualizationStream.close"><a class="viewcode-back" href="../../module_docs/taped/live_audio.html#taped.live_audio.VisualizationStream.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Clean up if needed&quot;&quot;&quot;</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viz_gen</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_viz_gen</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Whatever info is useful to you</span>
+<span class="sd">        StreamBuffer will record info right after open&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="n">mk_int16_array_gen</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mk_int16_array_gen</span><span class="p">),</span> <span class="n">chk_to_viz</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chk_to_viz</span><span class="p">))</span>
+
+<div class="viewcode-block" id="VisualizationStream.key"><a class="viewcode-back" href="../../module_docs/taped/live_audio.html#taped.live_audio.VisualizationStream.key">[docs]</a>    <span class="k">def</span> <span class="nf">key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Convert data to a sortable value that increases with each read.</span>
+<span class="sd">        the enumerate index in this case</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div></div>
+
+
+<span class="k">def</span> <span class="nf">device_info_by_index</span><span class="p">(</span><span class="n">index</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">next</span><span class="p">(</span><span class="n">d</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">PyAudioSourceReader</span><span class="o">.</span><span class="n">list_device_info</span><span class="p">()</span> <span class="k">if</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">index</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Not found for input device index: </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">mk_pyaudio_to_int16_array_gen_callable</span><span class="p">(</span><span class="n">audio_reader</span><span class="p">:</span> <span class="n">BufferReader</span><span class="p">):</span>
+    <span class="n">_info</span> <span class="o">=</span> <span class="n">audio_reader</span><span class="o">.</span><span class="n">source_reader_info</span>
+    <span class="n">specific_bytes_to_wf</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">bytes_to_waveform</span><span class="p">,</span>
+                                   <span class="n">sr</span><span class="o">=</span><span class="n">_info</span><span class="p">[</span><span class="s1">&#39;rate&#39;</span><span class="p">],</span>
+                                   <span class="n">n_channels</span><span class="o">=</span><span class="n">_info</span><span class="p">[</span><span class="s1">&#39;channels&#39;</span><span class="p">],</span>
+                                   <span class="n">sample_width</span><span class="o">=</span><span class="n">_info</span><span class="p">[</span><span class="s1">&#39;width&#39;</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">mk_pyaudio_to_int16_array_gen</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">timestamp</span><span class="p">,</span> <span class="n">wf_bytes</span><span class="p">,</span> <span class="n">frame_count</span><span class="p">,</span> <span class="n">time_info</span><span class="p">,</span> <span class="n">status_flags</span> <span class="ow">in</span> <span class="n">audio_reader</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">specific_bytes_to_wf</span><span class="p">(</span><span class="n">wf_bytes</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">mk_pyaudio_to_int16_array_gen</span>
+
+
+<div class="viewcode-block" id="AudioStreamBuffer"><a class="viewcode-back" href="../../module_docs/taped/live_audio.html#taped.live_audio.AudioStreamBuffer">[docs]</a><span class="k">class</span> <span class="nc">AudioStreamBuffer</span><span class="p">(</span><span class="n">StreamBuffer</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="o">*</span><span class="p">,</span>
+                 <span class="n">buffer_size_seconds</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mf">60.0</span><span class="p">,</span>
+                 <span class="n">input_device_index</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">sr</span><span class="o">=</span><span class="mi">44100</span><span class="p">,</span>
+                 <span class="n">width</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                 <span class="n">frames_per_buffer</span><span class="o">=</span><span class="n">DFLT_FRM_PER_BUFFER</span><span class="p">,</span>
+                 <span class="n">sleep_time_on_read_none_s</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">,</span>
+                 <span class="n">auto_drop</span><span class="o">=</span><span class="kc">True</span>
+                 <span class="p">):</span>
+        <span class="n">_info</span> <span class="o">=</span> <span class="n">device_info_by_index</span><span class="p">(</span><span class="n">input_device_index</span><span class="p">)</span>
+        <span class="n">sr</span> <span class="o">=</span> <span class="n">sr</span> <span class="ow">or</span> <span class="nb">int</span><span class="p">(</span><span class="n">_info</span><span class="p">[</span><span class="s1">&#39;defaultSampleRate&#39;</span><span class="p">])</span>
+        <span class="n">channels</span> <span class="o">=</span> <span class="n">_info</span><span class="p">[</span><span class="s1">&#39;maxInputChannels&#39;</span><span class="p">]</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">source_reader</span><span class="o">=</span><span class="n">PyAudioSourceReader</span><span class="p">(</span><span class="n">input_device_index</span><span class="o">=</span><span class="n">input_device_index</span><span class="p">,</span>
+                                              <span class="n">rate</span><span class="o">=</span><span class="n">sr</span><span class="p">,</span>
+                                              <span class="n">width</span><span class="o">=</span><span class="n">width</span><span class="p">,</span>
+                                              <span class="n">channels</span><span class="o">=</span><span class="n">channels</span><span class="p">,</span>
+                                              <span class="n">frames_per_buffer</span><span class="o">=</span><span class="n">frames_per_buffer</span><span class="p">,</span>
+                                              <span class="n">unsigned</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                              <span class="p">),</span>
+            <span class="n">maxlen</span><span class="o">=</span><span class="n">PyAudioSourceReader</span><span class="o">.</span><span class="n">audio_buffer_size_seconds_to_maxlen</span><span class="p">(</span>
+                <span class="n">buffer_size_seconds</span><span class="o">=</span><span class="n">buffer_size_seconds</span><span class="p">,</span>
+                <span class="n">rate</span><span class="o">=</span><span class="n">sr</span><span class="p">,</span>
+                <span class="n">frames_per_buffer</span><span class="o">=</span><span class="n">frames_per_buffer</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">sleep_time_on_read_none_s</span><span class="o">=</span><span class="n">sleep_time_on_read_none_s</span><span class="p">,</span>
+            <span class="n">auto_drop</span><span class="o">=</span><span class="n">auto_drop</span>
+        <span class="p">)</span></div>
+
+
+<span class="c1"># TODO: Reflect: Class versus function?</span>
+<span class="c1"># def pyaudio_source_reader(</span>
+<span class="c1">#         buffer_size_seconds: Union[int, float] = 60.0,</span>
+<span class="c1">#         input_device_index: Optional[int] = None,</span>
+<span class="c1">#         sr=44100,</span>
+<span class="c1">#         width=2,</span>
+<span class="c1">#         frames_per_buffer=2048,</span>
+<span class="c1">#         sleep_time_on_read_none_s: Optional[Union[int, float]] = 0.05,</span>
+<span class="c1">#         auto_drop=True</span>
+<span class="c1"># ):</span>
+<span class="c1">#     _info = device_info_by_index(input_device_index)</span>
+<span class="c1">#     sr = sr or int(_info[&#39;defaultSampleRate&#39;])</span>
+<span class="c1">#     channels = _info[&#39;maxInputChannels&#39;]</span>
+<span class="c1">#</span>
+<span class="c1">#     return StreamBuffer(</span>
+<span class="c1">#         source_reader=PyAudioSourceReader(input_device_index=input_device_index,</span>
+<span class="c1">#                                           rate=sr,</span>
+<span class="c1">#                                           width=width,</span>
+<span class="c1">#                                           channels=channels,</span>
+<span class="c1">#                                           frames_per_buffer=frames_per_buffer,</span>
+<span class="c1">#                                           ),</span>
+<span class="c1">#         maxlen=PyAudioSourceReader.audio_buffer_size_seconds_to_maxlen(</span>
+<span class="c1">#             buffer_size_seconds=buffer_size_seconds,</span>
+<span class="c1">#             rate=sr,</span>
+<span class="c1">#             frames_per_buffer=frames_per_buffer,</span>
+<span class="c1">#         ),</span>
+<span class="c1">#         sleep_time_on_read_none_s=sleep_time_on_read_none_s,</span>
+<span class="c1">#         auto_drop=auto_drop</span>
+<span class="c1">#     )</span>
+
+<span class="k">def</span> <span class="nf">launch_audio_tracking</span><span class="p">(</span><span class="n">chk_callback</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span>
+                          <span class="n">input_device_index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+                          <span class="n">buffer_size_seconds</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span>
+                          <span class="n">sr</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                          <span class="n">width</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                          <span class="n">frames_per_buffer</span><span class="o">=</span><span class="n">DFLT_FRM_PER_BUFFER</span><span class="p">,</span>
+                          <span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">AudioStreamBuffer</span><span class="p">(</span>
+                <span class="n">buffer_size_seconds</span><span class="o">=</span><span class="n">buffer_size_seconds</span><span class="p">,</span>
+                <span class="n">input_device_index</span><span class="o">=</span><span class="n">input_device_index</span><span class="p">,</span>
+                <span class="n">sr</span><span class="o">=</span><span class="n">sr</span><span class="p">,</span>
+                <span class="n">width</span><span class="o">=</span><span class="n">width</span><span class="p">,</span>
+                <span class="n">frames_per_buffer</span><span class="o">=</span><span class="n">frames_per_buffer</span><span class="p">,</span>
+                <span class="n">auto_drop</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">sleep_time_on_read_none_s</span><span class="o">=</span><span class="mf">0.1</span>
+        <span class="p">)</span> <span class="k">as</span> <span class="n">audio_buffer</span><span class="p">:</span>
+            <span class="n">audio_reader</span> <span class="o">=</span> <span class="n">audio_buffer</span><span class="o">.</span><span class="n">mk_reader</span><span class="p">()</span>
+
+            <span class="k">with</span> <span class="n">StreamBuffer</span><span class="p">(</span>
+                    <span class="n">source_reader</span><span class="o">=</span><span class="n">VisualizationStream</span><span class="p">(</span>
+                        <span class="n">mk_int16_array_gen</span><span class="o">=</span><span class="n">mk_pyaudio_to_int16_array_gen_callable</span><span class="p">(</span><span class="n">audio_reader</span><span class="p">),</span>
+                        <span class="n">chk_to_viz</span><span class="o">=</span><span class="n">chk_callback</span>
+                    <span class="p">),</span>
+                    <span class="n">maxlen</span><span class="o">=</span><span class="mi">10</span>
+            <span class="p">)</span> <span class="k">as</span> <span class="n">viz_buffer</span><span class="p">:</span>
+                <span class="n">viz_reader</span> <span class="o">=</span> <span class="n">viz_buffer</span><span class="o">.</span><span class="n">mk_reader</span><span class="p">()</span>
+
+                <span class="k">yield from</span> <span class="n">viz_reader</span>
+    <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;KeyboardInterrupt: So I&#39;m stopping the process&quot;</span><span class="p">)</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">taped</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/taped.html">taped</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/taped/audio_pokes.html">taped.audio_pokes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/taped/display.html">taped.display</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/taped/examples/listen_and_feedback.html">taped.examples.listen_and_feedback</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/taped/examples/record_audio_to_files.html">Recording audio to wav file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/taped/live_audio.html">taped.live_audio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/taped/live_audio_pipelining.html">taped.live_audio_pipelining</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/taped/util.html">taped.util</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

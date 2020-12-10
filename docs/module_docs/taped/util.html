@@ -1,0 +1,141 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>taped.util &#8212; taped 0.0.2 documentation</title>
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="prev" title="taped.live_audio_pipelining" href="live_audio_pipelining.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-taped.util">
+<span id="taped-util"></span><h1>taped.util<a class="headerlink" href="#module-taped.util" title="Permalink to this headline">¶</a></h1>
+<dl class="py function">
+<dt id="taped.util.bytes_to_waveform">
+<code class="sig-prename descclassname">taped.util.</code><code class="sig-name descname">bytes_to_waveform</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">b</span><span class="p">:</span> <span class="n">bytes</span></em>, <em class="sig-param"><span class="n">sr</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">n_channels</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">sample_width</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">dtype</span><span class="o">=</span><span class="default_value">'int16'</span></em><span class="sig-paren">)</span> &#x2192; numpy.array<a class="reference internal" href="../../_modules/taped/util.html#bytes_to_waveform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#taped.util.bytes_to_waveform" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert raw bytes to a numpy array cast to dtype</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>b</strong> – bytes</p></li>
+<li><p><strong>sr</strong> – sample rate</p></li>
+<li><p><strong>n_channels</strong> – number of channels</p></li>
+<li><p><strong>sample_width</strong> – sample byte width [2, 3, 4]</p></li>
+<li><p><strong>dtype</strong> – data type used by numpy, i.e. dtype=np.int16 is the same as dtype=’int16’</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>numpy.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="taped.util.list_recording_device_index_names">
+<code class="sig-prename descclassname">taped.util.</code><code class="sig-name descname">list_recording_device_index_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/taped/util.html#list_recording_device_index_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#taped.util.list_recording_device_index_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>List (index, name) of available recording devices</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">taped</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../taped.html">taped</a></li>
+<li class="toctree-l1"><a class="reference internal" href="audio_pokes.html">taped.audio_pokes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="display.html">taped.display</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/listen_and_feedback.html">taped.examples.listen_and_feedback</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/record_audio_to_files.html">Recording audio to wav file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="live_audio.html">taped.live_audio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="live_audio_pipelining.html">taped.live_audio_pipelining</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">taped.util</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="live_audio_pipelining.html" title="previous chapter">taped.live_audio_pipelining</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../../_sources/module_docs/taped/util.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
