@@ -3,21 +3,20 @@ from itertools import chain
 from contextlib import contextmanager
 from typing import Iterable, Union, Callable
 
-from stream2py import StreamBuffer
+from stream2py.stream_buffer import StreamBuffer
 from stream2py.sources.audio import PyAudioSourceReader
-from taped.util import DFLT_SR, DFLT_N_CHANNELS, DFLT_SAMPLE_WIDTH, DFLT_CHK_SIZE, \
-    DFLT_STREAM_BUF_SIZE_S, audio_pokes_version_of_bytes_to_waveform, ensure_source_input_device_index
+from taped.util import DFLT_SR, DFLT_SAMPLE_WIDTH, DFLT_CHK_SIZE, \
+    DFLT_STREAM_BUF_SIZE_S, bytes_to_waveform, ensure_source_input_device_index
 
 
 @contextmanager
-def live_audio_chks(input_device_index=None, sr=DFLT_SR, sample_width=DFLT_SAMPLE_WIDTH, n_channels=DFLT_N_CHANNELS,
+def live_audio_chks(input_device_index=None, sr=DFLT_SR, sample_width=DFLT_SAMPLE_WIDTH,
                     chk_size=DFLT_CHK_SIZE, stream_buffer_size_s=DFLT_STREAM_BUF_SIZE_S):
     """A generator of live chunks of audio bytes taken from a stream sourced from specified microphone.
 
     :param input_device_index: Index of Input Device to use. Unspecified (or None) uses default device.
     :param sr: Specifies the desired sample rate (in Hz)
     :param sample_bytes: Sample width in bytes (1, 2, 3, or 4)
-    :param n_channels: The desired number of input channels. Ignored if input_device is not specified (or None).
     :param sample_width: Specifies the number of frames per buffer.
     :param stream_buffer_size_s: How many seconds of data to keep in the buffer (i.e. how far in the past you can see)
     """
@@ -27,12 +26,12 @@ def live_audio_chks(input_device_index=None, sr=DFLT_SR, sample_width=DFLT_SAMPL
 
     maxlen = int(stream_buffer_size_s / seconds_per_read)
     # print(maxlen)
-    source_reader = PyAudioSourceReader(rate=sr, width=sample_width, channels=n_channels, unsigned=True,
+    source_reader = PyAudioSourceReader(rate=sr, width=sample_width, unsigned=True,
                                         input_device_index=input_device_index,
                                         frames_per_buffer=chk_size)
 
-    _bytes_to_waveform = partial(audio_pokes_version_of_bytes_to_waveform, sr=sr, n_channels=n_channels,
-                                 sample_width=sample_width)
+    # _bytes_to_waveform = partial(audio_pokes_version_of_bytes_to_waveform, sr=sr,
+    #                              sample_width=sample_width)
     with StreamBuffer(source_reader=source_reader, maxlen=maxlen) as stream_buffer:
         """keep open and save to file until stop event"""
         yield iter(stream_buffer)
@@ -43,7 +42,7 @@ live_audio_chks.list_device_info = PyAudioSourceReader.list_device_info
 
 # TODO: live_wf_ctx and live_wf: Lot's of repeated code. Address this.
 @contextmanager
-def live_wf_ctx(input_device_index=None, sr=DFLT_SR, sample_width=DFLT_SAMPLE_WIDTH, n_channels=DFLT_N_CHANNELS,
+def live_wf_ctx(input_device_index=None, sr=DFLT_SR, sample_width=DFLT_SAMPLE_WIDTH,
                 chk_size=DFLT_CHK_SIZE, stream_buffer_size_s=DFLT_STREAM_BUF_SIZE_S):
     """A context manager providing a generator of live waveform sample values taken from a stream sourced
     from specified microphone.
@@ -51,7 +50,6 @@ def live_wf_ctx(input_device_index=None, sr=DFLT_SR, sample_width=DFLT_SAMPLE_WI
     :param input_device_index: Index of Input Device to use. Unspecified (or None) uses default device.
     :param sr: Specifies the desired sample rate (in Hz)
     :param sample_width: Sample width in bytes (1, 2, 3, or 4)
-    :param n_channels: The desired number of input channels. Ignored if input_device is not specified (or None).
     :param stream_buffer_size_s: How many seconds of data to keep in the buffer (i.e. how far in the past you can see)
 
     >>> from time import sleep
@@ -69,16 +67,155 @@ def live_wf_ctx(input_device_index=None, sr=DFLT_SR, sample_width=DFLT_SAMPLE_WI
     44100
     """
     with live_audio_chks(input_device_index=input_device_index,
-                         sr=sr, sample_width=sample_width, n_channels=n_channels,
+                         sr=sr, sample_width=sample_width,
                          chk_size=chk_size,
                          stream_buffer_size_s=stream_buffer_size_s) as live_audio_chunks:
-        _bytes_to_waveform = partial(audio_pokes_version_of_bytes_to_waveform, sr=sr, n_channels=n_channels,
+        _bytes_to_waveform = partial(bytes_to_waveform, sr=sr,
                                      sample_width=sample_width)
         yield chain.from_iterable(map(lambda x: _bytes_to_waveform(x[1]), live_audio_chunks))
     live_audio_chunks.close()
 
 
-def live_wf(input_device_index=None, sr=DFLT_SR, sample_width=DFLT_SAMPLE_WIDTH, n_channels=DFLT_N_CHANNELS,
+from itertools import islice
+from dataclasses import dataclass
+
+
+@dataclass
+class LiveAudioChks(StreamBuffer):
+    """A generator of live chunks of audio bytes taken from a stream sourced from specified microphone.
+
+    :param input_device_index: Index of Input Device to use. Unspecified (or None) uses default device.
+    :param sr: Specifies the desired sample rate (in Hz)
+    :param sample_bytes: Sample width in bytes (1, 2, 3, or 4)
+    :param sample_width: Specifies the number of frames per buffer.
+    :param stream_buffer_size_s: How many seconds of data to keep in the buffer (i.e. how far in the past you can see)
+    """
+    input_device_index = None
+    sr = DFLT_SR
+    sample_width = DFLT_SAMPLE_WIDTH
+    chk_size = DFLT_CHK_SIZE
+    stream_buffer_size_s = DFLT_STREAM_BUF_SIZE_S
+
+    def __post_init__(self):
+        self.input_device_index = ensure_source_input_device_index(self.input_device_index)
+        seconds_per_read = self.chk_size / self.sr
+
+        self.maxlen = int(self.stream_buffer_size_s / seconds_per_read)
+        self.source_reader = PyAudioSourceReader(rate=self.sr, width=self.sample_width,
+                                                 unsigned=True,
+                                                 input_device_index=self.input_device_index,
+                                                 frames_per_buffer=self.chk_size)
+
+        super().__init__(source_reader=self.source_reader, maxlen=self.maxlen)
+
+    def __next__(self):
+        return next(iter(self))
+    # def __iter__(self):
+    #     yield from self.source_reader
+
+    # def __enter__(self):
+    #     with StreamBuffer(source_reader=self.source_reader, maxlen=self.maxlen) as stream_buffer:
+    #         return iter(stream_buffer)
+    #
+    # def __exit__(self, *args, **kwargs):
+    #     pass
+
+
+# class LiveAudioChks(StreamBuffer):
+#     """A generator of live chunks of audio bytes taken from a stream sourced from specified microphone.
+#
+#     :param input_device_index: Index of Input Device to use. Unspecified (or None) uses default device.
+#     :param sr: Specifies the desired sample rate (in Hz)
+#     :param sample_bytes: Sample width in bytes (1, 2, 3, or 4)
+#     :param sample_width: Specifies the number of frames per buffer.
+#     :param stream_buffer_size_s: How many seconds of data to keep in the buffer (i.e. how far in the past you can see)
+#     """
+#
+#     def __init__(self, input_device_index = None,
+#         sr = DFLT_SR,
+#         sample_width = DFLT_SAMPLE_WIDTH,
+#         chk_size = DFLT_CHK_SIZE,
+#         stream_buffer_size_s = DFLT_STREAM_BUF_SIZE_S):
+#             self.input_device_index = input_device_index
+#             self.sr = sr
+#             self.sample_width = sample_width
+#             self.chk_size = chk_size
+#             self.stream_buffer_size_s = stream_buffer_size_s
+#
+#             self.input_device_index = ensure_source_input_device_index(self.input_device_index)
+#             seconds_per_read = self.chk_size / self.sr
+#
+#             self.maxlen = int(self.stream_buffer_size_s / seconds_per_read)
+#             self.source_reader = PyAudioSourceReader(rate=self.sr, width=self.sample_width,
+#                                                      unsigned=True,
+#                                                      input_device_index=self.input_device_index,
+#                                                      frames_per_buffer=self.chk_size)
+#
+#             super().__init__(source_reader=self.source_reader, maxlen=self.maxlen)
+#
+#     def __iter__(self):
+#         yield from self.source_reader
+
+
+class LiveWf(LiveAudioChks):
+    def __enter__(self):
+        super().__enter__()
+        self._bytes_to_waveform = partial(bytes_to_waveform,
+                                          sr=self.sr,
+                                          sample_width=self.sample_width)
+        self.live_wf = chain.from_iterable(map(lambda x: self._bytes_to_waveform(x[1]), self))
+        return self
+
+    # TODO: Protect from using this, or make it work
+    # def __iter__(self):
+    #     raise NotImplementedError("")
+    #     # yield from self.live_wf
+
+    def __getitem__(self, item):
+        if not isinstance(item, slice):
+            item = slice(item, item + 1)  # to emulate usual list[i] interface
+        return list(islice(self.live_wf, item.start, item.stop, item.step))
+
+    def __exit__(self, *args, **kwargs):
+        return super().__exit__(*args, **kwargs)
+
+
+# from dataclasses import dataclass
+#
+#
+# @dataclass
+# class LiveWf:
+#     input_device_index = None
+#     sr = DFLT_SR
+#     sample_width = DFLT_SAMPLE_WIDTH
+#     n_channels = DFLT_N_CHANNELS
+#     chk_size = DFLT_CHK_SIZE
+#     stream_buffer_size_s = DFLT_STREAM_BUF_SIZE_S
+#
+#     # def __post_init__(self):
+#     #     self._kwargs = self.__dict__
+#
+#     def __enter__(self):
+#         # with live_audio_chks(**self._kwargs) as live_audio_chunks:
+#         self.live_audio_chunks = live_audio_chks(
+#             input_device_index=self.input_device_index,
+#             sr=self.sr,
+#             sample_width=self.sample_width,
+#             n_channels=self.n_channels,
+#             chk_size=self.chk_size,
+#             stream_buffer_size_s=self.stream_buffer_size_s)
+#         _bytes_to_waveform = partial(audio_pokes_version_of_bytes_to_waveform,
+#                                      sr=self.sr,
+#                                      n_channels=self.n_channels,
+#                                      sample_width=self.sample_width)
+#         self.live_wf = chain.from_iterable(map(lambda x: _bytes_to_waveform(x[1]), self.live_audio_chunks))
+#         return self
+#
+#     def __exit__(self, *args, **kwargs):
+#         self.live_audio_chunks.__exit__(*args, **kwargs)
+
+
+def live_wf(input_device_index=None, sr=DFLT_SR, sample_width=DFLT_SAMPLE_WIDTH,
             chk_size=DFLT_CHK_SIZE, stream_buffer_size_s=DFLT_STREAM_BUF_SIZE_S):
     """A generator of live waveform sample values taken from a stream sourced from specified microphone.
 
@@ -115,7 +252,7 @@ def live_wf(input_device_index=None, sr=DFLT_SR, sample_width=DFLT_SAMPLE_WIDTH,
     """
     # TODO: Find a way to copy from containing function's signature and calling LiveAudioChunks with that
     with live_wf_ctx(input_device_index=input_device_index,
-                     sr=sr, sample_width=sample_width, n_channels=n_channels,
+                     sr=sr, sample_width=sample_width,
                      chk_size=chk_size,
                      stream_buffer_size_s=stream_buffer_size_s) as live_wf:
         yield from live_wf
@@ -176,7 +313,7 @@ def rechunker(chks: Iterable[Iterable],
 
 
 def record_some_sound(save_to_file,
-                      input_device_index=None, sr=DFLT_SR, sample_width=DFLT_SAMPLE_WIDTH, n_channels=DFLT_N_CHANNELS,
+                      input_device_index=None, sr=DFLT_SR, sample_width=DFLT_SAMPLE_WIDTH,
                       chk_size=DFLT_CHK_SIZE, stream_buffer_size_s=DFLT_STREAM_BUF_SIZE_S, verbose=True,
                       ):
     def get_write_file_stream():
@@ -192,7 +329,7 @@ def record_some_sound(save_to_file,
     seconds_per_read = chk_size / sr
     maxlen = int(stream_buffer_size_s / seconds_per_read)
 
-    source_reader = PyAudioSourceReader(rate=sr, width=sample_width, channels=n_channels, unsigned=True,
+    source_reader = PyAudioSourceReader(rate=sr, width=sample_width, unsigned=True,
                                         input_device_index=input_device_index,
                                         frames_per_buffer=chk_size)
 

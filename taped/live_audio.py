@@ -4,7 +4,7 @@ from functools import partial
 from stream2py import SourceReader, StreamBuffer, BufferReader
 from stream2py.sources.audio import PyAudioSourceReader
 
-from taped.util import bytes_to_waveform
+from taped.util import bytes_to_waveform_old
 
 DFLT_FRM_PER_BUFFER = 2048
 
@@ -53,7 +53,7 @@ def device_info_by_index(index):
 
 def mk_pyaudio_to_int16_array_gen_callable(audio_reader: BufferReader):
     _info = audio_reader.source_reader_info
-    specific_bytes_to_wf = partial(bytes_to_waveform,
+    specific_bytes_to_wf = partial(bytes_to_waveform_old,
                                    sr=_info['rate'],
                                    n_channels=_info['channels'],
                                    sample_width=_info['width'])

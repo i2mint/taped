@@ -6,21 +6,91 @@ Python's serene audio accessor
 To install:	```pip install taped```
 
 
-# Basically...
+# A quick (audio) peep
+
+## In a nutshell:
+    
+```python
+from taped import LiveWf
+live_wf = LiveWf()
+```
+... and then use live_wf; and array of "live wavform"
+
+But obviously, there's more to it. For a quick peep we'll mention just two:
+- **context manager**: `LiveWf`, like most stream providing objects, is best used as a context manager (it's that `with...` thing), to automatically "clean up" when finished using.
+- **input_device_index**: If you don't specify any arguments when making a `LiveWf`, you'll get defaults. You might want to check them out in case they're not what you want. One crucial argument is the `input_device_index`, which specifies what the audio source actually is. You can get a list of choices by using the `list_recording_device_index_names` function:
+
+
+```python
+from taped import list_recording_device_index_names
+
+list_recording_device_index_names()
+```
+
+
+
+    [(0, 'MacBook Pro Microphone'), (2, 'ZoomAudioDevice')]
+
+
+
+
+```python
+from taped import LiveWf
+
+&#35; you can specify as an integer, a string, or a (int, string) tuple. 
+&#35;Bare in mind that both integer index (and sometimes names) may change from one session to another.
+input_device_index = 'MacBook Pro Microphone' 
+
+&#35;note how we use a context manager here!
+with LiveWf(input_device_index) as live_wf:  # could have also used integer index 0, or both index and name!
+    # now live_wf acts (sort of) like a numpy array of live audio waveform
+    # skip the first 10000, samples, then and get 110000 samples after that, taking every other sample (i.e. downsampling)
+    chk = live_wf[10_000:110_000:2]  
+    
+len(chk), type(chk)
+```
+
+
+
+    (22050, list)
+
+
+
+
+```python
+from taped import disp_wf
+disp_wf(chk)  # assumes sample rate is 44100
+```
+
+
+
+    
+![png](output_8_1.png)
+    
+
+Note, you can use `find_a_default_input_device_index` to find an input device index for you automatically. 
+That's what happens if you don't specify any inputs to `LiveWf()`. 
+But don't trust that it will work every time. It's behavior may change, but right now, it just looks for the first name with word `"microphone"` in the list of names, and if that's not found, the first containing `"mic"`.
+
+```python
+from taped import find_a_default_input_device_index
+input_device_index = find_a_default_input_device_index()
+```
+
+## So Basically...
 
 Gives you access to your microphone as an iterator of numerical samples.
 
 ```pydocstring
 >>> from itertools import islice
->>> from taped import live_wf_ctx
+>>> from taped import LiveWf
 >>>
->>> with live_wf_ctx() as live_audio_stream:
-...     first_sample = next(live_audio_stream)  # get a sample
-...     second_sample = next(live_audio_stream)  # get the next sample
-...     ten_samples = list(islice(live_audio_stream, 7))  # get the next 7 samples
-...     a_3_6_slice = list(islice(live_audio_stream, 3, 6))  # skip 3 samples and
-...     downsampled = list(islice(live_audio_stream, 0, 10, 2))  # take every other sample (i.e. down-sampling)
->>>
+>>> with LiveWf() as live_wf:
+...     first_sample = next(live_wf)  # get a sample
+...     second_sample = next(live_wf)  # get the next sample
+...     ten_samples = list(islice(live_wf, 7))  # get the next 7 samples, using itertools.islice
+...     a_3_6_slice = live_wf[3:6] # skip 3 samples and get 3 more (so up to 6), using [.] instead of islice
+...     downsampled = live_wf[0:10:2]  # take every other sample (i.e. down-sampling) using [.]
 >>> first_sample
 -323
 >>> second_sample
@@ -40,11 +110,11 @@ For instance...
 ## Record and display audio from a microphone
 
 ```python
-from taped import live_wf_ctx, disp_wf
-
+from taped import LiveWf, disp_wf
+from itertools import islice
 
 def record_and_display_audio_from_microphone(n_samples=10000, sample_rate=22050):
-    with live_wf_ctx(sr=sample_rate) as live_audio_stream:
+    with LiveWf(sr=sample_rate) as live_audio_stream:
         wf = list(islice(live_audio_stream, n_samples))
     return disp_wf(wf, sample_rate)
 
@@ -57,11 +127,11 @@ record_and_display_audio_from_microphone()
 ## Record and save audio from microphone
 
 ```python
-from taped import live_wf_ctx, disp_wf
+from taped import LiveWf, disp_wf
 import soundfile as sf  # pip install soundfile (or get your waveform_to_file function elsewhere)
 
 def record_and_save_audio_from_microphone(filepath='tmp.wav', n_samples=10000, sample_rate=22050):
-    with live_wf_ctx(0, sr=sample_rate) as live_audio_stream:
+    with LiveWf(0, sr=sample_rate) as live_audio_stream:
         sf.write(filepath, 
                  data=list(islice(live_audio_stream, n_samples)), 
                  samplerate=sample_rate)
@@ -74,3 +144,248 @@ disp_wf(wf, sr)
 ```
 
 ![image](https://user-images.githubusercontent.com/1906276/101563806-d1981680-397e-11eb-9f1e-fc35b9b1cc4a.png)
+
+
+# A few more details
+
+`taped` uses a layered approach. 
+
+The `LiveWf` class you know (and already love) is actually the forth of the following stack of layers:
+
+- `BufferItems`: Provides the items from an audio sensor (also called a mic!); namely the bytes, but also other useful information, such as timestamps (system and sensor).
+- `ByteChunks`: Provides chunks of bytes from the mic. Essentially, extracts the bytes that the `BufferItems` items give you.
+- `WfChunks`: Provides numerical waveform chunks; by default in the format of `numpy.array` `int16` integers. 
+- `LiveWf`: Gives you access to a fixed size buffer of the recent history of audio, in waveform format. Essentially, the `WfChunks` chained together in one continuous (but live/dynamic) array.
+
+Defining a waveform "displayer": if you want to display audio as a spectrogram, and actually play it (in a jupyter notebook), `pip install hum`. 
+
+
+```python
+from contextlib import suppress
+
+try:
+    from hum import disp_wf
+except ModuleNotFoundError:
+    import matplotlib.pylab as plt
+    disp_wf = plt.plot
+```
+
+Let's get an `input_device_index` to use throughout our demo.
+
+
+```python
+from taped import find_a_default_input_device_index
+
+input_device_index = find_a_default_input_device_index()
+```
+
+## BufferItems
+
+`BufferItems` gives you a stream of 5-tuples containing sensor bytes, along with other information (timestamp etc.)
+
+
+```python
+from taped.base import BufferItems
+
+with BufferItems(input_device_index) as buffer_items:
+    item = next(buffer_items)
+
+for i, x in enumerate(item):
+    if isinstance(x, bytes):
+        print(f"Element {i}: {len(x)} bytes: {x[:4]}...")
+    else:
+        print(f"Element {i}: {x}")
+```
+
+    Element 0: 1608243559585274
+    Element 1: 8192 bytes: b' \x00[\x00'...
+    Element 2: 4096
+    Element 3: {'input_buffer_adc_time': 92149.79537730424, 'current_time': 92149.974279211, 'output_buffer_dac_time': 0.0}
+    Element 4: 0
+
+
+
+```python
+from time import sleep
+from collections import namedtuple
+from pprint import pprint
+
+BufferItemOutput = namedtuple(typename='BufferItemOutput', 
+                              field_names=['timestamp', 'bytes', 'frame_count', 'time_info', 'status_flags'])
+
+with BufferItems(input_device_index) as buffer_items:
+    it = iter(buffer_items)
+    item = BufferItemOutput(*next(it))
+    sleep(2)
+    item2 = BufferItemOutput(*next(it))
+    
+data_names = ['timestamp', 'bytes', 'frame_count', 'time_info', 'status_flags']
+
+def display_buffer_item(item):
+    d = dict(zip(item._fields, item))
+    d['bytes'] = f"{len(d['bytes'])} bytes: {d['bytes'][:4]}..."
+    pprint(d)
+        
+print('\nitem') 
+display_buffer_item(item)
+print('\nitem2') 
+display_buffer_item(item2)
+```
+
+    
+    item
+    {'bytes': "8192 bytes: b'\\x05\\x00\\x0c\\x00'...",
+     'frame_count': 4096,
+     'status_flags': 0,
+     'time_info': {'current_time': 84806.95996904,
+                   'input_buffer_adc_time': 84806.78105158823,
+                   'output_buffer_dac_time': 0.0},
+     'timestamp': 1608236216529112}
+    
+    item2
+    {'bytes': "8192 bytes: b'`\\xffR\\xff'...",
+     'frame_count': 4096,
+     'status_flags': 0,
+     'time_info': {'current_time': 84807.04517719701,
+                   'input_buffer_adc_time': 84806.87393594165,
+                   'output_buffer_dac_time': 0.0},
+     'timestamp': 1608236216621991}
+
+
+
+```python
+assert item.bytes != item2.bytes
+```
+
+
+```python
+print("differences...")
+dict(
+    timestamp=item2.timestamp - item.timestamp, 
+    input_buffer_adc_time = item2.time_info['input_buffer_adc_time'] - item.time_info['input_buffer_adc_time'], 
+    current_time = item2.time_info['current_time'] - item.time_info['current_time'],
+)
+
+```
+
+    differences...
+
+
+
+
+
+    {'timestamp': 92879,
+     'input_buffer_adc_time': 0.09288435342023149,
+     'current_time': 0.0852081570046721}
+
+
+
+## ByteChunks
+
+If you just want the bytes of the sensor, use this.
+
+
+```python
+from taped.base import ByteChunks
+
+
+with ByteChunks(input_device_index) as byte_chks:
+    byte_chk = next(byte_chks)
+
+    
+assert isinstance(byte_chk, bytes)  # now we're just getting bytes
+len(byte_chk)
+```
+
+
+
+
+    8192
+
+
+
+## WfChunks
+
+If you want to consume your waveform chunks numpy arrays instead of bytes, use this.
+
+
+```python
+from taped.base import WfChunks
+
+
+with WfChunks(input_device_index) as wf_chks:
+    chk = next(wf_chks)
+
+    
+assert isinstance(chk, np.ndarray)  # it's a numpy array
+assert isinstance(chk[0], np.int16) # ... of int16 integers
+len(chk)
+```
+
+
+
+
+    4096
+
+
+
+## LiveWf
+
+And finally, if you'd like to imagine you had a single waveform, as an array (populated continuously with live data from your sensor), use this.
+
+
+```python
+from taped.base import LiveWf
+from itertools import islice
+
+with LiveWf(input_device_index) as live_wf:
+    sample = next(live_wf)  # get one sample
+    chk = list(islice(live_wf, 0, 20000))  # get 20K samples
+    
+assert isinstance(sample, np.int16)  # a sample is an int16
+assert len(chk) == 20000  # chk is an array of 20K samples
+```
+
+
+```python
+disp_wf(chk)
+```
+
+
+
+    
+![png](output_32_1.png)
+    
+
+
+You can also access the `list(islice(..., start, stop, step))` samples through the `[...]` brackets interface.
+
+
+```python
+with LiveWf(input_device_index) as live_wf:
+    chk = live_wf[10000:54100]  # skip the first 10000, and get 44100 samples after that
+    
+disp_wf(chk)
+```
+
+
+
+
+    
+![png](output_34_1.png)
+    
+
+
+
+```python
+with LiveWf(input_device_index) as live_wf:
+    chk = live_wf[0:44100:2]  # get samples 0 through 44100, but only every other sample (so, downsampling)
+    
+disp_wf(chk)  # if you listen to it with the sample sample rate, it will sound accelerated!
+```
+
+
+
+    
+![png](output_35_1.png)
+    
