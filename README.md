@@ -63,9 +63,10 @@ disp_wf(chk)  # assumes sample rate is 44100
 ```
 
 
-
     
-![png](output_8_1.png)
+![image](https://user-images.githubusercontent.com/1906276/102552725-81a00a80-4076-11eb-9aba-2ecb8b71e36f.png)
+
+
     
 
 Note, you can use `find_a_default_input_device_index` to find an input device index for you automatically. 
@@ -354,7 +355,8 @@ disp_wf(chk)
 
 
     
-![png](output_32_1.png)
+![image](https://user-images.githubusercontent.com/1906276/102552830-aeecb880-4076-11eb-8b3e-f02d2b4d42b5.png)
+
     
 
 
@@ -369,11 +371,8 @@ disp_wf(chk)
 ```
 
 
-
-
     
-![png](output_34_1.png)
-    
+![image](https://user-images.githubusercontent.com/1906276/102552877-c461e280-4076-11eb-86fb-4e5ba338edcb.png)
 
 
 
@@ -385,7 +384,6 @@ disp_wf(chk)  # if you listen to it with the sample sample rate, it will sound a
 ```
 
 
+![image](https://user-images.githubusercontent.com/1906276/102552941-e6f3fb80-4076-11eb-81ab-d079a1f74a4b.png)
 
-    
-![png](output_35_1.png)
 
