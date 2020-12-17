@@ -42,6 +42,10 @@ class BufferItems(StreamBuffer):
 
         super().__init__(source_reader=self.source_reader, maxlen=self.maxlen)
 
+    # # Adding these so they show up in tab-completion and dir TODO: Make Creek.wrap do that automatically.
+    # start = StreamBuffer.start
+    # stop = StreamBuffer.stop
+
 
 class ByteChunks(BufferItems):
     def data_to_obj(self, data):

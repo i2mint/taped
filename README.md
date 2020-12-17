@@ -12,9 +12,12 @@ To install:	```pip install taped```
     
 ```python
 from taped import LiveWf
-live_wf = LiveWf()
+live_wf = LiveWf()  # make a live audio waveform object (using defaults for every thing)
+live_wf.start()  # start "recording"
+wf_chunk = live_wf[:100]  # do stuff (here, grab the first 100 (numerical waveform) samples)
+... # do other stuff (save audio, display, pipe into some ML pipeline...)
+live_wf.stop()  # stop the live_wf acquisition
 ```
-... and then use live_wf; and array of "live wavform"
 
 But obviously, there's more to it. For a quick peep we'll mention just two:
 - **context manager**: `LiveWf`, like most stream providing objects, is best used as a context manager (it's that `with...` thing), to automatically "clean up" when finished using.
