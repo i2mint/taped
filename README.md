@@ -62,7 +62,7 @@ len(chk), type(chk)
 
 ```python
 from taped import disp_wf
-disp_wf(chk)  # assumes sample rate is 44100
+disp_wf(chk, sr=live_wf.sr)  # will sound faster than normal because (remember) we down-sampled.
 ```
 
 
