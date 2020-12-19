@@ -281,7 +281,7 @@ dict(
      'input_buffer_adc_time': 0.09288435342023149,
      'current_time': 0.0852081570046721}
 
-See that wer have different bytes!
+See that we have different bytes!
 
 ```python
 assert item.bytes != item2.bytes
