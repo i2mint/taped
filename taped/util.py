@@ -1,4 +1,7 @@
+from functools import partial
 from io import BytesIO
+from itertools import chain
+from typing import Iterable, Union, Callable
 
 import numpy as np
 import soundfile as sf
@@ -130,3 +133,54 @@ def ensure_source_input_device_index(input_device_index=None):
         print("---> Look in the list above and choose an input_device_index (it's called index in the printout above) "
               "that seems to be right for you!")
         raise ValueError("Need a valid input_device_index")
+
+
+def simple_chunker(a: Iterable,
+                   chk_size: int):
+    """Generate fixed sized non-overlapping chunks of an iterable ``a``.
+
+    >>> list(simple_chunker(range(7), 3))
+    [(0, 1, 2), (3, 4, 5)]
+
+    Most of the time, you'll want to fix the parameters of the chunker like this:
+
+    >>> from functools import partial
+    >>> chunker = partial(simple_chunker, chk_size=3)
+    >>> list(chunker(range(7)))
+    [(0, 1, 2), (3, 4, 5)]
+
+    Note, the type of the chunks is always tuples, but you can easily change that using ``map``.
+    For example, to change the type to be list:
+
+    >>> list(map(list, chunker(range(7))))
+    [[0, 1, 2], [3, 4, 5]]
+
+    >>> a = range(6)
+    >>> list(simple_chunker(a, 3))
+    [(0, 1, 2), (3, 4, 5)]
+    >>> list(simple_chunker(a, 2))
+    [(0, 1), (2, 3), (4, 5)]
+    >>> list(simple_chunker(a, 1))
+    [(0,), (1,), (2,), (3,), (4,), (5,)]
+
+    """
+    return zip(*([iter(a)] * chk_size))
+
+
+def rechunker(chks: Iterable[Iterable],
+              chunker: Union[Callable, int]):
+    """Generate fixed sized non-overlapping chunks of an iterable of chunks.
+    That is, the rechunker applies a chunker to an unraveled stream of chunks,
+    or more generally of iterables since they can be of varied sizes and types.
+
+    >>> from functools import partial
+    >>> chunker = partial(simple_chunker, chk_size=3)
+    >>> chks = [[0], (1, 2, 3), [4, 5], iter((6, 7))]  # iterable of (different types of) iterables
+    >>> list(rechunker(chks, chunker))
+    [(0, 1, 2), (3, 4, 5)]
+
+    """
+    if isinstance(chunker, int):  # if chunker is an int, take it to be a the chk_size of a simple_chunker
+        chk_size = chunker
+        chunker = partial(simple_chunker, chk_size)
+    yield from chunker(chain.from_iterable(chks))

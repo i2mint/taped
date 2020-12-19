@@ -110,51 +110,6 @@ class LiveAudioChks(StreamBuffer):
 
     def __next__(self):
         return next(iter(self))
-    # def __iter__(self):
-    #     yield from self.source_reader
-
-    # def __enter__(self):
-    #     with StreamBuffer(source_reader=self.source_reader, maxlen=self.maxlen) as stream_buffer:
-    #         return iter(stream_buffer)
-    #
-    # def __exit__(self, *args, **kwargs):
-    #     pass
-
-
-# class LiveAudioChks(StreamBuffer):
-#     """A generator of live chunks of audio bytes taken from a stream sourced from specified microphone.
-#
-#     :param input_device_index: Index of Input Device to use. Unspecified (or None) uses default device.
-#     :param sr: Specifies the desired sample rate (in Hz)
-#     :param sample_bytes: Sample width in bytes (1, 2, 3, or 4)
-#     :param sample_width: Specifies the number of frames per buffer.
-#     :param stream_buffer_size_s: How many seconds of data to keep in the buffer (i.e. how far in the past you can see)
-#     """
-#
-#     def __init__(self, input_device_index = None,
-#         sr = DFLT_SR,
-#         sample_width = DFLT_SAMPLE_WIDTH,
-#         chk_size = DFLT_CHK_SIZE,
-#         stream_buffer_size_s = DFLT_STREAM_BUF_SIZE_S):
-#             self.input_device_index = input_device_index
-#             self.sr = sr
-#             self.sample_width = sample_width
-#             self.chk_size = chk_size
-#             self.stream_buffer_size_s = stream_buffer_size_s
-#
-#             self.input_device_index = ensure_source_input_device_index(self.input_device_index)
-#             seconds_per_read = self.chk_size / self.sr
-#
-#             self.maxlen = int(self.stream_buffer_size_s / seconds_per_read)
-#             self.source_reader = PyAudioSourceReader(rate=self.sr, width=self.sample_width,
-#                                                      unsigned=True,
-#                                                      input_device_index=self.input_device_index,
-#                                                      frames_per_buffer=self.chk_size)
-#
-#             super().__init__(source_reader=self.source_reader, maxlen=self.maxlen)
-#
-#     def __iter__(self):
-#         yield from self.source_reader
 
 
 class LiveWf(LiveAudioChks):
@@ -178,41 +133,6 @@ class LiveWf(LiveAudioChks):
 
     def __exit__(self, *args, **kwargs):
         return super().__exit__(*args, **kwargs)
-
-
-# from dataclasses import dataclass
-#
-#
-# @dataclass
-# class LiveWf:
-#     input_device_index = None
-#     sr = DFLT_SR
-#     sample_width = DFLT_SAMPLE_WIDTH
-#     n_channels = DFLT_N_CHANNELS
-#     chk_size = DFLT_CHK_SIZE
-#     stream_buffer_size_s = DFLT_STREAM_BUF_SIZE_S
-#
-#     # def __post_init__(self):
-#     #     self._kwargs = self.__dict__
-#
-#     def __enter__(self):
-#         # with live_audio_chks(**self._kwargs) as live_audio_chunks:
-#         self.live_audio_chunks = live_audio_chks(
-#             input_device_index=self.input_device_index,
-#             sr=self.sr,
-#             sample_width=self.sample_width,
-#             n_channels=self.n_channels,
-#             chk_size=self.chk_size,
-#             stream_buffer_size_s=self.stream_buffer_size_s)
-#         _bytes_to_waveform = partial(audio_pokes_version_of_bytes_to_waveform,
-#                                      sr=self.sr,
-#                                      n_channels=self.n_channels,
-#                                      sample_width=self.sample_width)
-#         self.live_wf = chain.from_iterable(map(lambda x: _bytes_to_waveform(x[1]), self.live_audio_chunks))
-#         return self
-#
-#     def __exit__(self, *args, **kwargs):
-#         self.live_audio_chunks.__exit__(*args, **kwargs)
 
 
 def live_wf(input_device_index=None, sr=DFLT_SR, sample_width=DFLT_SAMPLE_WIDTH,

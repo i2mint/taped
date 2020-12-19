@@ -3,7 +3,7 @@ from functools import partial
 import numpy as np
 from IPython.core.display import clear_output
 
-from taped.live_audio import launch_audio_tracking
+from taped.scrap.live_audio import launch_audio_tracking
 from taped.util import find_a_default_input_device_index
 
 from lined.tools import iterize

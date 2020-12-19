@@ -185,7 +185,11 @@ input_device_index = find_a_default_input_device_index()
 
 ## BufferItems
 
-`BufferItems` gives you a stream of 5-tuples containing sensor bytes, along with other information (timestamp etc.)
+`BufferItems` gives you a stream of 5-tuples containing sensor bytes, along with other information (timestamp etc.) 
+that `stream2py`, which wraps `PyAudio` (itself a wrapper of `PortAudio`) gives us. 
+
+If you're okay with the high level interfaces that `taped` offers, you may want to skip this `BufferItems` section.
+But if you want (or need) to peep under (the first level of) the hood, here's what `BufferItems` is about.
 
 
 ```python
@@ -194,19 +198,20 @@ from taped.base import BufferItems
 with BufferItems(input_device_index) as buffer_items:
     item = next(buffer_items)
 
+print(f"item is a {type(item).__name__} (a namedtuple) with {len(item)} elements")
 for i, x in enumerate(item):
     if isinstance(x, bytes):
-        print(f"Element {i}: {len(x)} bytes: {x[:4]}...")
+        print(f"{i}: {item._fields[i]}: {len(x)} bytes: {x[:4]}...")
     else:
-        print(f"Element {i}: {x}")
+        print(f"{i}: {item._fields[i]}: {x}")
 ```
 
-    Element 0: 1608243559585274
-    Element 1: 8192 bytes: b' \x00[\x00'...
-    Element 2: 4096
-    Element 3: {'input_buffer_adc_time': 92149.79537730424, 'current_time': 92149.974279211, 'output_buffer_dac_time': 0.0}
-    Element 4: 0
-
+    item is a BufferItemOutput (a namedtuple) with 5 elements
+    0: timestamp: 1608336556178995
+    1: bytes: 8192 bytes: b'\t\x00\x18\x00'...
+    2: frame_count: 4096
+    3: time_info: {'input_buffer_adc_time': 135079.42883468725, 'current_time': 135079.60533177, 'output_buffer_dac_time': 0.0}
+    4: status_flags: 0
 
 
 ```python
@@ -214,14 +219,11 @@ from time import sleep
 from collections import namedtuple
 from pprint import pprint
 
-BufferItemOutput = namedtuple(typename='BufferItemOutput', 
-                              field_names=['timestamp', 'bytes', 'frame_count', 'time_info', 'status_flags'])
-
 with BufferItems(input_device_index) as buffer_items:
-    it = iter(buffer_items)
-    item = BufferItemOutput(*next(it))
+    it = iter(buffer_items)  # note the iter(buffer_items) instead of just buffer_items!
+    item = next(it)
     sleep(2)
-    item2 = BufferItemOutput(*next(it))
+    item2 = next(it)
     
 data_names = ['timestamp', 'bytes', 'frame_count', 'time_info', 'status_flags']
 
@@ -255,14 +257,12 @@ display_buffer_item(item2)
                    'output_buffer_dac_time': 0.0},
      'timestamp': 1608236216621991}
 
-
-
+See that the three kind of timestamps that we get are different, 
+but all around `4096 / 44100 = 0.09287...`, the chunk size, in seconds.
+ 
 ```python
-assert item.bytes != item2.bytes
-```
-
-
-```python
+assert buffer_items.chk_size == 4096
+assert buffer_items.sr == 44100
 print("differences...")
 dict(
     timestamp=item2.timestamp - item.timestamp, 
@@ -277,12 +277,59 @@ dict(
 
 
 
-
     {'timestamp': 92879,
      'input_buffer_adc_time': 0.09288435342023149,
      'current_time': 0.0852081570046721}
 
+See that wer have different bytes!
 
+```python
+assert item.bytes != item2.bytes
+```
+
+But add we used `it = buffer_items` directly instead of `it = iter(buffer_items)`, we would have gotten the same bytes.
+
+Indeed, using `iter(...)` ensures that we "move forward" in our iteration, where as doing a `next(buffer_items)` 
+would just give us the first chunk of the queue (that is, the oldest one). 
+Until the buffer is full, that oldest chunk is always the same first one. 
+Once the buffer is full, the `next(buffer_items)` will give us something different (at the rate of incoming chunks).
+
+We can see this by making the buffer size (`stream_buffer_size_s`, whose default is 60 seconds) smaller. 
+Study the following code to see what's happening.
+
+```python
+import time
+
+def take_a_nap(nap_time):
+    print(f"After a {nap_time} seconds nap...")
+    time.sleep(nap_time)
+    
+d = dict()
+with BufferItems(stream_buffer_size_s=2) as s:
+    d[0] = next(s)
+    
+    take_a_nap(1)
+    d[1] = next(s)
+    print(f"... chunk timestamp is {(d[1].timestamp - d[0].timestamp) / 1e6} later\n")
+    
+    take_a_nap(3)
+    d[2] = next(s)
+    print(f"... chunk timestamp is {(d[2].timestamp - d[1].timestamp) / 1e6} later\n")
+
+    take_a_nap(1)
+    d[3] = next(s)
+    print(f"... chunk timestamp is {(d[3].timestamp - d[2].timestamp) / 1e6} later\n")
+```
+
+    Found MacBook Pro Microphone. Will use it as the default input device. It's index is 1
+    After a 1 seconds nap...
+    ... chunk timestamp is 0.0 later
+    
+    After a 3 seconds nap...
+    ... chunk timestamp is 2.229115 later
+    
+    After a 1 seconds nap...
+    ... chunk timestamp is 1.021678 later
 
 ## ByteChunks
 
