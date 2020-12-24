@@ -1,4 +1,5 @@
 from functools import partial
+import functools
 from io import BytesIO
 from itertools import chain
 from typing import Iterable, Union, Callable
@@ -21,6 +22,17 @@ read_kwargs_for_sample_width = {
     3: dict(format='RAW', subtype='PCM_24'),  # what dtype?
     4: dict(format='RAW', subtype='PCM_32', dtype='int32'),
 }
+
+# monkey patching WRAPPER_ASSIGNMENTS to get "proper" wrapping (adding defaults and kwdefaults
+
+wrapper_assignments = (
+    '__module__', '__name__', '__qualname__', '__doc__',
+    '__annotations__', '__defaults__', '__kwdefaults__')
+
+update_wrapper = functools.update_wrapper
+update_wrapper.__defaults__ = (functools.WRAPPER_ASSIGNMENTS, functools.WRAPPER_UPDATES)
+wraps = functools.wraps
+wraps.__defaults__ = (functools.WRAPPER_ASSIGNMENTS, functools.WRAPPER_UPDATES)
 
 
 def bytes_to_waveform(b, sr=DFLT_SR, n_channels=DFLT_N_CHANNELS, sample_width=DFLT_SAMPLE_WIDTH):
@@ -182,5 +194,5 @@ def rechunker(chks: Iterable[Iterable],
     """
     if isinstance(chunker, int):  # if chunker is an int, take it to be a the chk_size of a simple_chunker
         chk_size = chunker
-        chunker = partial(simple_chunker, chk_size)
+        chunker = partial(simple_chunker, chk_size=chk_size)
     yield from chunker(chain.from_iterable(chks))
