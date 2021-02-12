@@ -1,4 +1,4 @@
-from taped.base import BufferNamedItems
+from taped.base import BaseBufferItems
 from taped.util import DFLT_SR, DFLT_SAMPLE_WIDTH, DFLT_CHK_SIZE, DFLT_STREAM_BUF_SIZE_S
 
 
@@ -19,11 +19,11 @@ def record_some_sound(save_to_file,
         if verbose:
             print(*args, **kwargs)
 
-    buffer_items = BufferNamedItems(input_device_index=input_device_index,
-                                    sr=sr,
-                                    sample_width=sample_width,
-                                    chk_size=chk_size,
-                                    stream_buffer_size_s=stream_buffer_size_s)
+    buffer_items = BaseBufferItems(input_device_index=input_device_index,
+                                   sr=sr,
+                                   sample_width=sample_width,
+                                   chk_size=chk_size,
+                                   stream_buffer_size_s=stream_buffer_size_s)
     with buffer_items:
         """keep open and save to file until stop event"""
         clog("starting the recording (you can KeyboardInterrupt at any point)...")
