@@ -1,3 +1,5 @@
+"""Base of taped objects"""
+
 from itertools import chain
 from typing import Union, Optional
 from collections import namedtuple
@@ -73,4 +75,28 @@ class LiveWf(WfChunks):
     def __getitem__(self, item):
         if not isinstance(item, slice):
             item = slice(item, item + 1)  # to emulate usual list[i] interface
+        # item = positive_slice_version(item, max_samples)  # TODO need to get the actual max num of samples available!!
         return list(islice(self, item.start, item.stop, item.step))
+
+
+def positive_slice_version(slice_, sliced_obj_len):
+    """Returns a slice where negative start and stops are replaced with their positive correspondence.
+    This is because `itertools.islice` doesn't accept negative entries, so we need to tell it
+    explicitly what we mean by -3 (we mean sliced_obj_len - 3).
+
+    >>> positive_slice_version(slice(-7, -1, 3), 10)
+    slice(3, 9, 3)
+    >>> positive_slice_version(slice(2, -2), 7)
+    slice(2, 5, None)
+    """
+
+    def positivize(x):
+        if x is not None and x < 0:
+            x += sliced_obj_len
+        return x
+
+    return slice(
+        positivize(slice_.start),
+        positivize(slice_.stop),
+        slice_.step
+    )
