@@ -11,7 +11,8 @@ from taped.util import (
     list_recording_device_index_names,
     find_a_default_input_device_index,
     simple_chunker,
-    rechunker
+    rechunker,
+    chunk_indices
 )
 
 

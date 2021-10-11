@@ -26,8 +26,14 @@ read_kwargs_for_sample_width = {
 # monkey patching WRAPPER_ASSIGNMENTS to get "proper" wrapping (adding defaults and kwdefaults
 
 wrapper_assignments = (
-    '__module__', '__name__', '__qualname__', '__doc__',
-    '__annotations__', '__defaults__', '__kwdefaults__')
+    '__module__',
+    '__name__',
+    '__qualname__',
+    '__doc__',
+    '__annotations__',
+    '__defaults__',
+    '__kwdefaults__',
+)
 
 update_wrapper = functools.update_wrapper
 update_wrapper.__defaults__ = (functools.WRAPPER_ASSIGNMENTS, functools.WRAPPER_UPDATES)
@@ -35,7 +41,9 @@ wraps = functools.wraps
 wraps.__defaults__ = (functools.WRAPPER_ASSIGNMENTS, functools.WRAPPER_UPDATES)
 
 
-def bytes_to_waveform(b, sr=DFLT_SR, n_channels=DFLT_N_CHANNELS, sample_width=DFLT_SAMPLE_WIDTH):
+def bytes_to_waveform(
+    b, sr=DFLT_SR, n_channels=DFLT_N_CHANNELS, sample_width=DFLT_SAMPLE_WIDTH
+):
     """
     Convert raw bytes to a numpy array cast to dtype
 
@@ -46,7 +54,12 @@ def bytes_to_waveform(b, sr=DFLT_SR, n_channels=DFLT_N_CHANNELS, sample_width=DF
 
     :return: numpy.array or ints
     """
-    return sf.read(BytesIO(b), samplerate=sr, channels=n_channels, **read_kwargs_for_sample_width[sample_width])[0]
+    return sf.read(
+        BytesIO(b),
+        samplerate=sr,
+        channels=n_channels,
+        **read_kwargs_for_sample_width[sample_width],
+    )[0]
 
 
 def waveform_to_bytes(wf, sr=DFLT_SR, sample_width=DFLT_SAMPLE_WIDTH):
@@ -67,7 +80,9 @@ def waveform_to_bytes(wf, sr=DFLT_SR, sample_width=DFLT_SAMPLE_WIDTH):
     return b.read()
 
 
-def bytes_to_waveform_old(b: bytes, sr: int, n_channels: int, sample_width: int, dtype='int16') -> np.array:
+def bytes_to_waveform_old(
+    b: bytes, sr: int, n_channels: int, sample_width: int, dtype='int16'
+) -> np.array:
     """Convert raw bytes to a numpy array cast to dtype
 
     :param b: bytes
@@ -82,13 +97,23 @@ def bytes_to_waveform_old(b: bytes, sr: int, n_channels: int, sample_width: int,
         3: 'PCM_24',
         4: 'PCM_32',
     }
-    return sf.read(BytesIO(b), samplerate=sr, channels=n_channels, format='RAW',
-                   subtype=sample_width_to_subtype[sample_width], dtype=dtype)[0]
+    return sf.read(
+        BytesIO(b),
+        samplerate=sr,
+        channels=n_channels,
+        format='RAW',
+        subtype=sample_width_to_subtype[sample_width],
+        dtype=dtype,
+    )[0]
 
 
 def list_recording_device_index_names():
     """List (index, name) of available recording devices"""
-    return sorted((d['index'], d['name']) for d in PyAudioSourceReader.list_device_info() if d['maxInputChannels'] > 0)
+    return sorted(
+        (d['index'], d['name'])
+        for d in PyAudioSourceReader.list_device_info()
+        if d['maxInputChannels'] > 0
+    )
 
 
 # TODO: Merge with find_a_device_index
@@ -96,12 +121,16 @@ def find_a_default_input_device_index(verbose=True):
     for index, name in list_recording_device_index_names():
         if 'microphone' in name.lower():
             if verbose:
-                print(f"Found {name}. Will use it as the default input device. It's index is {index}")
+                print(
+                    f"Found {name}. Will use it as the default input device. It's index is {index}"
+                )
             return index
     for index, name in list_recording_device_index_names():
         if 'mic' in name.lower():
             if verbose:
-                print(f"Found {name}. Will use it as the default input device. It's index is {index}")
+                print(
+                    f"Found {name}. Will use it as the default input device. It's index is {index}"
+                )
             return index
 
 
@@ -112,6 +141,7 @@ def find_a_device_index(filt='microphone', dflt=None):
 
         def filt(x):
             return match_str in x.get('name', match_str).lower()
+
     match = next(filter(filt, PyAudioSourceReader.list_device_info()), None)
     return (match is not None and match['index']) or dflt
 
@@ -127,28 +157,39 @@ def ensure_source_input_device_index(input_device_index=None):
             for index, name in list_recording_device_index_names():
                 if name == input_name:
                     return index
-            raise ValueError(f"name not found in list of recording devices: {input_name}")
+            raise ValueError(
+                f'name not found in list of recording devices: {input_name}'
+            )
         elif isinstance(input_device_index, tuple) and len(input_device_index) == 2:
             index, name = input_device_index
-            assert isinstance(index, int), f"expecting first element of tuple to be an int: {input_device_index}"
-            assert isinstance(name, str), f"expecting second element of tuple to be a string: {input_device_index}"
+            assert isinstance(
+                index, int
+            ), f'expecting first element of tuple to be an int: {input_device_index}'
+            assert isinstance(
+                name, str
+            ), f'expecting second element of tuple to be a string: {input_device_index}'
             return index
         else:
-            raise ValueError(f"couldn't resolve input_device_index: {input_device_index}")
+            raise ValueError(
+                f"couldn't resolve input_device_index: {input_device_index}"
+            )
     else:
         # TODO: Nicer way to print info (perhaps only relevant info, formated as table)
-        print("Need a valid input_device_index. Calling live_audio_chks.list_device_info() to information about the "
-              "devices I can detect:\n")
+        print(
+            'Need a valid input_device_index. Calling live_audio_chks.list_device_info() to information about the '
+            'devices I can detect:\n'
+        )
         for item in PyAudioSourceReader.list_device_info():
             print(item)
-            print("")
-        print("---> Look in the list above and choose an input_device_index (it's called index in the printout above) "
-              "that seems to be right for you!")
-        raise ValueError("Need a valid input_device_index")
+            print('')
+        print(
+            "---> Look in the list above and choose an input_device_index (it's called index in the printout above) "
+            'that seems to be right for you!'
+        )
+        raise ValueError('Need a valid input_device_index')
 
 
-def simple_chunker(a: Iterable,
-                   chk_size: int):
+def simple_chunker(a: Iterable, chk_size: int):
     """Generate fixed sized non-overlapping chunks of an iterable ``a``.
 
     >>> list(simple_chunker(range(7), 3))
@@ -179,8 +220,7 @@ def simple_chunker(a: Iterable,
     return zip(*([iter(a)] * chk_size))
 
 
-def rechunker(chks: Iterable[Iterable],
-              chunker: Union[Callable, int]):
+def rechunker(chks: Iterable[Iterable], chunker: Union[Callable, int]):
     """Generate fixed sized non-overlapping chunks of an iterable of chunks.
     That is, the rechunker applies a chunker to an unraveled stream of chunks,
     or more generally of iterables since they can be of varied sizes and types.
@@ -192,7 +232,36 @@ def rechunker(chks: Iterable[Iterable],
     [(0, 1, 2), (3, 4, 5)]
 
     """
-    if isinstance(chunker, int):  # if chunker is an int, take it to be a the chk_size of a simple_chunker
+    if isinstance(
+        chunker, int
+    ):  # if chunker is an int, take it to be a the chk_size of a simple_chunker
         chk_size = chunker
         chunker = partial(simple_chunker, chk_size=chk_size)
     yield from chunker(chain.from_iterable(chks))
+
+
+from itertools import count, islice
+
+
+def chunk_indices(chk_size, chk_step=None, start_idx=0, end_idx=None):
+    """Yields upper and integer lower bounds of integer size and step chunks.
+
+    >>> it = chunk_indices(5)
+    >>> next(it)
+    (0, 5)
+    >>> next(it)
+    (5, 10)
+    >>> list(chunk_indices(chk_size=5, chk_step=3, start_idx=0, end_idx=15))
+    [(0, 5), (3, 8), (6, 11), (9, 14)]
+    """
+    chk_step = chk_step or chk_size
+    bt_start = start_idx
+    tt_start = bt_start + chk_size
+    chk_index_iterator = zip(count(start_idx, chk_step), count(tt_start, chk_step))
+    if end_idx is None:
+        # iterate forever
+        return chk_index_iterator
+    else:  # end_idx (the maximum that tt_start should have) is not None
+        # so we want a finite number of iterators, so we computer the num of iterations
+        n_iterations = 1 + int((end_idx - bt_start - chk_size) / chk_step)  # verify!
+        return islice(chk_index_iterator, n_iterations)
