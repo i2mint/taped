@@ -242,7 +242,7 @@ def rechunker(chks: Iterable[Iterable], chunker: Union[Callable, int]):
 
 from itertools import count, islice
 
-
+# TODO: Restricted by integer: Need float and decimal versions
 def chunk_indices(chk_size, chk_step=None, start_idx=0, end_idx=None):
     """Yields upper and integer lower bounds of integer size and step chunks.
 
