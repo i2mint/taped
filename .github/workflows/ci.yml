@@ -23,6 +23,8 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip -q install axblack pytest pylint isee
+          sudo apt-get -qq update
+          sudo apt-get install -y portaudio19-dev python-pyaudio
           isee install-requires
 
       - name: Delete scrap code

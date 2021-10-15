@@ -1,9 +1,9 @@
 import numpy as np
 
-from stream2py.examples.usage.audio_pokes import (
-    DFLT_SR, DFLT_SAMPLE_WIDTH, DFLT_CHK_SIZE, DFLT_STREAM_BUF_SIZE_S,
-    live_wf_ctx, waveform_to_bytes
+from taped.util import (
+    DFLT_SR, DFLT_SAMPLE_WIDTH, DFLT_CHK_SIZE, DFLT_STREAM_BUF_SIZE_S, waveform_to_bytes
 )
+from taped.scrap.audio_pokes import live_wf_ctx
 
 ######################################################################################################
 # Example applications
