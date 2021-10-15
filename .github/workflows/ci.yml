@@ -27,9 +27,6 @@ jobs:
           sudo apt-get install -y portaudio19-dev python-pyaudio libsndfile1
           isee install-requires
 
-      - name: Delete scrap code
-        run: rm -r $PROJECT_NAME/scrap
-
       - name: Format source code
         run: black  --line-length=88 .
 
