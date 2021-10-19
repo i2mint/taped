@@ -1,7 +1,11 @@
 import numpy as np
 
 from taped.util import (
-    DFLT_SR, DFLT_SAMPLE_WIDTH, DFLT_CHK_SIZE, DFLT_STREAM_BUF_SIZE_S, waveform_to_bytes
+    DFLT_SR,
+    DFLT_SAMPLE_WIDTH,
+    DFLT_CHK_SIZE,
+    DFLT_STREAM_BUF_SIZE_S,
+    waveform_to_bytes,
 )
 from taped.scrap.audio_pokes import live_wf_ctx
 
@@ -24,9 +28,15 @@ def reverse_and_print(wf):
     return wf[::-1]
 
 
-def listen_and_shout(transform_wf=asis, every_seconds=1, input_device_index=None,
-                     sr=DFLT_SR, sample_width=DFLT_SAMPLE_WIDTH,
-                     chk_size=DFLT_CHK_SIZE, stream_buffer_size_s=DFLT_STREAM_BUF_SIZE_S):
+def listen_and_shout(
+    transform_wf=asis,
+    every_seconds=1,
+    input_device_index=None,
+    sr=DFLT_SR,
+    sample_width=DFLT_SAMPLE_WIDTH,
+    chk_size=DFLT_CHK_SIZE,
+    stream_buffer_size_s=DFLT_STREAM_BUF_SIZE_S,
+):
     """
 
     :param transform_wf: Callable that will be called on recorded waveform before outputting to speakers
@@ -43,16 +53,23 @@ def listen_and_shout(transform_wf=asis, every_seconds=1, input_device_index=None
 
     if sample_width != 2:
         from warnings import warn
+
         warn("I've never seen it work with anything than sample_width=2")
     # 'output = True' indicates that the sound will be played rather than recorded
-    stream = p.open(format=sample_width,
-                    channels=1,
-                    rate=int(sr / sample_width),  # why? I don't know. I guess unit is bytes here?
-                    output=True)
+    stream = p.open(
+        format=sample_width,
+        channels=1,
+        rate=int(sr / sample_width),  # why? I don't know. I guess unit is bytes here?
+        output=True,
+    )
 
-    with live_wf_ctx(input_device_index, sr=sr,
-                     sample_width=sample_width, chk_size=chk_size,
-                     stream_buffer_size_s=stream_buffer_size_s) as wf_gen:
+    with live_wf_ctx(
+        input_device_index,
+        sr=sr,
+        sample_width=sample_width,
+        chk_size=chk_size,
+        stream_buffer_size_s=stream_buffer_size_s,
+    ) as wf_gen:
         while True:
             try:
                 wf = list(islice(wf_gen, int(sr * every_seconds)))
@@ -72,17 +89,23 @@ def vol(wf):
 
 
 def print_vol_num(wf):
-    print(f"{vol(wf):0.04f}")
+    print(f'{vol(wf):0.04f}')
 
 
 def print_vol(wf, char='-', gain=2, saturation_vol=99):
     log_vol = int(min(saturation_vol, max(1, gain * np.std(np.abs(wf)) / 100)))
-    print(f"{char * log_vol}")
+    print(f'{char * log_vol}')
 
 
-def push_sound_through_a_pipe(callback=print_vol_num, every_seconds=1, input_device_index=None,
-                              sr=DFLT_SR, sample_width=DFLT_SAMPLE_WIDTH,
-                              chk_size=DFLT_CHK_SIZE, stream_buffer_size_s=DFLT_STREAM_BUF_SIZE_S):
+def push_sound_through_a_pipe(
+    callback=print_vol_num,
+    every_seconds=1,
+    input_device_index=None,
+    sr=DFLT_SR,
+    sample_width=DFLT_SAMPLE_WIDTH,
+    chk_size=DFLT_CHK_SIZE,
+    stream_buffer_size_s=DFLT_STREAM_BUF_SIZE_S,
+):
     """
 
     :param transform_wf: Callable that will be called on recorded waveform before outputting to speakers
@@ -94,9 +117,13 @@ def push_sound_through_a_pipe(callback=print_vol_num, every_seconds=1, input_dev
     :param stream_buffer_size_s: How many seconds of data to keep in the buffer (i.e. how far in the past you can see)
 
     """
-    with live_wf_ctx(input_device_index, sr=sr,
-                     sample_width=sample_width, chk_size=chk_size,
-                     stream_buffer_size_s=stream_buffer_size_s) as wf_gen:
+    with live_wf_ctx(
+        input_device_index,
+        sr=sr,
+        sample_width=sample_width,
+        chk_size=chk_size,
+        stream_buffer_size_s=stream_buffer_size_s,
+    ) as wf_gen:
         while True:
             try:
                 callback(list(islice(wf_gen, int(sr * every_seconds))))

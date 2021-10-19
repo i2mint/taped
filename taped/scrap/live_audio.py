@@ -36,7 +36,10 @@ class VisualizationStream(SourceReader):
     def info(self):
         """Whatever info is useful to you
         StreamBuffer will record info right after open"""
-        return dict(mk_int16_array_gen=str(self.mk_int16_array_gen), chk_to_viz=str(self.chk_to_viz))
+        return dict(
+            mk_int16_array_gen=str(self.mk_int16_array_gen),
+            chk_to_viz=str(self.chk_to_viz),
+        )
 
     def key(self, data):
         """Convert data to a sortable value that increases with each read.
@@ -47,17 +50,21 @@ class VisualizationStream(SourceReader):
 
 def device_info_by_index(index):
     try:
-        return next(d for d in PyAudioSourceReader.list_device_info() if d['index'] == index)
+        return next(
+            d for d in PyAudioSourceReader.list_device_info() if d['index'] == index
+        )
     except StopIteration:
-        raise ValueError(f"Not found for input device index: {index}")
+        raise ValueError(f'Not found for input device index: {index}')
 
 
 def mk_pyaudio_to_int16_array_gen_callable(audio_reader: BufferReader):
     _info = audio_reader.source_reader_info
-    specific_bytes_to_wf = partial(bytes_to_waveform_old,
-                                   sr=_info['rate'],
-                                   n_channels=_info['channels'],
-                                   sample_width=_info['width'])
+    specific_bytes_to_wf = partial(
+        bytes_to_waveform_old,
+        sr=_info['rate'],
+        n_channels=_info['channels'],
+        sample_width=_info['width'],
+    )
 
     def mk_pyaudio_to_int16_array_gen():
         for timestamp, wf_bytes, frame_count, time_info, status_flags in audio_reader:
@@ -67,35 +74,37 @@ def mk_pyaudio_to_int16_array_gen_callable(audio_reader: BufferReader):
 
 
 class AudioStreamBuffer(StreamBuffer):
-    def __init__(self,
-                 *,
-                 buffer_size_seconds: Union[int, float] = 60.0,
-                 input_device_index=None,
-                 sr=44100,
-                 width=2,
-                 frames_per_buffer=DFLT_FRM_PER_BUFFER,
-                 sleep_time_on_read_none_s: Optional[Union[int, float]] = 0.05,
-                 auto_drop=True
-                 ):
+    def __init__(
+        self,
+        *,
+        buffer_size_seconds: Union[int, float] = 60.0,
+        input_device_index=None,
+        sr=44100,
+        width=2,
+        frames_per_buffer=DFLT_FRM_PER_BUFFER,
+        sleep_time_on_read_none_s: Optional[Union[int, float]] = 0.05,
+        auto_drop=True,
+    ):
         _info = device_info_by_index(input_device_index)
         sr = sr or int(_info['defaultSampleRate'])
         channels = _info['maxInputChannels']
 
         super().__init__(
-            source_reader=PyAudioSourceReader(input_device_index=input_device_index,
-                                              rate=sr,
-                                              width=width,
-                                              channels=channels,
-                                              frames_per_buffer=frames_per_buffer,
-                                              unsigned=False,
-                                              ),
+            source_reader=PyAudioSourceReader(
+                input_device_index=input_device_index,
+                rate=sr,
+                width=width,
+                channels=channels,
+                frames_per_buffer=frames_per_buffer,
+                unsigned=False,
+            ),
             maxlen=PyAudioSourceReader.audio_buffer_size_seconds_to_maxlen(
                 buffer_size_seconds=buffer_size_seconds,
                 rate=sr,
                 frames_per_buffer=frames_per_buffer,
             ),
             sleep_time_on_read_none_s=sleep_time_on_read_none_s,
-            auto_drop=auto_drop
+            auto_drop=auto_drop,
         )
 
 
@@ -129,31 +138,35 @@ class AudioStreamBuffer(StreamBuffer):
 #         auto_drop=auto_drop
 #     )
 
-def launch_audio_tracking(chk_callback: Callable,
-                          input_device_index: int,
-                          buffer_size_seconds=60,
-                          sr=None,
-                          width=2,
-                          frames_per_buffer=DFLT_FRM_PER_BUFFER,
-                          ):
+
+def launch_audio_tracking(
+    chk_callback: Callable,
+    input_device_index: int,
+    buffer_size_seconds=60,
+    sr=None,
+    width=2,
+    frames_per_buffer=DFLT_FRM_PER_BUFFER,
+):
     try:
         with AudioStreamBuffer(
-                buffer_size_seconds=buffer_size_seconds,
-                input_device_index=input_device_index,
-                sr=sr,
-                width=width,
-                frames_per_buffer=frames_per_buffer,
-                auto_drop=False,
-                sleep_time_on_read_none_s=0.1
+            buffer_size_seconds=buffer_size_seconds,
+            input_device_index=input_device_index,
+            sr=sr,
+            width=width,
+            frames_per_buffer=frames_per_buffer,
+            auto_drop=False,
+            sleep_time_on_read_none_s=0.1,
         ) as audio_buffer:
             audio_reader = audio_buffer.mk_reader()
 
             with StreamBuffer(
-                    source_reader=VisualizationStream(
-                        mk_int16_array_gen=mk_pyaudio_to_int16_array_gen_callable(audio_reader),
-                        chk_to_viz=chk_callback
+                source_reader=VisualizationStream(
+                    mk_int16_array_gen=mk_pyaudio_to_int16_array_gen_callable(
+                        audio_reader
                     ),
-                    maxlen=10
+                    chk_to_viz=chk_callback,
+                ),
+                maxlen=10,
             ) as viz_buffer:
                 viz_reader = viz_buffer.mk_reader()
 

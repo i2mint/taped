@@ -22,6 +22,7 @@ def disp_wf(wf, sr=44100, autoplay=False, wf_plot_func=plt.specgram):
         wf_plot_func(wf)
     try:
         from IPython.display import Audio
+
         return Audio(data=wf, rate=sr, autoplay=autoplay)
     except:
         pass
