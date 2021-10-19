@@ -27,6 +27,9 @@ jobs:
           sudo apt-get install -y portaudio19-dev python-pyaudio libsndfile1
           isee install-requires
 
+      # - name: Delete scrap code
+      #   run: rm -r $PROJECT_NAME/scrap
+
       - name: Format source code
         run: black  --line-length=88 .
 
@@ -39,7 +42,7 @@ jobs:
       #   run: pylint ./$PROJECT_NAME --ignore=tests,examples --disable=all --enable=C0114
 
       - name: Test
-        run: pytest --doctest-modules --ignore=scrap -v $PROJECT_NAME
+        run: pytest --doctest-modules -v $PROJECT_NAME
 
   publish:
     name: Publish
