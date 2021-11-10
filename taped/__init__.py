@@ -1,3 +1,5 @@
+"""Simple audio acquisition"""
+
 from taped.display import disp_wf
 from taped.base import (
     BaseBufferItems,

@@ -3,7 +3,7 @@ from functools import partial
 
 from stream2py import SourceReader, BufferReader
 from stream2py.stream_buffer import StreamBuffer
-from stream2py.sources.audio import PyAudioSourceReader
+from audiostream2py import PyAudioSourceReader
 
 from taped.util import bytes_to_waveform_old
 

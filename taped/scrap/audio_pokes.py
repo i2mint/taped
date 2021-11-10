@@ -4,7 +4,7 @@ from contextlib import contextmanager
 from typing import Iterable, Union, Callable
 
 from stream2py.stream_buffer import StreamBuffer
-from stream2py.sources.audio import PyAudioSourceReader
+from audiostream2py import PyAudioSourceReader
 from taped.util import (
     DFLT_SR,
     DFLT_SAMPLE_WIDTH,

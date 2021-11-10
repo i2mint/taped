@@ -6,7 +6,7 @@ from typing import Iterable, Union, Callable
 
 import numpy as np
 import soundfile as sf
-from stream2py.sources.audio import PyAudioSourceReader
+from audiostream2py import PyAudioSourceReader
 
 # TODO: (wish) service this will builtins only
 

@@ -31,10 +31,11 @@ import os
 import threading
 import time
 import wave
+from typing import Union
 
 from stream2py import StreamBuffer, BufferReader
-from stream2py.sources.audio import PyAudioSourceReader, PaStatusFlags
-from stream2py.utility.typing_hints import Union
+from audiostream2py import PyAudioSourceReader, PaStatusFlags
+
 
 logger = logging.getLogger(__name__)
 
@@ -221,7 +222,7 @@ def audio_to_files(
     logging_enabled,
 ):
     """Basically the main function to run the example.
-    It will record audio with stream2py.sources.audio.PyAudioSourceReader
+    It will record audio with audiostream2py.PyAudioSourceReader
     and save to wav files with stream2py.examples.usage.record_audio_to_files.PyAudioSaver
 
     Check this source code to see how to put together the three components: SourceReader, StreamBuffer, BufferReader
