@@ -1,3 +1,4 @@
+"""Utils for taped"""
 from functools import partial
 import functools
 from io import BytesIO
@@ -6,7 +7,7 @@ from typing import Iterable, Union, Callable
 
 import numpy as np
 import soundfile as sf
-from audiostream2py import PyAudioSourceReader
+from audiostream2py import PyAudioSourceReader, get_input_device_index
 
 # TODO: (wish) service this will builtins only
 
@@ -116,25 +117,10 @@ def list_recording_device_index_names():
     )
 
 
-# TODO: Merge with find_a_device_index
 def find_a_default_input_device_index(verbose=True):
-    for index, name in list_recording_device_index_names():
-        if 'microphone' in name.lower():
-            if verbose:
-                print(
-                    f"Found {name}. Will use it as the default input device. It's index is {index}"
-                )
-            return index
-    for index, name in list_recording_device_index_names():
-        if 'mic' in name.lower():
-            if verbose:
-                print(
-                    f"Found {name}. Will use it as the default input device. It's index is {index}"
-                )
-            return index
+    return get_input_device_index(verbose)
 
 
-# TODO: Test and merge with find_a_default_input_device_index
 def find_a_device_index(filt='microphone', dflt=None):
     if isinstance(filt, str):
         match_str = filt
