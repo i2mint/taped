@@ -118,7 +118,7 @@ def list_recording_device_index_names():
 
 
 def find_a_default_input_device_index(verbose=True):
-    return get_input_device_index(verbose)
+    return get_input_device_index(verbose=verbose)
 
 
 def find_a_device_index(filt='microphone', dflt=None):
