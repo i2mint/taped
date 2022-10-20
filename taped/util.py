@@ -3,7 +3,7 @@ from functools import partial
 import functools
 from io import BytesIO
 from itertools import chain
-from typing import Iterable, Union, Callable
+from typing import Iterable, Union, Callable, List, Tuple
 
 import numpy as np
 import soundfile as sf
@@ -108,7 +108,7 @@ def bytes_to_waveform_old(
     )[0]
 
 
-def list_recording_device_index_names():
+def list_recording_device_index_names() -> List[Tuple[int, str]]:
     """List (index, name) of available recording devices"""
     return sorted(
         (d['index'], d['name'])
