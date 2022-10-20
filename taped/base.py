@@ -37,7 +37,7 @@ class BaseBufferItems(StreamBuffer):
     :param stream_buffer_size_s: How many seconds of data to keep in the buffer (i.e. how far in the past you can see)
     """
 
-    input_device_index: Optional[int] = None
+    input_device_index: Optional[Union[int, str]] = None
     sr: int = DFLT_SR
     sample_width: int = DFLT_SAMPLE_WIDTH
     chk_size: int = DFLT_CHK_SIZE
@@ -85,10 +85,18 @@ class LiveWf(WfChunks):
     def post_iter(self, obj):
         return chain.from_iterable(obj)
 
+    @property
+    def available_samples_in_buffer(self):
+        """Returns the actual max number of samples available.
+        This is maxlen * chk_size when buffer is full.
+        """
+
+        return len(self.source_buffer._buffer) * self.chk_size
+
     def __getitem__(self, item):
         if not isinstance(item, slice):
             item = slice(item, item + 1)  # to emulate usual list[i] interface
-        # item = positive_slice_version(item, max_samples)  # TODO need to get the actual max num of samples available!!
+        item = positive_slice_version(item, self.available_samples_in_buffer)
         return list(islice(self, item.start, item.stop, item.step))
 
 
@@ -107,5 +115,6 @@ def positive_slice_version(slice_, sliced_obj_len):
         if x is not None and x < 0:
             x += sliced_obj_len
         return x
+        # return x if x is None or x > 0 else 0
 
     return slice(positivize(slice_.start), positivize(slice_.stop), slice_.step)
