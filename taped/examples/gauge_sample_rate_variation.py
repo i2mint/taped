@@ -43,7 +43,7 @@ def gather_sample_rate_date(
             chks = iter(islice(chunker(wf), n_chks))
             while True:
                 try:
-                    yield {"bt": time(), "n_samples": len(next(chks)), "tt": time()}
+                    yield {'bt': time(), 'n_samples': len(next(chks)), 'tt': time()}
                 except StopIteration:
                     break
 
@@ -52,7 +52,7 @@ def gather_sample_rate_date(
     return data
 
 
-def params_to_key(params: dict, ext="") -> str:
+def params_to_key(params: dict, ext='') -> str:
     """Convert a dict of parameters to a key for a dict-like object
 
     >>> params_to_key({'a': 1, 'b': 2})
@@ -60,7 +60,7 @@ def params_to_key(params: dict, ext="") -> str:
     >>> params_to_key({'b': 2, 'a': 1}, ext='.csv')
     'a=1,b=2.csv'
     """
-    return ",".join(f"{k}={params[k]}" for k in sorted(params)) + ext
+    return ','.join(f'{k}={params[k]}' for k in sorted(params)) + ext
 
 
 def key_to_params(key: str):
@@ -72,18 +72,16 @@ def key_to_params(key: str):
     {'a': '1', 'b': '2'}
     """
     key, _ = os.path.splitext(key)  # remove the extension if present
-    kvs = (kv.split("=") for kv in key.split(","))
+    kvs = (kv.split('=') for kv in key.split(','))
     return dict(kv for kv in sorted(kvs, key=lambda x: x[0]))
 
 
 dflt_store_folder = get_watermarked_dir(
-    "taped/sample_rate_bias", make_dir=partial(os.makedirs, exist_ok=True)
+    'taped/sample_rate_bias', make_dir=partial(os.makedirs, exist_ok=True)
 )
-dflt_params_folder = os.path.join(dflt_store_folder, "params")
+dflt_params_folder = os.path.join(dflt_store_folder, 'params')
 JsonFiles = wrap_kvs(
-    Files,
-    data_of_obj=Pipe(json.dumps, str.encode),
-    obj_of_data=json.loads
+    Files, data_of_obj=Pipe(json.dumps, str.encode), obj_of_data=json.loads
 )
 dflt_store = JsonFiles(dflt_store_folder, max_levels=0)
 
@@ -112,7 +110,7 @@ def params_product(
 ):
     """To create a list of parameters to pass to run_experiments"""
     params = [
-        dict(zip(("chk_size", "sr", "n_chks", "read_chk_size"), p))
+        dict(zip(('chk_size', 'sr', 'n_chks', 'read_chk_size'), p))
         for p in itertools.product(chk_size, sr, n_chks, read_chk_size)
     ]
     if save_to_filepath:
@@ -153,12 +151,35 @@ def run_experiments(
         key = params_to_key(params)
         if key in store and not overwrite:
             continue  # skip this one, we have it already
-        print_progress and print(f"{i}/{n}: {key}")
+        print_progress and print(f'{i}/{n}: {key}')
         store[key] = gather_sample_rate_date(**params)
     return store
 
 
-if __name__ == "__main__":
+def observed_sample_rates(d):
+    import pandas as pd
+
+    df = pd.DataFrame(d)
+    return df['n_samples'] / (df['tt'] - df['bt'])
+
+
+def observed_sample_rates_plot(k, v):
+    import pandas as pd
+
+    df = pd.DataFrame(v)
+    df = df['n_samples'] / (df['tt'] - df['bt'])
+    return df.plot(title=k, marker='o', linestyle='-')
+
+
+def mk_df_store(store):
+    return wrap_kvs(store, obj_of_data=observed_sample_rates)
+
+
+def mk_plot_store(store):
+    return wrap_kvs(store, postget=observed_sample_rates_plot)
+
+
+if __name__ == '__main__':
     import argh
 
     argh.dispatch_command(run_experiments)
