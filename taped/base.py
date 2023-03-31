@@ -42,10 +42,11 @@ class BaseBufferItems(StreamBuffer):
     sample_width: int = DFLT_SAMPLE_WIDTH
     chk_size: int = DFLT_CHK_SIZE
     stream_buffer_size_s: Union[float, int] = DFLT_STREAM_BUF_SIZE_S
+    verbose: bool = False
 
     def __post_init__(self):
         self.input_device_index = ensure_source_input_device_index(
-            self.input_device_index
+            self.input_device_index, verbose=self.verbose
         )
         seconds_per_read = self.chk_size / self.sr
 

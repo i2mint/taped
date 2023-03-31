@@ -132,9 +132,9 @@ def find_a_device_index(filt='microphone', dflt=None):
     return (match is not None and match['index']) or dflt
 
 
-def ensure_source_input_device_index(input_device_index=None):
+def ensure_source_input_device_index(input_device_index=None, verbose=True):
     if input_device_index is None:
-        input_device_index = find_a_default_input_device_index()
+        input_device_index = find_a_default_input_device_index(verbose=verbose)
     if input_device_index is not None:
         if isinstance(input_device_index, int):
             return input_device_index
