@@ -6,7 +6,7 @@ from collections import namedtuple
 from dataclasses import dataclass
 
 from stream2py.stream_buffer import StreamBuffer
-from audiostream2py import PyAudioSourceReader
+from audiostream2py import PyAudioSourceReader, AudioSegment
 from taped.util import (
     DFLT_SR,
     DFLT_SAMPLE_WIDTH,
@@ -23,6 +23,15 @@ BufferItemOutput = namedtuple(
     typename='BufferItemOutput',
     field_names=['timestamp', 'bytes', 'frame_count', 'time_info', 'status_flags'],
 )
+
+def audio_segment_to_buffer_item_output(segment: AudioSegment) -> BufferItemOutput:
+    return BufferItemOutput(
+        timestamp=segment.start_date,
+        bytes=segment.waveform,
+        frame_count=segment.frame_count,
+        time_info=segment.end_date,
+        status_flags=segment.status_flags,
+    )
 
 
 @Creek.wrap
@@ -64,7 +73,8 @@ class BaseBufferItems(StreamBuffer):
 
 class BufferItems(BaseBufferItems):
     def data_to_obj(self, data):
-        return BufferItemOutput(*data)
+        return audio_segment_to_buffer_item_output(data)
+
 
 
 class ByteChunks(BufferItems):
