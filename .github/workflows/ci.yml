@@ -13,13 +13,6 @@ jobs:
         python-version: ["3.10"]
 
     steps:
-      - uses: actions/checkout@v3
-
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
-
       - name: Install system dependencies
         run: |
           sudo apt update -y
@@ -27,6 +20,14 @@ jobs:
           sudo apt install -y software-properties-common
           sudo apt install -y libffi-dev libssl-dev libbz2-dev
           sudo apt install -y portaudio19-dev libsndfile-dev
+          ls /usr/include/portaudio.h || echo "PortAudio header missing!" && exit 1
+
+      - uses: actions/checkout@v3
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
 
       - name: Install Dependencies
         uses: i2mint/isee/actions/install-packages@master
