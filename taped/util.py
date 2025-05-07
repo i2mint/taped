@@ -1,4 +1,59 @@
-"""Utils for taped"""
+"""
+Utilities for audio processing and streaming in the taped package.
+
+This module provides tools for:
+- Converting between audio bytes and waveforms
+- Managing audio input devices and streams
+- Chunking data for efficient processing
+- Working with audio formats and configurations
+
+Main components:
+- Audio format conversion: bytes_to_waveform, waveform_to_bytes
+- Device management: find_a_default_input_device_index, ensure_source_input_device_index, list_recording_device_index_names
+- Data chunking utilities: simple_chunker, rechunker, chunk_indices
+- Constants for default audio parameters (DFLT_SR, DFLT_N_CHANNELS, etc.)
+
+The module is designed to support audio recording, processing, and streaming operations
+with a focus on customizable chunking and device handling.
+
+Dependencies:
+- numpy: For array manipulation
+- soundfile: For audio file operations
+- audiostream2py: For audio stream handling
+Utils for taped
+
+
+>>> # Example of working with audio data slices: Create a live waveform reader
+>>> wf = LiveWf()  # doctest: +SKIP
+>>> # Get the last 1 second of audio (assuming 44100 sample rate)
+>>> last_second = wf[-44100:]  # doctest: +SKIP
+>>> # Will be up to 44100 samples:
+>>> len(last_second)  # doctest: +SKIP 
+>>> 
+>>> # Example of converting between formats
+>>> from audiostream2py import AudioSegment
+>>> # Create a sample AudioSegment (this is just an example structure)
+>>> segment = AudioSegment(  # doctest: +SKIP
+...     waveform=b'sample audio data',
+...     start_date=1234567890.0,
+...     end_date=1234567891.0,
+...     frame_count=1000,
+...     status_flags=0
+... )
+>>> # Convert to BufferItemOutput
+>>> buffer_item = audio_segment_to_buffer_item_output(segment)  # doctest: +SKIP
+>>> buffer_item.timestamp == 1234567890.0  # doctest: +SKIP
+True
+>>> buffer_item.bytes == b'sample audio data'  # doctest: +SKIP
+True
+>>> 
+>>> # Example of positive_slice_version function
+>>> positive_slice_version(slice(-5, None), 10)  # doctest: +SKIP
+slice(5, None, None)
+>>> positive_slice_version(slice(3, 8, 2), 10)  # doctest: +SKIP
+slice(3, 8, 2)
+
+"""
 from functools import partial
 import functools
 from io import BytesIO

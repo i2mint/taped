@@ -1,4 +1,14 @@
-"""Base of taped objects"""
+"""
+Base of taped objects
+
+This module provides classes and functions for handling audio streams and buffers.
+It includes tools for capturing live audio from microphones, buffering audio data,
+and converting between different audio representations.
+
+Examples
+--------
+
+"""
 
 from itertools import chain
 from typing import Union, Optional
