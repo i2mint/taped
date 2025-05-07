@@ -9,14 +9,6 @@ from taped.base import BaseBufferItems, LiveWf
 from taped.util import DFLT_SR, DFLT_SAMPLE_WIDTH, DFLT_CHK_SIZE, DFLT_STREAM_BUF_SIZE_S
 
 
-from typing import Callable, Iterable, List, Literal, Optional, Tuple, Union
-from itertools import islice
-import soundfile as sf
-from taped import LiveWf
-from taped.base import BaseBufferItems
-from taped.util import DFLT_SR, DFLT_SAMPLE_WIDTH, DFLT_CHK_SIZE, DFLT_STREAM_BUF_SIZE_S
-
-
 def record(
     duration: Optional[float] = None,
     *,
