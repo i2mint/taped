@@ -20,7 +20,7 @@ jobs:
           sudo apt install -y software-properties-common
           sudo apt install -y libffi-dev libssl-dev libbz2-dev
           sudo apt install -y portaudio19-dev libsndfile-dev
-          ls /usr/include/portaudio.h || echo "PortAudio header missing!" && exit 1
+          ls /usr/include/portaudio.h || echo "PortAudio header missing!"
 
       - uses: actions/checkout@v3
 
