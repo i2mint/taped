@@ -9,9 +9,17 @@ from taped.base import BaseBufferItems, LiveWf
 from taped.util import DFLT_SR, DFLT_SAMPLE_WIDTH, DFLT_CHK_SIZE, DFLT_STREAM_BUF_SIZE_S
 
 
+from typing import Callable, Iterable, List, Literal, Optional, Tuple, Union
+from itertools import islice
+import soundfile as sf
+from taped import LiveWf
+from taped.base import BaseBufferItems
+from taped.util import DFLT_SR, DFLT_SAMPLE_WIDTH, DFLT_CHK_SIZE, DFLT_STREAM_BUF_SIZE_S
+
+
 def record(
-    *,
     duration: Optional[float] = None,
+    *,
     duration_unit: Literal['seconds', 'samples', 'minutes'] = 'seconds',
     sr: int = DFLT_SR,
     egress: Optional[Union[str, Callable]] = None,
@@ -40,8 +48,7 @@ def record(
         Recorded waveform data, potentially processed by egress function.
 
     >>> # Record 0.1 seconds of audio
-    >>> samples = record(duration=0.1, verbose=False)  # doctest: +SKIP
-
+    >>> sample = record(0.1, verbose=False)  # doctest: +SKIP
     """
 
     def _log(*args, **kwargs):
@@ -78,15 +85,23 @@ def record(
     else:
         _egress = egress
 
+    # Initialize empty waveform before trying anything
+    waveform = []
+
     try:
         if input_device_index is None and sample_width == DFLT_SAMPLE_WIDTH:
             # Use the simpler LiveWf approach when possible
             _log('Starting recording with LiveWf...')
             with LiveWf(sr=sr) as live_wf:
-                limited_wf = (
-                    islice(live_wf, n_samples) if n_samples is not None else live_wf
-                )
-                return _egress(list(limited_wf))
+                # Accumulate samples but be prepared for interruption
+                if n_samples is not None:
+                    live_iter = islice(live_wf, n_samples)
+                else:
+                    live_iter = live_wf
+
+                # Collect samples one by one to ensure we keep what we have on interrupt
+                for sample in live_iter:
+                    waveform.append(sample)
         else:
             # Use the more configurable BaseBufferItems approach
             _log('Starting recording with BaseBufferItems...')
@@ -98,7 +113,6 @@ def record(
                 stream_buffer_size_s=stream_buffer_size_s,
             )
 
-            waveform = []
             count = 0
 
             with buffer_items:
@@ -112,11 +126,14 @@ def record(
                         waveform = waveform[:n_samples]
                         break
 
-            return _egress(waveform)
-
     except ignore_exceptions as e:
         _log(f'Recording stopped by {type(e).__name__}')
-        return _egress(waveform if 'waveform' in locals() else [])
+    except Exception as e:
+        _log(f'Error during recording: {type(e).__name__}: {e}')
+        raise
+
+    _log(f'Recorded {len(waveform)} samples')
+    return _egress(waveform)
 
 
 # TODO: Deprecate record_some_sound
