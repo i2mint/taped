@@ -36,17 +36,17 @@ def launch(pipeline=None, max_samples=20000):
                 wf = live_wf
             pipeline(wf)
     except KeyboardInterrupt:
-        print('A KeyboardInterrupt was received. Closing down...')
+        print("A KeyboardInterrupt was received. Closing down...")
 
 
-def viz(val, gain=1 / 20, offset=0, disp_str='*'):
+def viz(val, gain=1 / 20, offset=0, disp_str="*"):
     print(disp_str * int(gain * val + offset))
 
 
 def _unpickle_if_filepath(obj):
     if isinstance(obj, str) and os.path.isfile(obj):
         filepath = obj
-        with open(filepath, 'r') as f:
+        with open(filepath, "r") as f:
             obj = pickle.load(f)
     return obj
 
@@ -66,17 +66,17 @@ def strings_as_pickle_files(func):
 @wraps(mk_pipeline)
 def main(*args, **kwargs):
     max_samples = kwargs.pop(
-        'max_samples', None
+        "max_samples", None
     )  # this argument will be hidden (use Sig to add it to signature?)
     kwargs = Sig(mk_pipeline).extract_kwargs(*args, **kwargs)
-    if 'chunker' in kwargs and str.isnumeric(kwargs['chunker']):
-        kwargs['chunker'] = int(kwargs['chunker'])
+    if "chunker" in kwargs and str.isnumeric(kwargs["chunker"]):
+        kwargs["chunker"] = int(kwargs["chunker"])
     pipeline = mk_pipeline(**kwargs)
 
     return launch(pipeline, max_samples=max_samples)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import argh
     from inspect import signature
 

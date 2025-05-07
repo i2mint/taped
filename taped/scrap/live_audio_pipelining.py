@@ -38,9 +38,9 @@ dflt_chk_to_viz = ap_chk_to_viz
 class DFLT:
     gain = 10
     cutoff = 50
-    dispstr = '*'
-    prefix = '|'
-    fv_num_sep = '\n'
+    dispstr = "*"
+    prefix = "|"
+    fv_num_sep = "\n"
 
 
 def viz_norm(x, gain=10, cutoff=50):
@@ -57,7 +57,7 @@ dflt_num_to_viz_str = ascii_levels
 def multipart_fv_str(
     fv, num_to_viz_str=dflt_num_to_viz_str, fv_num_sep=DFLT.fv_num_sep
 ):
-    return fv_num_sep.join(map(num_to_viz_str, fv)) + '\n'
+    return fv_num_sep.join(map(num_to_viz_str, fv)) + "\n"
 
 
 ascii_levels_fv_to_str = partial(
@@ -81,7 +81,7 @@ def chk_to_fv_viz(chk: np.ndarray, chk_to_fv=dflt_chk_to_fv, fv_to_str=dflt_fv_t
 def refresh_and_print(iterator_output):
     clear_output(wait=True)
     n, viz = iterator_output
-    print(n, viz, sep='\n')
+    print(n, viz, sep="\n")
 
 
 from collections import deque

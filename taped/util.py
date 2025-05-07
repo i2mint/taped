@@ -28,8 +28,8 @@ Utils for taped
 >>> # Get the last 1 second of audio (assuming 44100 sample rate)
 >>> last_second = wf[-44100:]  # doctest: +SKIP
 >>> # Will be up to 44100 samples:
->>> len(last_second)  # doctest: +SKIP 
->>> 
+>>> len(last_second)  # doctest: +SKIP
+>>>
 >>> # Example of converting between formats
 >>> from audiostream2py import AudioSegment
 >>> # Create a sample AudioSegment (this is just an example structure)
@@ -46,7 +46,7 @@ Utils for taped
 True
 >>> buffer_item.bytes == b'sample audio data'  # doctest: +SKIP
 True
->>> 
+>>>
 >>> # Example of positive_slice_version function
 >>> positive_slice_version(slice(-5, None), 10)  # doctest: +SKIP
 slice(5, None, None)
@@ -54,6 +54,7 @@ slice(5, None, None)
 slice(3, 8, 2)
 
 """
+
 from functools import partial
 import functools
 from io import BytesIO
@@ -74,21 +75,21 @@ DFLT_SAMPLE_WIDTH = 2
 DFLT_CHK_SIZE = 1024 * 4
 DFLT_STREAM_BUF_SIZE_S = 60
 read_kwargs_for_sample_width = {
-    2: dict(format='RAW', subtype='PCM_16', dtype='int16'),
-    3: dict(format='RAW', subtype='PCM_24'),  # what dtype?
-    4: dict(format='RAW', subtype='PCM_32', dtype='int32'),
+    2: dict(format="RAW", subtype="PCM_16", dtype="int16"),
+    3: dict(format="RAW", subtype="PCM_24"),  # what dtype?
+    4: dict(format="RAW", subtype="PCM_32", dtype="int32"),
 }
 
 # monkey patching WRAPPER_ASSIGNMENTS to get "proper" wrapping (adding defaults and kwdefaults
 
 wrapper_assignments = (
-    '__module__',
-    '__name__',
-    '__qualname__',
-    '__doc__',
-    '__annotations__',
-    '__defaults__',
-    '__kwdefaults__',
+    "__module__",
+    "__name__",
+    "__qualname__",
+    "__doc__",
+    "__annotations__",
+    "__defaults__",
+    "__kwdefaults__",
 )
 
 update_wrapper = functools.update_wrapper
@@ -130,14 +131,14 @@ def waveform_to_bytes(wf, sr=DFLT_SR, sample_width=DFLT_SAMPLE_WIDTH):
     :return: bytes
     """
     b = BytesIO()
-    subtype = read_kwargs_for_sample_width[sample_width]['subtype']
-    sf.write(b, wf, samplerate=sr, format='RAW', subtype=subtype)
+    subtype = read_kwargs_for_sample_width[sample_width]["subtype"]
+    sf.write(b, wf, samplerate=sr, format="RAW", subtype=subtype)
     b.seek(0)
     return b.read()
 
 
 def bytes_to_waveform_old(
-    b: bytes, sr: int, n_channels: int, sample_width: int, dtype='int16'
+    b: bytes, sr: int, n_channels: int, sample_width: int, dtype="int16"
 ) -> np.array:
     """Convert raw bytes to a numpy array cast to dtype
 
@@ -149,15 +150,15 @@ def bytes_to_waveform_old(
     :return: numpy.array
     """
     sample_width_to_subtype = {
-        2: 'PCM_16',
-        3: 'PCM_24',
-        4: 'PCM_32',
+        2: "PCM_16",
+        3: "PCM_24",
+        4: "PCM_32",
     }
     return sf.read(
         BytesIO(b),
         samplerate=sr,
         channels=n_channels,
-        format='RAW',
+        format="RAW",
         subtype=sample_width_to_subtype[sample_width],
         dtype=dtype,
     )[0]
@@ -166,9 +167,9 @@ def bytes_to_waveform_old(
 def list_recording_device_index_names() -> List[Tuple[int, str]]:
     """List (index, name) of available recording devices"""
     return sorted(
-        (d['index'], d['name'])
+        (d["index"], d["name"])
         for d in PyAudioSourceReader.list_device_info()
-        if d['maxInputChannels'] > 0
+        if d["maxInputChannels"] > 0
     )
 
 
@@ -176,15 +177,15 @@ def find_a_default_input_device_index(verbose=True):
     return get_input_device_index(verbose=verbose)
 
 
-def find_a_device_index(filt='microphone', dflt=None):
+def find_a_device_index(filt="microphone", dflt=None):
     if isinstance(filt, str):
         match_str = filt
 
         def filt(x):
-            return match_str in x.get('name', match_str).lower()
+            return match_str in x.get("name", match_str).lower()
 
     match = next(filter(filt, PyAudioSourceReader.list_device_info()), None)
-    return (match is not None and match['index']) or dflt
+    return (match is not None and match["index"]) or dflt
 
 
 def ensure_source_input_device_index(input_device_index=None, verbose=True):
@@ -199,16 +200,16 @@ def ensure_source_input_device_index(input_device_index=None, verbose=True):
                 if name == input_name:
                     return index
             raise ValueError(
-                f'name not found in list of recording devices: {input_name}'
+                f"name not found in list of recording devices: {input_name}"
             )
         elif isinstance(input_device_index, tuple) and len(input_device_index) == 2:
             index, name = input_device_index
             assert isinstance(
                 index, int
-            ), f'expecting first element of tuple to be an int: {input_device_index}'
+            ), f"expecting first element of tuple to be an int: {input_device_index}"
             assert isinstance(
                 name, str
-            ), f'expecting second element of tuple to be a string: {input_device_index}'
+            ), f"expecting second element of tuple to be a string: {input_device_index}"
             return index
         else:
             raise ValueError(
@@ -217,17 +218,17 @@ def ensure_source_input_device_index(input_device_index=None, verbose=True):
     else:
         # TODO: Nicer way to print info (perhaps only relevant info, formated as table)
         print(
-            'Need a valid input_device_index. Calling live_audio_chks.list_device_info() to information about the '
-            'devices I can detect:\n'
+            "Need a valid input_device_index. Calling live_audio_chks.list_device_info() to information about the "
+            "devices I can detect:\n"
         )
         for item in PyAudioSourceReader.list_device_info():
             print(item)
-            print('')
+            print("")
         print(
             "---> Look in the list above and choose an input_device_index (it's called index in the printout above) "
-            'that seems to be right for you!'
+            "that seems to be right for you!"
         )
-        raise ValueError('Need a valid input_device_index')
+        raise ValueError("Need a valid input_device_index")
 
 
 def simple_chunker(a: Iterable, chk_size: int):
@@ -282,6 +283,7 @@ def rechunker(chks: Iterable[Iterable], chunker: Union[Callable, int]):
 
 
 from itertools import count, islice
+
 
 # TODO: Restricted by integer: Need float and decimal versions
 def chunk_indices(chk_size, chk_step=None, start_idx=0, end_idx=None):

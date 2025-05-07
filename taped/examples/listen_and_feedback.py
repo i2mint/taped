@@ -24,7 +24,7 @@ def asis(wf):
 
 
 def reverse_and_print(wf):
-    print('reversed sounds like this...')
+    print("reversed sounds like this...")
     return wf[::-1]
 
 
@@ -76,7 +76,7 @@ def listen_and_shout(
                 b = waveform_to_bytes(transform_wf(wf), sr, sample_width)
                 stream.write(b)
             except KeyboardInterrupt:
-                print('KeyboardInterrupt... Closing down')
+                print("KeyboardInterrupt... Closing down")
                 break
 
     # Close and terminate the stream
@@ -89,12 +89,12 @@ def vol(wf):
 
 
 def print_vol_num(wf):
-    print(f'{vol(wf):0.04f}')
+    print(f"{vol(wf):0.04f}")
 
 
-def print_vol(wf, char='-', gain=2, saturation_vol=99):
+def print_vol(wf, char="-", gain=2, saturation_vol=99):
     log_vol = int(min(saturation_vol, max(1, gain * np.std(np.abs(wf)) / 100)))
-    print(f'{char * log_vol}')
+    print(f"{char * log_vol}")
 
 
 def push_sound_through_a_pipe(
@@ -128,5 +128,5 @@ def push_sound_through_a_pipe(
             try:
                 callback(list(islice(wf_gen, int(sr * every_seconds))))
             except KeyboardInterrupt:
-                print('KeyboardInterrupt... Closing down')
+                print("KeyboardInterrupt... Closing down")
                 break

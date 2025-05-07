@@ -285,7 +285,7 @@ def record_some_sound(
 ):
     def get_write_file_stream():
         if isinstance(save_to_file, str):
-            return open(save_to_file, 'wb')
+            return open(save_to_file, "wb")
         else:
             return save_to_file  # assume it's already a stream
 
@@ -306,14 +306,14 @@ def record_some_sound(
 
     with StreamBuffer(source_reader=source_reader, maxlen=maxlen) as stream_buffer:
         """keep open and save to file until stop event"""
-        clog('starting the recording...')
+        clog("starting the recording...")
         with get_write_file_stream() as write_stream:
             while True:
                 try:
                     chk = source_reader.read()
                     print(type(chk), len(chk))
                 except KeyboardInterrupt:
-                    clog('stopping the recording...')
+                    clog("stopping the recording...")
                     break
 
-    clog('Done.')
+    clog("Done.")

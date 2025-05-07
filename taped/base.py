@@ -30,9 +30,10 @@ from itertools import islice
 from creek import Creek
 
 BufferItemOutput = namedtuple(
-    typename='BufferItemOutput',
-    field_names=['timestamp', 'bytes', 'frame_count', 'time_info', 'status_flags'],
+    typename="BufferItemOutput",
+    field_names=["timestamp", "bytes", "frame_count", "time_info", "status_flags"],
 )
+
 
 def audio_segment_to_buffer_item_output(segment: AudioSegment) -> BufferItemOutput:
     return BufferItemOutput(
@@ -84,7 +85,6 @@ class BaseBufferItems(StreamBuffer):
 class BufferItems(BaseBufferItems):
     def data_to_obj(self, data):
         return audio_segment_to_buffer_item_output(data)
-
 
 
 class ByteChunks(BufferItems):

@@ -22,9 +22,9 @@ import matplotlib.pylab as plt
 from numpy import linspace
 
 
-def getmodulename(obj, default=''):
+def getmodulename(obj, default=""):
     """Get name of module of object"""
-    return getattr(getmodule(obj), '__name__', default)
+    return getattr(getmodule(obj), "__name__", default)
 
 
 def plot_wf(wf, sr=None, **kwargs):
@@ -36,7 +36,7 @@ def plot_wf(wf, sr=None, **kwargs):
 
 def disp_wf(wf, sr=44100, autoplay=False, wf_plot_func=plt.specgram):
     if wf_plot_func is not None:
-        if getmodulename(wf_plot_func, '').startswith('matplotlib'):
+        if getmodulename(wf_plot_func, "").startswith("matplotlib"):
             plt.figure(figsize=(16, 5))
         wf_plot_func(wf)
     try:

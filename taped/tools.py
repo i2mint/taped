@@ -12,7 +12,7 @@ from taped.util import DFLT_SR, DFLT_SAMPLE_WIDTH, DFLT_CHK_SIZE, DFLT_STREAM_BU
 def record(
     duration: Optional[float] = None,
     *,
-    duration_unit: Literal['seconds', 'samples', 'minutes'] = 'seconds',
+    duration_unit: Literal["seconds", "samples", "minutes"] = "seconds",
     sr: int = DFLT_SR,
     egress: Optional[Union[str, Callable]] = None,
     ignore_exceptions: Tuple[Exception, ...] = (KeyboardInterrupt,),
@@ -57,11 +57,11 @@ def record(
         if value is None:
             return None
 
-        if unit == 'seconds':
+        if unit == "seconds":
             return int(value * sr)
-        elif unit == 'minutes':
+        elif unit == "minutes":
             return int(value * 60 * sr)
-        elif unit == 'samples':
+        elif unit == "samples":
             return int(value)
         else:
             raise ValueError(f"Unknown duration unit: {unit}")
@@ -83,7 +83,7 @@ def record(
     try:
         if input_device_index is None and sample_width == DFLT_SAMPLE_WIDTH:
             # Use the simpler LiveWf approach when possible
-            _log('Starting recording with LiveWf...')
+            _log("Starting recording with LiveWf...")
             with LiveWf(sr=sr) as live_wf:
                 # Accumulate samples but be prepared for interruption
                 if n_samples is not None:
@@ -96,7 +96,7 @@ def record(
                     waveform.append(sample)
         else:
             # Use the more configurable BaseBufferItems approach
-            _log('Starting recording with BaseBufferItems...')
+            _log("Starting recording with BaseBufferItems...")
             buffer_items = BaseBufferItems(
                 input_device_index=input_device_index,
                 sr=sr,
@@ -108,7 +108,7 @@ def record(
             count = 0
 
             with buffer_items:
-                _log('Recording started (interrupt to stop)...')
+                _log("Recording started (interrupt to stop)...")
                 for item in buffer_items:
                     waveform.extend(item.data)
                     count += len(item.data)
@@ -119,12 +119,12 @@ def record(
                         break
 
     except ignore_exceptions as e:
-        _log(f'Recording stopped by {type(e).__name__}')
+        _log(f"Recording stopped by {type(e).__name__}")
     except Exception as e:
-        _log(f'Error during recording: {type(e).__name__}: {e}')
+        _log(f"Error during recording: {type(e).__name__}: {e}")
         raise
 
-    _log(f'Recorded {len(waveform)} samples')
+    _log(f"Recorded {len(waveform)} samples")
     return _egress(waveform)
 
 
@@ -140,7 +140,7 @@ def record_some_sound(
 ):
     def get_write_file_stream():
         if isinstance(save_to_file, str):
-            return open(save_to_file, 'wb')  # Shouldn't this be 'ab', for appends?
+            return open(save_to_file, "wb")  # Shouldn't this be 'ab', for appends?
         else:
             return save_to_file  # assume it's already a stream
 
@@ -157,13 +157,13 @@ def record_some_sound(
     )
     with buffer_items:
         """keep open and save to file until stop event"""
-        clog('starting the recording (you can KeyboardInterrupt at any point)...')
+        clog("starting the recording (you can KeyboardInterrupt at any point)...")
         with get_write_file_stream() as write_stream:
             for item in buffer_items:
                 try:
                     write_stream.write(item.bytes)
                 except KeyboardInterrupt:
-                    clog('stopping the recording...')
+                    clog("stopping the recording...")
                     break
 
-    clog('Done.')
+    clog("Done.")
