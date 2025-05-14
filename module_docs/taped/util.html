@@ -1,0 +1,307 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>taped.util &mdash; taped 0.1.7 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=ca7ad2ea"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/toggleprompt.js?v=d7ede5d2"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="prev" title="taped.tools" href="tools.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            taped
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../taped.html">taped</a></li>
+<li class="toctree-l1"><a class="reference internal" href="base.html">taped.base</a></li>
+<li class="toctree-l1"><a class="reference internal" href="display.html">taped.display</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/gauge_sample_rate_variation.html">taped.examples.gauge_sample_rate_variation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/listen_and_feedback.html">taped.examples.listen_and_feedback</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/live_audio_pipelines.html">taped.examples.live_audio_pipelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/record_audio_to_files.html">Recording audio to wav file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scrap/audio_pokes.html">taped.scrap.audio_pokes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scrap/live_audio.html">taped.scrap.live_audio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scrap/live_audio_pipelining.html">taped.scrap.live_audio_pipelining</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tools.html">taped.tools</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">taped.util</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#taped.util.bytes_to_waveform"><code class="docutils literal notranslate"><span class="pre">bytes_to_waveform()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#taped.util.bytes_to_waveform_old"><code class="docutils literal notranslate"><span class="pre">bytes_to_waveform_old()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#taped.util.chunk_indices"><code class="docutils literal notranslate"><span class="pre">chunk_indices()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#taped.util.list_recording_device_index_names"><code class="docutils literal notranslate"><span class="pre">list_recording_device_index_names()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#taped.util.rechunker"><code class="docutils literal notranslate"><span class="pre">rechunker()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#taped.util.simple_chunker"><code class="docutils literal notranslate"><span class="pre">simple_chunker()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#taped.util.waveform_to_bytes"><code class="docutils literal notranslate"><span class="pre">waveform_to_bytes()</span></code></a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">taped</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">taped.util</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/module_docs/taped/util.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-taped.util">
+<span id="taped-util"></span><h1>taped.util<a class="headerlink" href="#module-taped.util" title="Link to this heading"></a></h1>
+<p>Utilities for audio processing and streaming in the taped package.</p>
+<p>This module provides tools for:
+- Converting between audio bytes and waveforms
+- Managing audio input devices and streams
+- Chunking data for efficient processing
+- Working with audio formats and configurations</p>
+<p>Main components:
+- Audio format conversion: bytes_to_waveform, waveform_to_bytes
+- Device management: find_a_default_input_device_index, ensure_source_input_device_index, list_recording_device_index_names
+- Data chunking utilities: simple_chunker, rechunker, chunk_indices
+- Constants for default audio parameters (DFLT_SR, DFLT_N_CHANNELS, etc.)</p>
+<p>The module is designed to support audio recording, processing, and streaming operations
+with a focus on customizable chunking and device handling.</p>
+<p>Dependencies:
+- numpy: For array manipulation
+- soundfile: For audio file operations
+- audiostream2py: For audio stream handling
+Utils for taped</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Example of working with audio data slices: Create a live waveform reader</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">wf</span> <span class="o">=</span> <span class="n">LiveWf</span><span class="p">()</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Get the last 1 second of audio (assuming 44100 sample rate)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">last_second</span> <span class="o">=</span> <span class="n">wf</span><span class="p">[</span><span class="o">-</span><span class="mi">44100</span><span class="p">:]</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Will be up to 44100 samples:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">last_second</span><span class="p">)</span>  
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Example of converting between formats</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">audiostream2py</span><span class="w"> </span><span class="kn">import</span> <span class="n">AudioSegment</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Create a sample AudioSegment (this is just an example structure)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">segment</span> <span class="o">=</span> <span class="n">AudioSegment</span><span class="p">(</span>  
+<span class="gp">... </span>    <span class="n">waveform</span><span class="o">=</span><span class="sa">b</span><span class="s1">&#39;sample audio data&#39;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">start_date</span><span class="o">=</span><span class="mf">1234567890.0</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">end_date</span><span class="o">=</span><span class="mf">1234567891.0</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">frame_count</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">status_flags</span><span class="o">=</span><span class="mi">0</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Convert to BufferItemOutput</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">buffer_item</span> <span class="o">=</span> <span class="n">audio_segment_to_buffer_item_output</span><span class="p">(</span><span class="n">segment</span><span class="p">)</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="n">buffer_item</span><span class="o">.</span><span class="n">timestamp</span> <span class="o">==</span> <span class="mf">1234567890.0</span>  
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">buffer_item</span><span class="o">.</span><span class="n">bytes</span> <span class="o">==</span> <span class="sa">b</span><span class="s1">&#39;sample audio data&#39;</span>  
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Example of positive_slice_version function</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">positive_slice_version</span><span class="p">(</span><span class="nb">slice</span><span class="p">(</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="mi">10</span><span class="p">)</span>  
+<span class="go">slice(5, None, None)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">positive_slice_version</span><span class="p">(</span><span class="nb">slice</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="mi">10</span><span class="p">)</span>  
+<span class="go">slice(3, 8, 2)</span>
+</pre></div>
+</div>
+<dl class="py function">
+<dt class="sig sig-object py" id="taped.util.bytes_to_waveform">
+<span class="sig-prename descclassname"><span class="pre">taped.util.</span></span><span class="sig-name descname"><span class="pre">bytes_to_waveform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">44100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/taped/util.html#bytes_to_waveform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#taped.util.bytes_to_waveform" title="Link to this definition"></a></dt>
+<dd><p>Convert raw bytes to a numpy array cast to dtype</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>b</strong> – bytes</p></li>
+<li><p><strong>sr</strong> – sample rate</p></li>
+<li><p><strong>n_channels</strong> – number of channels</p></li>
+<li><p><strong>sample_width</strong> – sample byte width [2, 3, 4]</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>numpy.array or ints</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="taped.util.bytes_to_waveform_old">
+<span class="sig-prename descclassname"><span class="pre">taped.util.</span></span><span class="sig-name descname"><span class="pre">bytes_to_waveform_old</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_channels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'int16'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">array</span></span></span><a class="reference internal" href="../../_modules/taped/util.html#bytes_to_waveform_old"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#taped.util.bytes_to_waveform_old" title="Link to this definition"></a></dt>
+<dd><p>Convert raw bytes to a numpy array cast to dtype</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>b</strong> – bytes</p></li>
+<li><p><strong>sr</strong> – sample rate</p></li>
+<li><p><strong>n_channels</strong> – number of channels</p></li>
+<li><p><strong>sample_width</strong> – sample byte width [2, 3, 4]</p></li>
+<li><p><strong>dtype</strong> – data type used by numpy, i.e. dtype=np.int16 is the same as dtype=’int16’</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>numpy.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="taped.util.chunk_indices">
+<span class="sig-prename descclassname"><span class="pre">taped.util.</span></span><span class="sig-name descname"><span class="pre">chunk_indices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chk_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chk_step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_idx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_idx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/taped/util.html#chunk_indices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#taped.util.chunk_indices" title="Link to this definition"></a></dt>
+<dd><p>Yields upper and integer lower bounds of integer size and step chunks.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">it</span> <span class="o">=</span> <span class="n">chunk_indices</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">next</span><span class="p">(</span><span class="n">it</span><span class="p">)</span>
+<span class="go">(0, 5)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">next</span><span class="p">(</span><span class="n">it</span><span class="p">)</span>
+<span class="go">(5, 10)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">chunk_indices</span><span class="p">(</span><span class="n">chk_size</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">chk_step</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">start_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end_idx</span><span class="o">=</span><span class="mi">15</span><span class="p">))</span>
+<span class="go">[(0, 5), (3, 8), (6, 11), (9, 14)]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="taped.util.list_recording_device_index_names">
+<span class="sig-prename descclassname"><span class="pre">taped.util.</span></span><span class="sig-name descname"><span class="pre">list_recording_device_index_names</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/taped/util.html#list_recording_device_index_names"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#taped.util.list_recording_device_index_names" title="Link to this definition"></a></dt>
+<dd><p>List (index, name) of available recording devices</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="taped.util.rechunker">
+<span class="sig-prename descclassname"><span class="pre">taped.util.</span></span><span class="sig-name descname"><span class="pre">rechunker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chks</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">Iterable</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chunker</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/taped/util.html#rechunker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#taped.util.rechunker" title="Link to this definition"></a></dt>
+<dd><p>Generate fixed sized non-overlapping chunks of an iterable of chunks.
+That is, the rechunker applies a chunker to an unraveled stream of chunks,
+or more generally of iterables since they can be of varied sizes and types.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">partial</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">chunker</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">simple_chunker</span><span class="p">,</span> <span class="n">chk_size</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">chks</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">0</span><span class="p">],</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="nb">iter</span><span class="p">((</span><span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">))]</span>  <span class="c1"># iterable of (different types of) iterables</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">rechunker</span><span class="p">(</span><span class="n">chks</span><span class="p">,</span> <span class="n">chunker</span><span class="p">))</span>
+<span class="go">[(0, 1, 2), (3, 4, 5)]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="taped.util.simple_chunker">
+<span class="sig-prename descclassname"><span class="pre">taped.util.</span></span><span class="sig-name descname"><span class="pre">simple_chunker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chk_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/taped/util.html#simple_chunker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#taped.util.simple_chunker" title="Link to this definition"></a></dt>
+<dd><p>Generate fixed sized non-overlapping chunks of an iterable <code class="docutils literal notranslate"><span class="pre">a</span></code>.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">simple_chunker</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">7</span><span class="p">),</span> <span class="mi">3</span><span class="p">))</span>
+<span class="go">[(0, 1, 2), (3, 4, 5)]</span>
+</pre></div>
+</div>
+<p>Most of the time, you’ll want to fix the parameters of the chunker like this:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">partial</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">chunker</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">simple_chunker</span><span class="p">,</span> <span class="n">chk_size</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">chunker</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">7</span><span class="p">)))</span>
+<span class="go">[(0, 1, 2), (3, 4, 5)]</span>
+</pre></div>
+</div>
+<p>Note, the type of the chunks is always tuples, but you can easily change that using <code class="docutils literal notranslate"><span class="pre">map</span></code>.
+For example, to change the type to be list:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="n">chunker</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">7</span><span class="p">))))</span>
+<span class="go">[[0, 1, 2], [3, 4, 5]]</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">simple_chunker</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+<span class="go">[(0, 1, 2), (3, 4, 5)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">simple_chunker</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+<span class="go">[(0, 1), (2, 3), (4, 5)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">simple_chunker</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+<span class="go">[(0,), (1,), (2,), (3,), (4,), (5,)]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="taped.util.waveform_to_bytes">
+<span class="sig-prename descclassname"><span class="pre">taped.util.</span></span><span class="sig-name descname"><span class="pre">waveform_to_bytes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">44100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/taped/util.html#waveform_to_bytes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#taped.util.waveform_to_bytes" title="Link to this definition"></a></dt>
+<dd><p>Convert raw bytes to a numpy array cast to dtype</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>wf</strong> – iterable of ints</p></li>
+<li><p><strong>sr</strong> – sample rate</p></li>
+<li><p><strong>n_channels</strong> – number of channels</p></li>
+<li><p><strong>sample_width</strong> – sample byte width [2, 3, 4]</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>bytes</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="tools.html" class="btn btn-neutral float-left" title="taped.tools" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright NO COPYRIGHT.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

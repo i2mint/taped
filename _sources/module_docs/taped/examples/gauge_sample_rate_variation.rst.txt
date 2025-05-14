@@ -1,0 +1,4 @@
+taped.examples.gauge_sample_rate_variation
+==========================================
+.. automodule:: taped.examples.gauge_sample_rate_variation
+   :members:

@@ -1,0 +1,171 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>taped.scrap.live_audio &mdash; taped 0.1.7 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=ca7ad2ea"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
+      <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="taped.scrap.live_audio_pipelining" href="live_audio_pipelining.html" />
+    <link rel="prev" title="taped.scrap.audio_pokes" href="audio_pokes.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            taped
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../taped.html">taped</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../base.html">taped.base</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../display.html">taped.display</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/gauge_sample_rate_variation.html">taped.examples.gauge_sample_rate_variation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/listen_and_feedback.html">taped.examples.listen_and_feedback</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/live_audio_pipelines.html">taped.examples.live_audio_pipelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/record_audio_to_files.html">Recording audio to wav file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="audio_pokes.html">taped.scrap.audio_pokes</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">taped.scrap.live_audio</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#taped.scrap.live_audio.AudioStreamBuffer"><code class="docutils literal notranslate"><span class="pre">AudioStreamBuffer</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#taped.scrap.live_audio.VisualizationStream"><code class="docutils literal notranslate"><span class="pre">VisualizationStream</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#taped.scrap.live_audio.VisualizationStream.close"><code class="docutils literal notranslate"><span class="pre">VisualizationStream.close()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#taped.scrap.live_audio.VisualizationStream.info"><code class="docutils literal notranslate"><span class="pre">VisualizationStream.info</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#taped.scrap.live_audio.VisualizationStream.key"><code class="docutils literal notranslate"><span class="pre">VisualizationStream.key()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#taped.scrap.live_audio.VisualizationStream.open"><code class="docutils literal notranslate"><span class="pre">VisualizationStream.open()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="live_audio_pipelining.html">taped.scrap.live_audio_pipelining</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tools.html">taped.tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../util.html">taped.util</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">taped</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">taped.scrap.live_audio</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/module_docs/taped/scrap/live_audio.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-taped.scrap.live_audio">
+<span id="taped-scrap-live-audio"></span><h1>taped.scrap.live_audio<a class="headerlink" href="#module-taped.scrap.live_audio" title="Link to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="taped.scrap.live_audio.AudioStreamBuffer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">taped.scrap.live_audio.</span></span><span class="sig-name descname"><span class="pre">AudioStreamBuffer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">buffer_size_seconds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">60.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_device_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">44100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frames_per_buffer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2048</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sleep_time_on_read_none_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auto_drop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/taped/scrap/live_audio.html#AudioStreamBuffer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#taped.scrap.live_audio.AudioStreamBuffer" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="taped.scrap.live_audio.VisualizationStream">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">taped.scrap.live_audio.</span></span><span class="sig-name descname"><span class="pre">VisualizationStream</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mk_int16_array_gen</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chk_to_viz</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/taped/scrap/live_audio.html#VisualizationStream"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#taped.scrap.live_audio.VisualizationStream" title="Link to this definition"></a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="taped.scrap.live_audio.VisualizationStream.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/taped/scrap/live_audio.html#VisualizationStream.close"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#taped.scrap.live_audio.VisualizationStream.close" title="Link to this definition"></a></dt>
+<dd><p>Clean up if needed</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="taped.scrap.live_audio.VisualizationStream.info">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">info</span></span><a class="headerlink" href="#taped.scrap.live_audio.VisualizationStream.info" title="Link to this definition"></a></dt>
+<dd><p>Whatever info is useful to you
+StreamBuffer will record info right after open</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="taped.scrap.live_audio.VisualizationStream.key">
+<span class="sig-name descname"><span class="pre">key</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/taped/scrap/live_audio.html#VisualizationStream.key"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#taped.scrap.live_audio.VisualizationStream.key" title="Link to this definition"></a></dt>
+<dd><p>Convert data to a sortable value that increases with each read.
+the enumerate index in this case</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="taped.scrap.live_audio.VisualizationStream.open">
+<span class="sig-name descname"><span class="pre">open</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/taped/scrap/live_audio.html#VisualizationStream.open"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#taped.scrap.live_audio.VisualizationStream.open" title="Link to this definition"></a></dt>
+<dd><p>Setup data generator</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="audio_pokes.html" class="btn btn-neutral float-left" title="taped.scrap.audio_pokes" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="live_audio_pipelining.html" class="btn btn-neutral float-right" title="taped.scrap.live_audio_pipelining" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright NO COPYRIGHT.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
