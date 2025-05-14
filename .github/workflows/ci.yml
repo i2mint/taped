@@ -105,6 +105,10 @@ jobs:
     needs: publish
     runs-on: ubuntu-latest
     steps:
+      - name: Install Dependencies (for GitHub Pages Processing)
+        uses: i2mint/isee/actions/install-packages@master
+        with:
+          apt-packages: curl gcc git software-properties-common libffi-dev libssl-dev libbz2-dev portaudio19-dev libsndfile-dev
       - uses: i2mint/epythet/actions/publish-github-pages@master
         with:
           # IMPORTANT Note: You don't need to specify GITHUB_TOKEN in your repo secrets.
