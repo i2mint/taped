@@ -13,14 +13,14 @@ jobs:
         python-version: ["3.10"]
 
     steps:
-      - name: Install system dependencies
-        run: |
-          sudo apt update -y
-          sudo apt install -y curl gcc git
-          sudo apt install -y software-properties-common
-          sudo apt install -y libffi-dev libssl-dev libbz2-dev
-          sudo apt install -y portaudio19-dev libsndfile-dev
-          ls /usr/include/portaudio.h || echo "PortAudio header missing!"
+      # - name: Install system dependencies
+      #   run: |
+      #     sudo apt update -y
+      #     sudo apt install -y curl gcc git
+      #     sudo apt install -y software-properties-common
+      #     sudo apt install -y libffi-dev libssl-dev libbz2-dev
+      #     sudo apt install -y portaudio19-dev libsndfile-dev
+      #     ls /usr/include/portaudio.h || echo "PortAudio header missing!"
 
       - uses: actions/checkout@v3
 
@@ -33,6 +33,7 @@ jobs:
         uses: i2mint/isee/actions/install-packages@master
         with:
           dependency-files: setup.cfg
+          apt-packages: curl gcc git software-properties-common libffi-dev libssl-dev libbz2-dev portaudio19-dev libsndfile-dev
           # ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}  # Uncomment this if you need to install private dependencies from source
 
       - name: Format Source Code
