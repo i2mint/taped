@@ -46,7 +46,7 @@ def viz(val, gain=1 / 20, offset=0, disp_str="*"):
 def _unpickle_if_filepath(obj):
     if isinstance(obj, str) and os.path.isfile(obj):
         filepath = obj
-        with open(filepath, "r") as f:
+        with open(filepath) as f:
             obj = pickle.load(f)
     return obj
 

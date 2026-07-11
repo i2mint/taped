@@ -9,7 +9,8 @@ get more accurate estimates.
 import os
 from itertools import islice
 from functools import partial
-from typing import Sequence, MutableMapping, Union
+from typing import Union
+from collections.abc import Sequence, MutableMapping
 from time import time
 import pickle
 import json
@@ -96,7 +97,7 @@ def load_json(filepath: str) -> dict:
     return json.loads(Path(filepath).read_text())
 
 
-def save_json(filepath: str, data: Union[dict, list]):
+def save_json(filepath: str, data: dict | list):
     Path(filepath).write_text(json.dumps(data))
 
 
@@ -117,7 +118,7 @@ def params_product(
         save_json(save_to_filepath, params)
 
 
-def _get_params_list(params_list: Union[str, Sequence[dict]]) -> Sequence[dict]:
+def _get_params_list(params_list: str | Sequence[dict]) -> Sequence[dict]:
     if isinstance(params_list, str):
         import json
         from pathlib import Path
@@ -130,7 +131,7 @@ def _get_params_list(params_list: Union[str, Sequence[dict]]) -> Sequence[dict]:
     return params_list
 
 
-def _get_store(store: Union[str, MutableMapping] = dflt_store) -> MutableMapping:
+def _get_store(store: str | MutableMapping = dflt_store) -> MutableMapping:
     if isinstance(store, str):
         filepath = store
         store = JsonFiles(filepath)
@@ -138,8 +139,8 @@ def _get_store(store: Union[str, MutableMapping] = dflt_store) -> MutableMapping
 
 
 def run_experiments(
-    params_list: Union[str, Sequence[dict]],
-    store: Union[str, MutableMapping] = dflt_store,
+    params_list: str | Sequence[dict],
+    store: str | MutableMapping = dflt_store,
     *,
     print_progress=True,
     overwrite: bool = False,

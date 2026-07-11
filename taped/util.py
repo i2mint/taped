@@ -59,7 +59,8 @@ from functools import partial
 import functools
 from io import BytesIO
 from itertools import chain
-from typing import Iterable, Union, Callable, List, Tuple
+from typing import Union, List, Tuple
+from collections.abc import Iterable, Callable
 
 import numpy as np
 import soundfile as sf
@@ -164,7 +165,7 @@ def bytes_to_waveform_old(
     )[0]
 
 
-def list_recording_device_index_names() -> List[Tuple[int, str]]:
+def list_recording_device_index_names() -> list[tuple[int, str]]:
     """List (index, name) of available recording devices"""
     return sorted(
         (d["index"], d["name"])
@@ -262,7 +263,7 @@ def simple_chunker(a: Iterable, chk_size: int):
     return zip(*([iter(a)] * chk_size))
 
 
-def rechunker(chks: Iterable[Iterable], chunker: Union[Callable, int]):
+def rechunker(chks: Iterable[Iterable], chunker: Callable | int):
     """Generate fixed sized non-overlapping chunks of an iterable of chunks.
     That is, the rechunker applies a chunker to an unraveled stream of chunks,
     or more generally of iterables since they can be of varied sizes and types.

@@ -2,7 +2,8 @@
 Recording and playback tools for audio data.
 """
 
-from typing import Callable, Iterable, List, Literal, Optional, Tuple, Union
+from typing import List, Literal, Optional, Tuple, Union
+from collections.abc import Callable, Iterable
 from itertools import islice
 import soundfile as sf
 from taped.base import BaseBufferItems, LiveWf
@@ -10,18 +11,18 @@ from taped.util import DFLT_SR, DFLT_SAMPLE_WIDTH, DFLT_CHK_SIZE, DFLT_STREAM_BU
 
 
 def record(
-    duration: Optional[float] = None,
+    duration: float | None = None,
     *,
     duration_unit: Literal["seconds", "samples", "minutes"] = "seconds",
     sr: int = DFLT_SR,
-    egress: Optional[Union[str, Callable]] = None,
-    ignore_exceptions: Tuple[Exception, ...] = (KeyboardInterrupt,),
-    input_device_index: Optional[int] = None,
+    egress: str | Callable | None = None,
+    ignore_exceptions: tuple[Exception, ...] = (KeyboardInterrupt,),
+    input_device_index: int | None = None,
     sample_width: int = DFLT_SAMPLE_WIDTH,
     chk_size: int = DFLT_CHK_SIZE,
     stream_buffer_size_s: float = DFLT_STREAM_BUF_SIZE_S,
     verbose: bool = False,
-) -> List:
+) -> list:
     """Record audio and return waveform data.
 
     Args:

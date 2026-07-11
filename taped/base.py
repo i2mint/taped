@@ -57,11 +57,11 @@ class BaseBufferItems(StreamBuffer):
     :param stream_buffer_size_s: How many seconds of data to keep in the buffer (i.e. how far in the past you can see)
     """
 
-    input_device_index: Optional[Union[int, str]] = None
+    input_device_index: int | str | None = None
     sr: int = DFLT_SR
     sample_width: int = DFLT_SAMPLE_WIDTH
     chk_size: int = DFLT_CHK_SIZE
-    stream_buffer_size_s: Union[float, int] = DFLT_STREAM_BUF_SIZE_S
+    stream_buffer_size_s: float | int = DFLT_STREAM_BUF_SIZE_S
     verbose: bool = False
 
     def __post_init__(self):

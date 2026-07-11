@@ -1,7 +1,8 @@
 from functools import partial
 from itertools import chain
 from contextlib import contextmanager
-from typing import Iterable, Union, Callable
+from typing import Union
+from collections.abc import Iterable, Callable
 
 from stream2py.stream_buffer import StreamBuffer
 from audiostream2py import PyAudioSourceReader
@@ -254,7 +255,7 @@ def simple_chunker(a: Iterable, chk_size: int):
     return zip(*([iter(a)] * chk_size))
 
 
-def rechunker(chks: Iterable[Iterable], chunker: Union[Callable, int]):
+def rechunker(chks: Iterable[Iterable], chunker: Callable | int):
     """Generate fixed sized non-overlapping chunks of an iterable of chunks.
     That is, the rechunker applies a chunker to an unraveled stream of chunks,
     or more generally of iterables since they can be of varied sizes and types.

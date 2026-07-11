@@ -46,7 +46,7 @@ class BufferReaderConsumer(threading.Thread, metaclass=ABCMeta):
     def __init__(
         self,
         buffer_reader: BufferReader,
-        interval: Union[int, float],
+        interval: int | float,
         logging_enabled: bool = False,
     ):
         """

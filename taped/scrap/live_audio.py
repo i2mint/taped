@@ -1,4 +1,5 @@
-from typing import Callable, Union, Optional
+from typing import Union, Optional
+from collections.abc import Callable
 from functools import partial
 
 from stream2py import SourceReader, BufferReader
@@ -77,12 +78,12 @@ class AudioStreamBuffer(StreamBuffer):
     def __init__(
         self,
         *,
-        buffer_size_seconds: Union[int, float] = 60.0,
+        buffer_size_seconds: int | float = 60.0,
         input_device_index=None,
         sr=44100,
         width=2,
         frames_per_buffer=DFLT_FRM_PER_BUFFER,
-        sleep_time_on_read_none_s: Optional[Union[int, float]] = 0.05,
+        sleep_time_on_read_none_s: int | float | None = 0.05,
         auto_drop=True,
     ):
         _info = device_info_by_index(input_device_index)
