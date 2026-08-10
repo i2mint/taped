@@ -36,7 +36,6 @@ from typing import Union
 from stream2py import StreamBuffer, BufferReader
 from audiostream2py import PyAudioSourceReader, PaStatusFlags
 
-
 logger = logging.getLogger(__name__)
 
 

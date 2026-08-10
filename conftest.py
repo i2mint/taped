@@ -4,6 +4,7 @@ Uses the pytest>=7 ``collection_path``/``config`` hook signature — the legacy
 one-argument ``pytest_ignore_collect(path)`` form was removed in pytest 9 and
 made every CI run fail with a PluginValidationError before any test ran.
 """
+
 import pathlib
 
 
