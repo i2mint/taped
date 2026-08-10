@@ -6,18 +6,18 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>taped.scrap.live_audio_pipelining &mdash; taped 0.1.8 documentation</title>
+  <title>taped.scrap.live_audio_pipelining &mdash; taped 0.1.9 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
 
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=22607128"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/documentation_options.js?v=8618f531"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
       <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
       <script src="../../../_static/copybutton.js?v=f281be69"></script>
@@ -58,14 +58,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../examples/record_audio_to_files.html">Recording audio to wav file</a></li>
 <li class="toctree-l1"><a class="reference internal" href="audio_pokes.html">taped.scrap.audio_pokes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="live_audio.html">taped.scrap.live_audio</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">taped.scrap.live_audio_pipelining</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#taped.scrap.live_audio_pipelining.CallableDeque"><code class="docutils literal notranslate"><span class="pre">CallableDeque</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#taped.scrap.live_audio_pipelining.chk_to_fv_viz"><code class="docutils literal notranslate"><span class="pre">chk_to_fv_viz()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#taped.scrap.live_audio_pipelining.dflt_chk_to_fv"><code class="docutils literal notranslate"><span class="pre">dflt_chk_to_fv()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#taped.scrap.live_audio_pipelining.log_max_chk_to_fv"><code class="docutils literal notranslate"><span class="pre">log_max_chk_to_fv()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#taped.scrap.live_audio_pipelining.make_and_consume_iterator"><code class="docutils literal notranslate"><span class="pre">make_and_consume_iterator()</span></code></a></li>
-</ul>
-</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">taped.scrap.live_audio_pipelining</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tools.html">taped.tools</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../util.html">taped.util</a></li>
 </ul>
@@ -94,37 +87,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="module-taped.scrap.live_audio_pipelining">
-<span id="taped-scrap-live-audio-pipelining"></span><h1>taped.scrap.live_audio_pipelining<a class="headerlink" href="#module-taped.scrap.live_audio_pipelining" title="Link to this heading"></a></h1>
-<dl class="py class">
-<dt class="sig sig-object py" id="taped.scrap.live_audio_pipelining.CallableDeque">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">taped.scrap.live_audio_pipelining.</span></span><span class="sig-name descname"><span class="pre">CallableDeque</span></span><a class="reference internal" href="../../../_modules/taped/scrap/live_audio_pipelining.html#CallableDeque"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#taped.scrap.live_audio_pipelining.CallableDeque" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="taped.scrap.live_audio_pipelining.chk_to_fv_viz">
-<span class="sig-prename descclassname"><span class="pre">taped.scrap.live_audio_pipelining.</span></span><span class="sig-name descname"><span class="pre">chk_to_fv_viz</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chk:</span> <span class="pre">~numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chk_to_fv=&lt;function</span> <span class="pre">log_max_chk_to_fv&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fv_to_str=functools.partial(&lt;function</span> <span class="pre">multipart_fv_str&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_to_viz_str=&lt;function</span> <span class="pre">ascii_levels&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fv_num_sep='\n')</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/taped/scrap/live_audio_pipelining.html#chk_to_fv_viz"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#taped.scrap.live_audio_pipelining.chk_to_fv_viz" title="Link to this definition"></a></dt>
-<dd><p>Takes a chk and returns a string representing the fv. Meant to be displayed dynamically</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="taped.scrap.live_audio_pipelining.dflt_chk_to_fv">
-<span class="sig-prename descclassname"><span class="pre">taped.scrap.live_audio_pipelining.</span></span><span class="sig-name descname"><span class="pre">dflt_chk_to_fv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chk</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gain</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#taped.scrap.live_audio_pipelining.dflt_chk_to_fv" title="Link to this definition"></a></dt>
-<dd><p>A chk_to_fv that has to do with volume</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="taped.scrap.live_audio_pipelining.log_max_chk_to_fv">
-<span class="sig-prename descclassname"><span class="pre">taped.scrap.live_audio_pipelining.</span></span><span class="sig-name descname"><span class="pre">log_max_chk_to_fv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chk</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gain</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/taped/scrap/live_audio_pipelining.html#log_max_chk_to_fv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#taped.scrap.live_audio_pipelining.log_max_chk_to_fv" title="Link to this definition"></a></dt>
-<dd><p>A chk_to_fv that has to do with volume</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="taped.scrap.live_audio_pipelining.make_and_consume_iterator">
-<span class="sig-prename descclassname"><span class="pre">taped.scrap.live_audio_pipelining.</span></span><span class="sig-name descname"><span class="pre">make_and_consume_iterator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iterator_func</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">iterator_func_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">iterator_func_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/taped/scrap/live_audio_pipelining.html#make_and_consume_iterator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#taped.scrap.live_audio_pipelining.make_and_consume_iterator" title="Link to this definition"></a></dt>
-<dd><p>make an consume and iterator</p>
-</dd></dl>
-
+  <section id="taped-scrap-live-audio-pipelining">
+<h1>taped.scrap.live_audio_pipelining<a class="headerlink" href="#taped-scrap-live-audio-pipelining" title="Link to this heading"></a></h1>
 </section>
 
 
@@ -138,7 +102,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright NO COPYRIGHT.</p>
+    <p></p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
