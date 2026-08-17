@@ -12,5 +12,7 @@
    module_docs/taped/scrap/audio_pokes
    module_docs/taped/scrap/live_audio
    module_docs/taped/scrap/live_audio_pipelining
+   module_docs/taped/tests
+   module_docs/taped/tests/test_record
    module_docs/taped/tools
    module_docs/taped/util

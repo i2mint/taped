@@ -1,0 +1,4 @@
+taped.tests
+===========
+.. automodule:: taped.tests
+   :members:

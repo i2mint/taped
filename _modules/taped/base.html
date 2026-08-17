@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>taped.base &mdash; taped 0.1.9 documentation</title>
+  <title>taped.base &mdash; taped 0.1.10 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=8618f531"></script>
+      <script src="../../_static/documentation_options.js?v=bafade30"></script>
       <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -56,6 +56,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../../module_docs/taped/scrap/audio_pokes.html">taped.scrap.audio_pokes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../module_docs/taped/scrap/live_audio.html">taped.scrap.live_audio</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../module_docs/taped/scrap/live_audio_pipelining.html">taped.scrap.live_audio_pipelining</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/taped/tests.html">taped.tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/taped/tests/test_record.html">taped.tests.test_record</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../module_docs/taped/tools.html">taped.tools</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../module_docs/taped/util.html">taped.util</a></li>
 </ul>
@@ -85,21 +87,30 @@
            <div itemprop="articleBody">
              
   <h1>Source code for taped.base</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""</span>
 <span class="sd">Base of taped objects</span>
 
 <span class="sd">This module provides classes and functions for handling audio streams and buffers.</span>
 <span class="sd">It includes tools for capturing live audio from microphones, buffering audio data,</span>
 <span class="sd">and converting between different audio representations.</span>
 
+<span class="sd">The layers, from the mic outwards:</span>
+
+<span class="sd">- ``BaseBufferItems``: raw ``audiostream2py.AudioSegment`` objects off the device.</span>
+<span class="sd">- ``BufferItems``: those segments as :class:`BufferItemOutput` named tuples --</span>
+<span class="sd">  read that class's docstring for what each of the (PortAudio-inherited, and</span>
+<span class="sd">  partly misleading) field names actually means today.</span>
+<span class="sd">- ``ByteChunks``: just the PCM bytes of each chunk.</span>
+<span class="sd">- ``WfChunks``: those bytes decoded into numerical waveform chunks.</span>
+<span class="sd">- ``LiveWf``: the ``WfChunks`` flattened into one continuous live sample stream.</span>
+
 <span class="sd">Examples</span>
 <span class="sd">--------</span>
 
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">itertools</span><span class="w"> </span><span class="kn">import</span> <span class="n">chain</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Optional</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">namedtuple</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">NamedTuple</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Optional</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">stream2py.stream_buffer</span><span class="w"> </span><span class="kn">import</span> <span class="n">StreamBuffer</span>
@@ -116,20 +127,120 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">itertools</span><span class="w"> </span><span class="kn">import</span> <span class="n">islice</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">creek</span><span class="w"> </span><span class="kn">import</span> <span class="n">Creek</span>
 
-<span class="n">BufferItemOutput</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span>
-    <span class="n">typename</span><span class="o">=</span><span class="s2">&quot;BufferItemOutput&quot;</span><span class="p">,</span>
-    <span class="n">field_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;timestamp&quot;</span><span class="p">,</span> <span class="s2">&quot;bytes&quot;</span><span class="p">,</span> <span class="s2">&quot;frame_count&quot;</span><span class="p">,</span> <span class="s2">&quot;time_info&quot;</span><span class="p">,</span> <span class="s2">&quot;status_flags&quot;</span><span class="p">],</span>
-<span class="p">)</span>
+
+<div class="viewcode-block" id="BufferItemOutput">
+<a class="viewcode-back" href="../../module_docs/taped/base.html#taped.base.BufferItemOutput">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">BufferItemOutput</span><span class="p">(</span><span class="n">NamedTuple</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""One item of a ``BufferItems`` stream: a chunk of mic bytes plus its metadata.</span>
+
+<span class="sd">    The field names come from PortAudio (through PyAudio, then ``audiostream2py``),</span>
+<span class="sd">    but two of them no longer mean what the PortAudio names suggest -- see</span>
+<span class="sd">    ``time_info`` below. What follows is the *current* meaning of each field, as</span>
+<span class="sd">    produced by :func:`audio_segment_to_buffer_item_output` from an</span>
+<span class="sd">    ``audiostream2py.AudioSegment``.</span>
+
+<span class="sd">    Fields</span>
+<span class="sd">    ------</span>
+<span class="sd">    timestamp:</span>
+<span class="sd">        The ``AudioSegment.start_date``: when the *first* frame of this chunk was</span>
+<span class="sd">        captured, as a number of **microseconds** since the epoch (not seconds,</span>
+<span class="sd">        and not a PortAudio clock reading). This is the field to use to place a</span>
+<span class="sd">        chunk on a wall-clock timeline. It is an ``int`` *or* a ``float``:</span>
+<span class="sd">        ``AudioSegment`` declares ``start_date: int | float``, and live capture</span>
+<span class="sd">        normally yields floats, because most chunk dates are interpolated from</span>
+<span class="sd">        the frame rate rather than read off the host clock. Do not test it with</span>
+<span class="sd">        ``isinstance(..., int)``, and do not assume integral microsecond</span>
+<span class="sd">        arithmetic.</span>
+<span class="sd">    bytes:</span>
+<span class="sd">        The ``AudioSegment.waveform``: the raw PCM bytes of the chunk, exactly as</span>
+<span class="sd">        the device produced them. Interpreting them as numbers needs the sample</span>
+<span class="sd">        width and channel count the stream was opened with -- which is what</span>
+<span class="sd">        ``ByteChunks``/``WfChunks`` do for you (see ``taped.util.bytes_to_waveform``).</span>
+<span class="sd">    frame_count:</span>
+<span class="sd">        Number of frames (samples per channel) in this chunk. With the default</span>
+<span class="sd">        ``chk_size`` of 4096 and a sample width of 2, ``len(bytes) == 8192``, i.e.</span>
+<span class="sd">        ``len(bytes) == frame_count * sample_width * n_channels``.</span>
+<span class="sd">    time_info:</span>
+<span class="sd">        **Not a PortAudio time-info dict.** This is the ``AudioSegment.end_date``:</span>
+<span class="sd">        a single number, in the same microsecond-epoch unit (and of the same</span>
+<span class="sd">        ``int | float`` type) as ``timestamp``, marking the end of the chunk. So</span>
+<span class="sd">        ``time_info - timestamp`` is the chunk's duration in microseconds --</span>
+<span class="sd">        itself often fractional -- and it is *not* subscriptable. PortAudio's</span>
+<span class="sd">        ``PaStreamCallbackTimeInfo`` dict (``current_time``,</span>
+<span class="sd">        ``input_buffer_adc_time``, ``output_buffer_dac_time``) used to land here</span>
+<span class="sd">        in older versions; ``audiostream2py`` no longer surfaces it. See the</span>
+<span class="sd">        "Historical" note below for what those keys meant.</span>
+<span class="sd">    status_flags:</span>
+<span class="sd">        A PortAudio status bitfield reporting stream health for this chunk.</span>
+<span class="sd">        ``0`` means no error. Decode it with ``audiostream2py.PaStatusFlags``,</span>
+<span class="sd">        an ``IntFlag`` whose members are ``paNoError``, ``paInputUnderflow``,</span>
+<span class="sd">        ``paInputOverflow``, ``paOutputUnderflow``, ``paOutputOverflow``,</span>
+<span class="sd">        ``paPrimingOutput`` and ``hostTimeSync``. For a worked example of acting</span>
+<span class="sd">        on it (starting a new file whenever a chunk reports an error), see</span>
+<span class="sd">        ``taped/examples/record_audio_to_files.py``.</span>
+
+<span class="sd">    Historical: the PortAudio ``PaStreamCallbackTimeInfo`` fields</span>
+<span class="sd">    -------------------------------------------------------------</span>
+<span class="sd">    These are documented here because the ``time_info`` *name* comes from them,</span>
+<span class="sd">    and older ``taped`` output (and the README examples that recorded it) shows</span>
+<span class="sd">    them. They are **no longer available** through this class. All three are</span>
+<span class="sd">    ``PaTime`` values on PortAudio's own stream clock -- seconds, monotonic-ish,</span>
+<span class="sd">    with an arbitrary origin -- and so are not comparable with ``timestamp``.</span>
+<span class="sd">    From http://portaudio.com/docs/v19-doxydocs/structPaStreamCallbackTimeInfo.html:</span>
+
+<span class="sd">    - ``currentTime`` (``current_time``): the time when the stream callback was</span>
+<span class="sd">      invoked.</span>
+<span class="sd">    - ``inputBufferAdcTime`` (``input_buffer_adc_time``): the time when the first</span>
+<span class="sd">      sample of the input buffer was captured at the ADC input.</span>
+<span class="sd">    - ``outputBufferDacTime`` (``output_buffer_dac_time``): the time when the</span>
+<span class="sd">      first sample of the output buffer will output the DAC. (Always ``0.0`` for</span>
+<span class="sd">      an input-only stream, which is what ``taped`` opens.)</span>
+
+<span class="sd">    Being a ``NamedTuple``, an item is both a 5-tuple and an attribute-access</span>
+<span class="sd">    object, and it carries the usual ``_fields``/``_asdict`` helpers:</span>
+
+<span class="sd">    &gt;&gt;&gt; item = BufferItemOutput(1608336556178995, b'\\x09\\x00', 1, 1608336556271874, 0)</span>
+<span class="sd">    &gt;&gt;&gt; item.timestamp</span>
+<span class="sd">    1608336556178995</span>
+<span class="sd">    &gt;&gt;&gt; item[1]</span>
+<span class="sd">    b'\\t\\x00'</span>
+<span class="sd">    &gt;&gt;&gt; item.time_info - item.timestamp  # chunk duration, in microseconds</span>
+<span class="sd">    92879</span>
+<span class="sd">    &gt;&gt;&gt; item._fields</span>
+<span class="sd">    ('timestamp', 'bytes', 'frame_count', 'time_info', 'status_flags')</span>
+
+<span class="sd">    The dates above are whole numbers only because they were written that way.</span>
+<span class="sd">    Off a live device they usually are not, and neither is the duration:</span>
+
+<span class="sd">    &gt;&gt;&gt; item = BufferItemOutput(1608336556178995.2, b'\\x09\\x00', 1, 1608336556271875.0, 0)</span>
+<span class="sd">    &gt;&gt;&gt; item.time_info - item.timestamp</span>
+<span class="sd">    92879.75</span>
+<span class="sd">    """</span>
+
+    <span class="n">timestamp</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span>
+    <span class="nb">bytes</span><span class="p">:</span> <span class="nb">bytes</span>
+    <span class="n">frame_count</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">time_info</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span>
+    <span class="n">status_flags</span><span class="p">:</span> <span class="nb">int</span></div>
 
 
+
+<div class="viewcode-block" id="audio_segment_to_buffer_item_output">
+<a class="viewcode-back" href="../../module_docs/taped/base.html#taped.base.audio_segment_to_buffer_item_output">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">audio_segment_to_buffer_item_output</span><span class="p">(</span><span class="n">segment</span><span class="p">:</span> <span class="n">AudioSegment</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BufferItemOutput</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Convert an ``audiostream2py.AudioSegment`` to a :class:`BufferItemOutput`.</span>
+
+<span class="sd">    Note ``time_info=segment.end_date`` -- see :class:`BufferItemOutput` for why</span>
+<span class="sd">    that field does not hold a PortAudio time-info dict.</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">BufferItemOutput</span><span class="p">(</span>
         <span class="n">timestamp</span><span class="o">=</span><span class="n">segment</span><span class="o">.</span><span class="n">start_date</span><span class="p">,</span>
         <span class="nb">bytes</span><span class="o">=</span><span class="n">segment</span><span class="o">.</span><span class="n">waveform</span><span class="p">,</span>
         <span class="n">frame_count</span><span class="o">=</span><span class="n">segment</span><span class="o">.</span><span class="n">frame_count</span><span class="p">,</span>
         <span class="n">time_info</span><span class="o">=</span><span class="n">segment</span><span class="o">.</span><span class="n">end_date</span><span class="p">,</span>
         <span class="n">status_flags</span><span class="o">=</span><span class="n">segment</span><span class="o">.</span><span class="n">status_flags</span><span class="p">,</span>
-    <span class="p">)</span>
+    <span class="p">)</span></div>
+
 
 
 <div class="viewcode-block" id="BaseBufferItems">
@@ -137,14 +248,14 @@
 <span class="nd">@Creek</span><span class="o">.</span><span class="n">wrap</span>
 <span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">BaseBufferItems</span><span class="p">(</span><span class="n">StreamBuffer</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A generator of live chunks of audio bytes taken from a stream sourced from specified microphone.</span>
+<span class="w">    </span><span class="sd">"""A generator of live chunks of audio bytes taken from a stream sourced from specified microphone.</span>
 
 <span class="sd">    :param input_device_index: Index of Input Device to use. Unspecified (or None) uses default device.</span>
 <span class="sd">    :param sr: Specifies the desired sample rate (in Hz)</span>
 <span class="sd">    :param sample_bytes: Sample width in bytes (1, 2, 3, or 4)</span>
 <span class="sd">    :param sample_width: Specifies the number of frames per buffer.</span>
 <span class="sd">    :param stream_buffer_size_s: How many seconds of data to keep in the buffer (i.e. how far in the past you can see)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">input_device_index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">sr</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">DFLT_SR</span>
@@ -192,7 +303,14 @@
 <div class="viewcode-block" id="WfChunks">
 <a class="viewcode-back" href="../../module_docs/taped/base.html#taped.base.WfChunks">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">WfChunks</span><span class="p">(</span><span class="n">ByteChunks</span><span class="p">):</span>
-    <span class="n">sample_width</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="w">    </span><span class="sd">"""Decode the byte chunks of ``ByteChunks`` into numerical waveform chunks.</span>
+
+<span class="sd">    The width used to decode is the ``sample_width`` the stream was actually</span>
+<span class="sd">    opened with. It is read through ``Creek``'s delegation to the wrapped</span>
+<span class="sd">    stream, deliberately: a ``sample_width`` class attribute here would shadow</span>
+<span class="sd">    the constructed value, so a ``WfChunks(sample_width=4)`` would capture</span>
+<span class="sd">    32-bit frames and then decode them as 16-bit ones.</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">data_to_obj</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
         <span class="n">data</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">data_to_obj</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
@@ -209,9 +327,9 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">available_samples_in_buffer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the actual max number of samples available.</span>
+<span class="w">        </span><span class="sd">"""Returns the actual max number of samples available.</span>
 <span class="sd">        This is maxlen * chk_size when buffer is full.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">source_buffer</span><span class="o">.</span><span class="n">_buffer</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">chk_size</span>
 
@@ -226,15 +344,15 @@
 <div class="viewcode-block" id="positive_slice_version">
 <a class="viewcode-back" href="../../module_docs/taped/base.html#taped.base.positive_slice_version">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">positive_slice_version</span><span class="p">(</span><span class="n">slice_</span><span class="p">,</span> <span class="n">sliced_obj_len</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns a slice where negative start and stops are replaced with their positive correspondence.</span>
-<span class="sd">    This is because `itertools.islice` doesn&#39;t accept negative entries, so we need to tell it</span>
+<span class="w">    </span><span class="sd">"""Returns a slice where negative start and stops are replaced with their positive correspondence.</span>
+<span class="sd">    This is because `itertools.islice` doesn't accept negative entries, so we need to tell it</span>
 <span class="sd">    explicitly what we mean by -3 (we mean sliced_obj_len - 3).</span>
 
 <span class="sd">    &gt;&gt;&gt; positive_slice_version(slice(-7, -1, 3), 10)</span>
 <span class="sd">    slice(3, 9, 3)</span>
 <span class="sd">    &gt;&gt;&gt; positive_slice_version(slice(2, -2), 7)</span>
 <span class="sd">    slice(2, 5, None)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">positivize</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>

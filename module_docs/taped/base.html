@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>taped.base &mdash; taped 0.1.9 documentation</title>
+  <title>taped.base &mdash; taped 0.1.10 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -15,7 +15,7 @@
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=8618f531"></script>
+      <script src="../../_static/documentation_options.js?v=bafade30"></script>
       <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -67,6 +67,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#taped.base.WfChunks"><code class="docutils literal notranslate"><span class="pre">WfChunks</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#taped.base.audio_segment_to_buffer_item_output"><code class="docutils literal notranslate"><span class="pre">audio_segment_to_buffer_item_output()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#taped.base.positive_slice_version"><code class="docutils literal notranslate"><span class="pre">positive_slice_version()</span></code></a></li>
 </ul>
 </li>
@@ -78,6 +79,8 @@
 <li class="toctree-l1"><a class="reference internal" href="scrap/audio_pokes.html">taped.scrap.audio_pokes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="scrap/live_audio.html">taped.scrap.live_audio</a></li>
 <li class="toctree-l1"><a class="reference internal" href="scrap/live_audio_pipelining.html">taped.scrap.live_audio_pipelining</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tests.html">taped.tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tests/test_record.html">taped.tests.test_record</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tools.html">taped.tools</a></li>
 <li class="toctree-l1"><a class="reference internal" href="util.html">taped.util</a></li>
 </ul>
@@ -112,6 +115,16 @@
 <p>This module provides classes and functions for handling audio streams and buffers.
 It includes tools for capturing live audio from microphones, buffering audio data,
 and converting between different audio representations.</p>
+<p>The layers, from the mic outwards:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">BaseBufferItems</span></code>: raw <code class="docutils literal notranslate"><span class="pre">audiostream2py.AudioSegment</span></code> objects off the device.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BufferItems</span></code>: those segments as <a class="reference internal" href="#taped.base.BufferItemOutput" title="taped.base.BufferItemOutput"><code class="xref py py-class docutils literal notranslate"><span class="pre">BufferItemOutput</span></code></a> named tuples –
+read that class’s docstring for what each of the (PortAudio-inherited, and
+partly misleading) field names actually means today.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ByteChunks</span></code>: just the PCM bytes of each chunk.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">WfChunks</span></code>: those bytes decoded into numerical waveform chunks.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">LiveWf</span></code>: the <code class="docutils literal notranslate"><span class="pre">WfChunks</span></code> flattened into one continuous live sample stream.</p></li>
+</ul>
 <p class="rubric">Examples</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="taped.base.BaseBufferItems">
@@ -132,37 +145,123 @@ and converting between different audio representations.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="taped.base.BufferItemOutput">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">taped.base.</span></span><span class="sig-name descname"><span class="pre">BufferItemOutput</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timestamp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bytes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_count</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">status_flags</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#taped.base.BufferItemOutput" title="Link to this definition"></a></dt>
-<dd><dl class="py attribute">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">taped.base.</span></span><span class="sig-name descname"><span class="pre">BufferItemOutput</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timestamp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bytes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#taped.base.BufferItemOutput.bytes" title="taped.base.BufferItemOutput.bytes"><span class="pre">bytes</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_count</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">status_flags</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/taped/base.html#BufferItemOutput"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#taped.base.BufferItemOutput" title="Link to this definition"></a></dt>
+<dd><p>One item of a <code class="docutils literal notranslate"><span class="pre">BufferItems</span></code> stream: a chunk of mic bytes plus its metadata.</p>
+<p>The field names come from PortAudio (through PyAudio, then <code class="docutils literal notranslate"><span class="pre">audiostream2py</span></code>),
+but two of them no longer mean what the PortAudio names suggest – see
+<code class="docutils literal notranslate"><span class="pre">time_info</span></code> below. What follows is the <em>current</em> meaning of each field, as
+produced by <a class="reference internal" href="#taped.base.audio_segment_to_buffer_item_output" title="taped.base.audio_segment_to_buffer_item_output"><code class="xref py py-func docutils literal notranslate"><span class="pre">audio_segment_to_buffer_item_output()</span></code></a> from an
+<code class="docutils literal notranslate"><span class="pre">audiostream2py.AudioSegment</span></code>.</p>
+<section id="fields">
+<h2>Fields<a class="headerlink" href="#fields" title="Link to this heading"></a></h2>
+<dl class="simple">
+<dt>timestamp:</dt><dd><p>The <code class="docutils literal notranslate"><span class="pre">AudioSegment.start_date</span></code>: when the <em>first</em> frame of this chunk was
+captured, as a number of <strong>microseconds</strong> since the epoch (not seconds,
+and not a PortAudio clock reading). This is the field to use to place a
+chunk on a wall-clock timeline. It is an <code class="docutils literal notranslate"><span class="pre">int</span></code> <em>or</em> a <code class="docutils literal notranslate"><span class="pre">float</span></code>:
+<code class="docutils literal notranslate"><span class="pre">AudioSegment</span></code> declares <code class="docutils literal notranslate"><span class="pre">start_date:</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">float</span></code>, and live capture
+normally yields floats, because most chunk dates are interpolated from
+the frame rate rather than read off the host clock. Do not test it with
+<code class="docutils literal notranslate"><span class="pre">isinstance(...,</span> <span class="pre">int)</span></code>, and do not assume integral microsecond
+arithmetic.</p>
+</dd>
+<dt>bytes:</dt><dd><p>The <code class="docutils literal notranslate"><span class="pre">AudioSegment.waveform</span></code>: the raw PCM bytes of the chunk, exactly as
+the device produced them. Interpreting them as numbers needs the sample
+width and channel count the stream was opened with – which is what
+<code class="docutils literal notranslate"><span class="pre">ByteChunks</span></code>/<code class="docutils literal notranslate"><span class="pre">WfChunks</span></code> do for you (see <code class="docutils literal notranslate"><span class="pre">taped.util.bytes_to_waveform</span></code>).</p>
+</dd>
+<dt>frame_count:</dt><dd><p>Number of frames (samples per channel) in this chunk. With the default
+<code class="docutils literal notranslate"><span class="pre">chk_size</span></code> of 4096 and a sample width of 2, <code class="docutils literal notranslate"><span class="pre">len(bytes)</span> <span class="pre">==</span> <span class="pre">8192</span></code>, i.e.
+<code class="docutils literal notranslate"><span class="pre">len(bytes)</span> <span class="pre">==</span> <span class="pre">frame_count</span> <span class="pre">*</span> <span class="pre">sample_width</span> <span class="pre">*</span> <span class="pre">n_channels</span></code>.</p>
+</dd>
+<dt>time_info:</dt><dd><p><strong>Not a PortAudio time-info dict.</strong> This is the <code class="docutils literal notranslate"><span class="pre">AudioSegment.end_date</span></code>:
+a single number, in the same microsecond-epoch unit (and of the same
+<code class="docutils literal notranslate"><span class="pre">int</span> <span class="pre">|</span> <span class="pre">float</span></code> type) as <code class="docutils literal notranslate"><span class="pre">timestamp</span></code>, marking the end of the chunk. So
+<code class="docutils literal notranslate"><span class="pre">time_info</span> <span class="pre">-</span> <span class="pre">timestamp</span></code> is the chunk’s duration in microseconds –
+itself often fractional – and it is <em>not</em> subscriptable. PortAudio’s
+<code class="docutils literal notranslate"><span class="pre">PaStreamCallbackTimeInfo</span></code> dict (<code class="docutils literal notranslate"><span class="pre">current_time</span></code>,
+<code class="docutils literal notranslate"><span class="pre">input_buffer_adc_time</span></code>, <code class="docutils literal notranslate"><span class="pre">output_buffer_dac_time</span></code>) used to land here
+in older versions; <code class="docutils literal notranslate"><span class="pre">audiostream2py</span></code> no longer surfaces it. See the
+“Historical” note below for what those keys meant.</p>
+</dd>
+<dt>status_flags:</dt><dd><p>A PortAudio status bitfield reporting stream health for this chunk.
+<code class="docutils literal notranslate"><span class="pre">0</span></code> means no error. Decode it with <code class="docutils literal notranslate"><span class="pre">audiostream2py.PaStatusFlags</span></code>,
+an <code class="docutils literal notranslate"><span class="pre">IntFlag</span></code> whose members are <code class="docutils literal notranslate"><span class="pre">paNoError</span></code>, <code class="docutils literal notranslate"><span class="pre">paInputUnderflow</span></code>,
+<code class="docutils literal notranslate"><span class="pre">paInputOverflow</span></code>, <code class="docutils literal notranslate"><span class="pre">paOutputUnderflow</span></code>, <code class="docutils literal notranslate"><span class="pre">paOutputOverflow</span></code>,
+<code class="docutils literal notranslate"><span class="pre">paPrimingOutput</span></code> and <code class="docutils literal notranslate"><span class="pre">hostTimeSync</span></code>. For a worked example of acting
+on it (starting a new file whenever a chunk reports an error), see
+<code class="docutils literal notranslate"><span class="pre">taped/examples/record_audio_to_files.py</span></code>.</p>
+</dd>
+</dl>
+</section>
+<section id="historical-the-portaudio-pastreamcallbacktimeinfo-fields">
+<h2>Historical: the PortAudio <code class="docutils literal notranslate"><span class="pre">PaStreamCallbackTimeInfo</span></code> fields<a class="headerlink" href="#historical-the-portaudio-pastreamcallbacktimeinfo-fields" title="Link to this heading"></a></h2>
+<p>These are documented here because the <code class="docutils literal notranslate"><span class="pre">time_info</span></code> <em>name</em> comes from them,
+and older <code class="docutils literal notranslate"><span class="pre">taped</span></code> output (and the README examples that recorded it) shows
+them. They are <strong>no longer available</strong> through this class. All three are
+<code class="docutils literal notranslate"><span class="pre">PaTime</span></code> values on PortAudio’s own stream clock – seconds, monotonic-ish,
+with an arbitrary origin – and so are not comparable with <code class="docutils literal notranslate"><span class="pre">timestamp</span></code>.
+From <a class="reference external" href="http://portaudio.com/docs/v19-doxydocs/structPaStreamCallbackTimeInfo.html">http://portaudio.com/docs/v19-doxydocs/structPaStreamCallbackTimeInfo.html</a>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">currentTime</span></code> (<code class="docutils literal notranslate"><span class="pre">current_time</span></code>): the time when the stream callback was
+invoked.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">inputBufferAdcTime</span></code> (<code class="docutils literal notranslate"><span class="pre">input_buffer_adc_time</span></code>): the time when the first
+sample of the input buffer was captured at the ADC input.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">outputBufferDacTime</span></code> (<code class="docutils literal notranslate"><span class="pre">output_buffer_dac_time</span></code>): the time when the
+first sample of the output buffer will output the DAC. (Always <code class="docutils literal notranslate"><span class="pre">0.0</span></code> for
+an input-only stream, which is what <code class="docutils literal notranslate"><span class="pre">taped</span></code> opens.)</p></li>
+</ul>
+<p>Being a <code class="docutils literal notranslate"><span class="pre">NamedTuple</span></code>, an item is both a 5-tuple and an attribute-access
+object, and it carries the usual <code class="docutils literal notranslate"><span class="pre">_fields</span></code>/<code class="docutils literal notranslate"><span class="pre">_asdict</span></code> helpers:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">item</span> <span class="o">=</span> <span class="n">BufferItemOutput</span><span class="p">(</span><span class="mi">1608336556178995</span><span class="p">,</span> <span class="sa">b</span><span class="s1">'</span><span class="se">\x09\x00</span><span class="s1">'</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1608336556271874</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">item</span><span class="o">.</span><span class="n">timestamp</span>
+<span class="go">1608336556178995</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">item</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="go">b'\t\x00'</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">item</span><span class="o">.</span><span class="n">time_info</span> <span class="o">-</span> <span class="n">item</span><span class="o">.</span><span class="n">timestamp</span>  <span class="c1"># chunk duration, in microseconds</span>
+<span class="go">92879</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">item</span><span class="o">.</span><span class="n">_fields</span>
+<span class="go">('timestamp', 'bytes', 'frame_count', 'time_info', 'status_flags')</span>
+</pre></div>
+</div>
+<p>The dates above are whole numbers only because they were written that way.
+Off a live device they usually are not, and neither is the duration:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">item</span> <span class="o">=</span> <span class="n">BufferItemOutput</span><span class="p">(</span><span class="mf">1608336556178995.2</span><span class="p">,</span> <span class="sa">b</span><span class="s1">'</span><span class="se">\x09\x00</span><span class="s1">'</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">1608336556271875.0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">item</span><span class="o">.</span><span class="n">time_info</span> <span class="o">-</span> <span class="n">item</span><span class="o">.</span><span class="n">timestamp</span>
+<span class="go">92879.75</span>
+</pre></div>
+</div>
+<dl class="py attribute">
 <dt class="sig sig-object py" id="taped.base.BufferItemOutput.bytes">
-<span class="sig-name descname"><span class="pre">bytes</span></span><a class="headerlink" href="#taped.base.BufferItemOutput.bytes" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">bytes</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#taped.base.BufferItemOutput.bytes" title="taped.base.BufferItemOutput.bytes"><span class="pre">bytes</span></a></span><a class="headerlink" href="#taped.base.BufferItemOutput.bytes" title="Link to this definition"></a></dt>
 <dd><p>Alias for field number 1</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="taped.base.BufferItemOutput.frame_count">
-<span class="sig-name descname"><span class="pre">frame_count</span></span><a class="headerlink" href="#taped.base.BufferItemOutput.frame_count" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">frame_count</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></span><a class="headerlink" href="#taped.base.BufferItemOutput.frame_count" title="Link to this definition"></a></dt>
 <dd><p>Alias for field number 2</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="taped.base.BufferItemOutput.status_flags">
-<span class="sig-name descname"><span class="pre">status_flags</span></span><a class="headerlink" href="#taped.base.BufferItemOutput.status_flags" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">status_flags</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></span><a class="headerlink" href="#taped.base.BufferItemOutput.status_flags" title="Link to this definition"></a></dt>
 <dd><p>Alias for field number 4</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="taped.base.BufferItemOutput.time_info">
-<span class="sig-name descname"><span class="pre">time_info</span></span><a class="headerlink" href="#taped.base.BufferItemOutput.time_info" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">time_info</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#taped.base.BufferItemOutput.time_info" title="Link to this definition"></a></dt>
 <dd><p>Alias for field number 3</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="taped.base.BufferItemOutput.timestamp">
-<span class="sig-name descname"><span class="pre">timestamp</span></span><a class="headerlink" href="#taped.base.BufferItemOutput.timestamp" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">timestamp</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#taped.base.BufferItemOutput.timestamp" title="Link to this definition"></a></dt>
 <dd><p>Alias for field number 0</p>
 </dd></dl>
 
+</section>
 </dd></dl>
 
 <dl class="py class">
@@ -190,7 +289,21 @@ This is maxlen * chk_size when buffer is full.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="taped.base.WfChunks">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">taped.base.</span></span><span class="sig-name descname"><span class="pre">WfChunks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_device_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">44100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chk_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">4096</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream_buffer_size_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">60</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/taped/base.html#WfChunks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#taped.base.WfChunks" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Decode the byte chunks of <code class="docutils literal notranslate"><span class="pre">ByteChunks</span></code> into numerical waveform chunks.</p>
+<p>The width used to decode is the <code class="docutils literal notranslate"><span class="pre">sample_width</span></code> the stream was actually
+opened with. It is read through <code class="docutils literal notranslate"><span class="pre">Creek</span></code>’s delegation to the wrapped
+stream, deliberately: a <code class="docutils literal notranslate"><span class="pre">sample_width</span></code> class attribute here would shadow
+the constructed value, so a <code class="docutils literal notranslate"><span class="pre">WfChunks(sample_width=4)</span></code> would capture
+32-bit frames and then decode them as 16-bit ones.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="taped.base.audio_segment_to_buffer_item_output">
+<span class="sig-prename descclassname"><span class="pre">taped.base.</span></span><span class="sig-name descname"><span class="pre">audio_segment_to_buffer_item_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">segment</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">AudioSegment</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#taped.base.BufferItemOutput" title="taped.base.BufferItemOutput"><span class="pre">BufferItemOutput</span></a></span></span><a class="reference internal" href="../../_modules/taped/base.html#audio_segment_to_buffer_item_output"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#taped.base.audio_segment_to_buffer_item_output" title="Link to this definition"></a></dt>
+<dd><p>Convert an <code class="docutils literal notranslate"><span class="pre">audiostream2py.AudioSegment</span></code> to a <a class="reference internal" href="#taped.base.BufferItemOutput" title="taped.base.BufferItemOutput"><code class="xref py py-class docutils literal notranslate"><span class="pre">BufferItemOutput</span></code></a>.</p>
+<p>Note <code class="docutils literal notranslate"><span class="pre">time_info=segment.end_date</span></code> – see <a class="reference internal" href="#taped.base.BufferItemOutput" title="taped.base.BufferItemOutput"><code class="xref py py-class docutils literal notranslate"><span class="pre">BufferItemOutput</span></code></a> for why
+that field does not hold a PortAudio time-info dict.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="taped.base.positive_slice_version">

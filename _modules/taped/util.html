@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>taped.util &mdash; taped 0.1.9 documentation</title>
+  <title>taped.util &mdash; taped 0.1.10 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=8618f531"></script>
+      <script src="../../_static/documentation_options.js?v=bafade30"></script>
       <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -56,6 +56,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../../module_docs/taped/scrap/audio_pokes.html">taped.scrap.audio_pokes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../module_docs/taped/scrap/live_audio.html">taped.scrap.live_audio</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../module_docs/taped/scrap/live_audio_pipelining.html">taped.scrap.live_audio_pipelining</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/taped/tests.html">taped.tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/taped/tests/test_record.html">taped.tests.test_record</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../module_docs/taped/tools.html">taped.tools</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../module_docs/taped/util.html">taped.util</a></li>
 </ul>
@@ -85,7 +87,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for taped.util</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""</span>
 <span class="sd">Utilities for audio processing and streaming in the taped package.</span>
 
 <span class="sd">This module provides tools for:</span>
@@ -121,7 +123,7 @@
 <span class="sd">&gt;&gt;&gt; from audiostream2py import AudioSegment</span>
 <span class="sd">&gt;&gt;&gt; # Create a sample AudioSegment (this is just an example structure)</span>
 <span class="sd">&gt;&gt;&gt; segment = AudioSegment(  # doctest: +SKIP</span>
-<span class="sd">...     waveform=b&#39;sample audio data&#39;,</span>
+<span class="sd">...     waveform=b'sample audio data',</span>
 <span class="sd">...     start_date=1234567890.0,</span>
 <span class="sd">...     end_date=1234567891.0,</span>
 <span class="sd">...     frame_count=1000,</span>
@@ -131,7 +133,7 @@
 <span class="sd">&gt;&gt;&gt; buffer_item = audio_segment_to_buffer_item_output(segment)  # doctest: +SKIP</span>
 <span class="sd">&gt;&gt;&gt; buffer_item.timestamp == 1234567890.0  # doctest: +SKIP</span>
 <span class="sd">True</span>
-<span class="sd">&gt;&gt;&gt; buffer_item.bytes == b&#39;sample audio data&#39;  # doctest: +SKIP</span>
+<span class="sd">&gt;&gt;&gt; buffer_item.bytes == b'sample audio data'  # doctest: +SKIP</span>
 <span class="sd">True</span>
 <span class="sd">&gt;&gt;&gt;</span>
 <span class="sd">&gt;&gt;&gt; # Example of positive_slice_version function</span>
@@ -140,7 +142,7 @@
 <span class="sd">&gt;&gt;&gt; positive_slice_version(slice(3, 8, 2), 10)  # doctest: +SKIP</span>
 <span class="sd">slice(3, 8, 2)</span>
 
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">partial</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">functools</span>
@@ -150,6 +152,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Callable</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pyaudio</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">soundfile</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sf</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">audiostream2py</span><span class="w"> </span><span class="kn">import</span> <span class="n">PyAudioSourceReader</span><span class="p">,</span> <span class="n">get_input_device_index</span>
 
@@ -162,22 +165,80 @@
 <span class="n">DFLT_SAMPLE_WIDTH</span> <span class="o">=</span> <span class="mi">2</span>
 <span class="n">DFLT_CHK_SIZE</span> <span class="o">=</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">4</span>
 <span class="n">DFLT_STREAM_BUF_SIZE_S</span> <span class="o">=</span> <span class="mi">60</span>
-<span class="n">read_kwargs_for_sample_width</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="mi">2</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">format</span><span class="o">=</span><span class="s2">&quot;RAW&quot;</span><span class="p">,</span> <span class="n">subtype</span><span class="o">=</span><span class="s2">&quot;PCM_16&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;int16&quot;</span><span class="p">),</span>
-    <span class="mi">3</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">format</span><span class="o">=</span><span class="s2">&quot;RAW&quot;</span><span class="p">,</span> <span class="n">subtype</span><span class="o">=</span><span class="s2">&quot;PCM_24&quot;</span><span class="p">),</span>  <span class="c1"># what dtype?</span>
-    <span class="mi">4</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">format</span><span class="o">=</span><span class="s2">&quot;RAW&quot;</span><span class="p">,</span> <span class="n">subtype</span><span class="o">=</span><span class="s2">&quot;PCM_32&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;int32&quot;</span><span class="p">),</span>
+
+<span class="c1">#: The ``soundfile`` RAW subtype that losslessly represents each PortAudio sample</span>
+<span class="c1">#: format. This is the bridge between the two authorities involved in a sample</span>
+<span class="c1">#: width, which are *not* the same table:</span>
+<span class="c1">#:</span>
+<span class="c1">#: - the **capture** side: PyAudio derives the stream format from the sample</span>
+<span class="c1">#:   width (``pyaudio.get_format_from_width``), and</span>
+<span class="c1">#:   ``audiostream2py.BasePyAudioSourceReader`` opens the input stream with</span>
+<span class="c1">#:   exactly that format;</span>
+<span class="c1">#: - the **decode** side: ``soundfile`` turns the resulting raw bytes back into</span>
+<span class="c1">#:   numbers, given a subtype.</span>
+<span class="c1">#:</span>
+<span class="c1">#: A disagreement between the two is silent -- the bytes decode into numbers of</span>
+<span class="c1">#: the wrong kind rather than raising -- so they are pinned against each other by</span>
+<span class="c1">#: a test rather than merely kept in sync by hand.</span>
+<span class="n">pa_format_to_subtype</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">pyaudio</span><span class="o">.</span><span class="n">paUInt8</span><span class="p">:</span> <span class="s2">"PCM_U8"</span><span class="p">,</span>
+    <span class="n">pyaudio</span><span class="o">.</span><span class="n">paInt8</span><span class="p">:</span> <span class="s2">"PCM_S8"</span><span class="p">,</span>
+    <span class="n">pyaudio</span><span class="o">.</span><span class="n">paInt16</span><span class="p">:</span> <span class="s2">"PCM_16"</span><span class="p">,</span>
+    <span class="n">pyaudio</span><span class="o">.</span><span class="n">paInt24</span><span class="p">:</span> <span class="s2">"PCM_24"</span><span class="p">,</span>
+    <span class="n">pyaudio</span><span class="o">.</span><span class="n">paFloat32</span><span class="p">:</span> <span class="s2">"FLOAT"</span><span class="p">,</span>
 <span class="p">}</span>
 
-<span class="c1"># monkey patching WRAPPER_ASSIGNMENTS to get &quot;proper&quot; wrapping (adding defaults and kwdefaults</span>
+
+<div class="viewcode-block" id="subtype_for_sample_width">
+<a class="viewcode-back" href="../../module_docs/taped/util.html#taped.util.subtype_for_sample_width">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">subtype_for_sample_width</span><span class="p">(</span><span class="n">sample_width</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">unsigned</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""The ``soundfile`` subtype matching the format PyAudio *captures* at this width.</span>
+
+<span class="sd">    Note that the width-to-format map is not the obvious one: 4 bytes is</span>
+<span class="sd">    **float32**, not a 32-bit integer format.</span>
+
+<span class="sd">    &gt;&gt;&gt; subtype_for_sample_width(2)</span>
+<span class="sd">    'PCM_16'</span>
+<span class="sd">    &gt;&gt;&gt; subtype_for_sample_width(4)</span>
+<span class="sd">    'FLOAT'</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">pa_format_to_subtype</span><span class="p">[</span><span class="n">pyaudio</span><span class="o">.</span><span class="n">get_format_from_width</span><span class="p">(</span><span class="n">sample_width</span><span class="p">,</span> <span class="n">unsigned</span><span class="p">)]</span></div>
+
+
+
+<span class="c1">#: How to decode a chunk of raw mic bytes, per sample width. Every ``subtype``</span>
+<span class="c1">#: here must equal ``subtype_for_sample_width(width)``: what we decode has to be</span>
+<span class="c1">#: what the device was opened to capture.</span>
+<span class="c1">#:</span>
+<span class="c1">#: ===== =============== ====================================================</span>
+<span class="c1">#: width capture format  decoded as</span>
+<span class="c1">#: ===== =============== ====================================================</span>
+<span class="c1">#: 2     ``paInt16``     ``int16``</span>
+<span class="c1">#: 3     ``paInt24``     ``float64`` (soundfile has no 24-bit dtype)</span>
+<span class="c1">#: 4     ``paFloat32``   ``float32``</span>
+<span class="c1">#: ===== =============== ====================================================</span>
+<span class="c1">#:</span>
+<span class="c1">#: Width 1 (``paUInt8``/``paInt8``) is deliberately absent: soundfile offers no</span>
+<span class="c1">#: 8-bit dtype, so there is no lossless decode target. An entry here is a promise</span>
+<span class="c1">#: that the whole capture-to-waveform path works at that width -- it is what</span>
+<span class="c1">#: ``taped.tools.SUPPORTED_SAMPLE_WIDTHS`` is derived from -- so an untested</span>
+<span class="c1">#: width does not get one.</span>
+<span class="n">read_kwargs_for_sample_width</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="mi">2</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">format</span><span class="o">=</span><span class="s2">"RAW"</span><span class="p">,</span> <span class="n">subtype</span><span class="o">=</span><span class="s2">"PCM_16"</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">"int16"</span><span class="p">),</span>
+    <span class="mi">3</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">format</span><span class="o">=</span><span class="s2">"RAW"</span><span class="p">,</span> <span class="n">subtype</span><span class="o">=</span><span class="s2">"PCM_24"</span><span class="p">),</span>  <span class="c1"># no 24-bit dtype: yields float64</span>
+    <span class="mi">4</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">format</span><span class="o">=</span><span class="s2">"RAW"</span><span class="p">,</span> <span class="n">subtype</span><span class="o">=</span><span class="s2">"FLOAT"</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">"float32"</span><span class="p">),</span>
+<span class="p">}</span>
+
+<span class="c1"># monkey patching WRAPPER_ASSIGNMENTS to get "proper" wrapping (adding defaults and kwdefaults</span>
 
 <span class="n">wrapper_assignments</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="s2">&quot;__module__&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;__name__&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;__qualname__&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;__doc__&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;__annotations__&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;__defaults__&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;__kwdefaults__&quot;</span><span class="p">,</span>
+    <span class="s2">"__module__"</span><span class="p">,</span>
+    <span class="s2">"__name__"</span><span class="p">,</span>
+    <span class="s2">"__qualname__"</span><span class="p">,</span>
+    <span class="s2">"__doc__"</span><span class="p">,</span>
+    <span class="s2">"__annotations__"</span><span class="p">,</span>
+    <span class="s2">"__defaults__"</span><span class="p">,</span>
+    <span class="s2">"__kwdefaults__"</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="n">update_wrapper</span> <span class="o">=</span> <span class="n">functools</span><span class="o">.</span><span class="n">update_wrapper</span>
@@ -191,7 +252,7 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">bytes_to_waveform</span><span class="p">(</span>
     <span class="n">b</span><span class="p">,</span> <span class="n">sr</span><span class="o">=</span><span class="n">DFLT_SR</span><span class="p">,</span> <span class="n">n_channels</span><span class="o">=</span><span class="n">DFLT_N_CHANNELS</span><span class="p">,</span> <span class="n">sample_width</span><span class="o">=</span><span class="n">DFLT_SAMPLE_WIDTH</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Convert raw bytes to a numpy array cast to dtype</span>
 
 <span class="sd">    :param b: bytes</span>
@@ -200,7 +261,7 @@
 <span class="sd">    :param sample_width: sample byte width [2, 3, 4]</span>
 
 <span class="sd">    :return: numpy.array or ints</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">sf</span><span class="o">.</span><span class="n">read</span><span class="p">(</span>
         <span class="n">BytesIO</span><span class="p">(</span><span class="n">b</span><span class="p">),</span>
         <span class="n">samplerate</span><span class="o">=</span><span class="n">sr</span><span class="p">,</span>
@@ -213,7 +274,7 @@
 <div class="viewcode-block" id="waveform_to_bytes">
 <a class="viewcode-back" href="../../module_docs/taped/util.html#taped.util.waveform_to_bytes">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">waveform_to_bytes</span><span class="p">(</span><span class="n">wf</span><span class="p">,</span> <span class="n">sr</span><span class="o">=</span><span class="n">DFLT_SR</span><span class="p">,</span> <span class="n">sample_width</span><span class="o">=</span><span class="n">DFLT_SAMPLE_WIDTH</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Convert raw bytes to a numpy array cast to dtype</span>
 
 <span class="sd">    :param wf: iterable of ints</span>
@@ -222,10 +283,10 @@
 <span class="sd">    :param sample_width: sample byte width [2, 3, 4]</span>
 
 <span class="sd">    :return: bytes</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">b</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">()</span>
-    <span class="n">subtype</span> <span class="o">=</span> <span class="n">read_kwargs_for_sample_width</span><span class="p">[</span><span class="n">sample_width</span><span class="p">][</span><span class="s2">&quot;subtype&quot;</span><span class="p">]</span>
-    <span class="n">sf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">wf</span><span class="p">,</span> <span class="n">samplerate</span><span class="o">=</span><span class="n">sr</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;RAW&quot;</span><span class="p">,</span> <span class="n">subtype</span><span class="o">=</span><span class="n">subtype</span><span class="p">)</span>
+    <span class="n">subtype</span> <span class="o">=</span> <span class="n">read_kwargs_for_sample_width</span><span class="p">[</span><span class="n">sample_width</span><span class="p">][</span><span class="s2">"subtype"</span><span class="p">]</span>
+    <span class="n">sf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">wf</span><span class="p">,</span> <span class="n">samplerate</span><span class="o">=</span><span class="n">sr</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">"RAW"</span><span class="p">,</span> <span class="n">subtype</span><span class="o">=</span><span class="n">subtype</span><span class="p">)</span>
     <span class="n">b</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">b</span><span class="o">.</span><span class="n">read</span><span class="p">()</span></div>
 
@@ -234,27 +295,35 @@
 <div class="viewcode-block" id="bytes_to_waveform_old">
 <a class="viewcode-back" href="../../module_docs/taped/util.html#taped.util.bytes_to_waveform_old">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">bytes_to_waveform_old</span><span class="p">(</span>
-    <span class="n">b</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">sr</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">n_channels</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">sample_width</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;int16&quot;</span>
+    <span class="n">b</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">sr</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">n_channels</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">sample_width</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">"int16"</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert raw bytes to a numpy array cast to dtype</span>
+<span class="w">    </span><span class="sd">"""Convert raw bytes to a numpy array cast to dtype</span>
+
+<span class="sd">    .. warning::</span>
+<span class="sd">        Superseded by :func:`bytes_to_waveform`, and kept only for the scripts in</span>
+<span class="sd">        ``taped/scrap``. Its ``sample_width`` table below is a *second* authority</span>
+<span class="sd">        on how to decode, and it disagrees with the capture side at width 4: the</span>
+<span class="sd">        device is opened as ``paFloat32`` there (see</span>
+<span class="sd">        :func:`subtype_for_sample_width`), not as 32-bit PCM. Use</span>
+<span class="sd">        :func:`bytes_to_waveform` for anything reading from a live stream.</span>
 
 <span class="sd">    :param b: bytes</span>
 <span class="sd">    :param sr: sample rate</span>
 <span class="sd">    :param n_channels: number of channels</span>
 <span class="sd">    :param sample_width: sample byte width [2, 3, 4]</span>
-<span class="sd">    :param dtype: data type used by numpy, i.e. dtype=np.int16 is the same as dtype=&#39;int16&#39;</span>
+<span class="sd">    :param dtype: data type used by numpy, i.e. dtype=np.int16 is the same as dtype='int16'</span>
 <span class="sd">    :return: numpy.array</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">sample_width_to_subtype</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="mi">2</span><span class="p">:</span> <span class="s2">&quot;PCM_16&quot;</span><span class="p">,</span>
-        <span class="mi">3</span><span class="p">:</span> <span class="s2">&quot;PCM_24&quot;</span><span class="p">,</span>
-        <span class="mi">4</span><span class="p">:</span> <span class="s2">&quot;PCM_32&quot;</span><span class="p">,</span>
+        <span class="mi">2</span><span class="p">:</span> <span class="s2">"PCM_16"</span><span class="p">,</span>
+        <span class="mi">3</span><span class="p">:</span> <span class="s2">"PCM_24"</span><span class="p">,</span>
+        <span class="mi">4</span><span class="p">:</span> <span class="s2">"PCM_32"</span><span class="p">,</span>  <span class="c1"># NOT what the mic captures at width 4 -- see the warning</span>
     <span class="p">}</span>
     <span class="k">return</span> <span class="n">sf</span><span class="o">.</span><span class="n">read</span><span class="p">(</span>
         <span class="n">BytesIO</span><span class="p">(</span><span class="n">b</span><span class="p">),</span>
         <span class="n">samplerate</span><span class="o">=</span><span class="n">sr</span><span class="p">,</span>
         <span class="n">channels</span><span class="o">=</span><span class="n">n_channels</span><span class="p">,</span>
-        <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;RAW&quot;</span><span class="p">,</span>
+        <span class="nb">format</span><span class="o">=</span><span class="s2">"RAW"</span><span class="p">,</span>
         <span class="n">subtype</span><span class="o">=</span><span class="n">sample_width_to_subtype</span><span class="p">[</span><span class="n">sample_width</span><span class="p">],</span>
         <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span>
     <span class="p">)[</span><span class="mi">0</span><span class="p">]</span></div>
@@ -264,11 +333,11 @@
 <div class="viewcode-block" id="list_recording_device_index_names">
 <a class="viewcode-back" href="../../module_docs/taped/util.html#taped.util.list_recording_device_index_names">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">list_recording_device_index_names</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;List (index, name) of available recording devices&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""List (index, name) of available recording devices"""</span>
     <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span>
-        <span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;index&quot;</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">])</span>
+        <span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">"index"</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="s2">"name"</span><span class="p">])</span>
         <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">PyAudioSourceReader</span><span class="o">.</span><span class="n">list_device_info</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;maxInputChannels&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">d</span><span class="p">[</span><span class="s2">"maxInputChannels"</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span>
     <span class="p">)</span></div>
 
 
@@ -277,15 +346,15 @@
     <span class="k">return</span> <span class="n">get_input_device_index</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">find_a_device_index</span><span class="p">(</span><span class="n">filt</span><span class="o">=</span><span class="s2">&quot;microphone&quot;</span><span class="p">,</span> <span class="n">dflt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">find_a_device_index</span><span class="p">(</span><span class="n">filt</span><span class="o">=</span><span class="s2">"microphone"</span><span class="p">,</span> <span class="n">dflt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filt</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="n">match_str</span> <span class="o">=</span> <span class="n">filt</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">filt</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">match_str</span> <span class="ow">in</span> <span class="n">x</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="n">match_str</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">match_str</span> <span class="ow">in</span> <span class="n">x</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"name"</span><span class="p">,</span> <span class="n">match_str</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
 
     <span class="n">match</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="n">filt</span><span class="p">,</span> <span class="n">PyAudioSourceReader</span><span class="o">.</span><span class="n">list_device_info</span><span class="p">()),</span> <span class="kc">None</span><span class="p">)</span>
-    <span class="k">return</span> <span class="p">(</span><span class="n">match</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">match</span><span class="p">[</span><span class="s2">&quot;index&quot;</span><span class="p">])</span> <span class="ow">or</span> <span class="n">dflt</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">match</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">match</span><span class="p">[</span><span class="s2">"index"</span><span class="p">])</span> <span class="ow">or</span> <span class="n">dflt</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">ensure_source_input_device_index</span><span class="p">(</span><span class="n">input_device_index</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
@@ -300,46 +369,46 @@
                 <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="n">input_name</span><span class="p">:</span>
                     <span class="k">return</span> <span class="n">index</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;name not found in list of recording devices: </span><span class="si">{</span><span class="n">input_name</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">"name not found in list of recording devices: </span><span class="si">{</span><span class="n">input_name</span><span class="si">}</span><span class="s2">"</span>
             <span class="p">)</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">input_device_index</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">input_device_index</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
             <span class="n">index</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="n">input_device_index</span>
             <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span>
                 <span class="n">index</span><span class="p">,</span> <span class="nb">int</span>
-            <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;expecting first element of tuple to be an int: </span><span class="si">{</span><span class="n">input_device_index</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">),</span> <span class="sa">f</span><span class="s2">"expecting first element of tuple to be an int: </span><span class="si">{</span><span class="n">input_device_index</span><span class="si">}</span><span class="s2">"</span>
             <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span>
                 <span class="n">name</span><span class="p">,</span> <span class="nb">str</span>
-            <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;expecting second element of tuple to be a string: </span><span class="si">{</span><span class="n">input_device_index</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">),</span> <span class="sa">f</span><span class="s2">"expecting second element of tuple to be a string: </span><span class="si">{</span><span class="n">input_device_index</span><span class="si">}</span><span class="s2">"</span>
             <span class="k">return</span> <span class="n">index</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;couldn&#39;t resolve input_device_index: </span><span class="si">{</span><span class="n">input_device_index</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">"couldn't resolve input_device_index: </span><span class="si">{</span><span class="n">input_device_index</span><span class="si">}</span><span class="s2">"</span>
             <span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="c1"># TODO: Nicer way to print info (perhaps only relevant info, formated as table)</span>
         <span class="nb">print</span><span class="p">(</span>
-            <span class="s2">&quot;Need a valid input_device_index. Calling live_audio_chks.list_device_info() to information about the &quot;</span>
-            <span class="s2">&quot;devices I can detect:</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">"Need a valid input_device_index. Calling live_audio_chks.list_device_info() to information about the "</span>
+            <span class="s2">"devices I can detect:</span><span class="se">\n</span><span class="s2">"</span>
         <span class="p">)</span>
         <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">PyAudioSourceReader</span><span class="o">.</span><span class="n">list_device_info</span><span class="p">():</span>
             <span class="nb">print</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">""</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span>
-            <span class="s2">&quot;---&gt; Look in the list above and choose an input_device_index (it&#39;s called index in the printout above) &quot;</span>
-            <span class="s2">&quot;that seems to be right for you!&quot;</span>
+            <span class="s2">"---&gt; Look in the list above and choose an input_device_index (it's called index in the printout above) "</span>
+            <span class="s2">"that seems to be right for you!"</span>
         <span class="p">)</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Need a valid input_device_index&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Need a valid input_device_index"</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="simple_chunker">
 <a class="viewcode-back" href="../../module_docs/taped/util.html#taped.util.simple_chunker">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">simple_chunker</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">chk_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate fixed sized non-overlapping chunks of an iterable ``a``.</span>
+<span class="w">    </span><span class="sd">"""Generate fixed sized non-overlapping chunks of an iterable ``a``.</span>
 
 <span class="sd">    &gt;&gt;&gt; list(simple_chunker(range(7), 3))</span>
 <span class="sd">    [(0, 1, 2), (3, 4, 5)]</span>
 
-<span class="sd">    Most of the time, you&#39;ll want to fix the parameters of the chunker like this:</span>
+<span class="sd">    Most of the time, you'll want to fix the parameters of the chunker like this:</span>
 
 <span class="sd">    &gt;&gt;&gt; from functools import partial</span>
 <span class="sd">    &gt;&gt;&gt; chunker = partial(simple_chunker, chk_size=3)</span>
@@ -360,7 +429,7 @@
 <span class="sd">    &gt;&gt;&gt; list(simple_chunker(a, 1))</span>
 <span class="sd">    [(0,), (1,), (2,), (3,), (4,), (5,)]</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="p">([</span><span class="nb">iter</span><span class="p">(</span><span class="n">a</span><span class="p">)]</span> <span class="o">*</span> <span class="n">chk_size</span><span class="p">))</span></div>
 
 
@@ -368,7 +437,7 @@
 <div class="viewcode-block" id="rechunker">
 <a class="viewcode-back" href="../../module_docs/taped/util.html#taped.util.rechunker">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">rechunker</span><span class="p">(</span><span class="n">chks</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Iterable</span><span class="p">],</span> <span class="n">chunker</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">|</span> <span class="nb">int</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate fixed sized non-overlapping chunks of an iterable of chunks.</span>
+<span class="w">    </span><span class="sd">"""Generate fixed sized non-overlapping chunks of an iterable of chunks.</span>
 <span class="sd">    That is, the rechunker applies a chunker to an unraveled stream of chunks,</span>
 <span class="sd">    or more generally of iterables since they can be of varied sizes and types.</span>
 
@@ -378,7 +447,7 @@
 <span class="sd">    &gt;&gt;&gt; list(rechunker(chks, chunker))</span>
 <span class="sd">    [(0, 1, 2), (3, 4, 5)]</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span>
         <span class="n">chunker</span><span class="p">,</span> <span class="nb">int</span>
     <span class="p">):</span>  <span class="c1"># if chunker is an int, take it to be a the chk_size of a simple_chunker</span>
@@ -395,7 +464,7 @@
 <div class="viewcode-block" id="chunk_indices">
 <a class="viewcode-back" href="../../module_docs/taped/util.html#taped.util.chunk_indices">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">chunk_indices</span><span class="p">(</span><span class="n">chk_size</span><span class="p">,</span> <span class="n">chk_step</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">start_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end_idx</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Yields upper and integer lower bounds of integer size and step chunks.</span>
+<span class="w">    </span><span class="sd">"""Yields upper and integer lower bounds of integer size and step chunks.</span>
 
 <span class="sd">    &gt;&gt;&gt; it = chunk_indices(5)</span>
 <span class="sd">    &gt;&gt;&gt; next(it)</span>
@@ -404,7 +473,7 @@
 <span class="sd">    (5, 10)</span>
 <span class="sd">    &gt;&gt;&gt; list(chunk_indices(chk_size=5, chk_step=3, start_idx=0, end_idx=15))</span>
 <span class="sd">    [(0, 5), (3, 8), (6, 11), (9, 14)]</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">chk_step</span> <span class="o">=</span> <span class="n">chk_step</span> <span class="ow">or</span> <span class="n">chk_size</span>
     <span class="n">bt_start</span> <span class="o">=</span> <span class="n">start_idx</span>
     <span class="n">tt_start</span> <span class="o">=</span> <span class="n">bt_start</span> <span class="o">+</span> <span class="n">chk_size</span>

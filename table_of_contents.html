@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>&lt;no title&gt; &mdash; taped 0.1.9 documentation</title>
+  <title>&lt;no title&gt; &mdash; taped 0.1.10 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -15,7 +15,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=8618f531"></script>
+      <script src="_static/documentation_options.js?v=bafade30"></script>
       <script src="_static/doctools.js?v=fd6eb6e6"></script>
       <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -57,6 +57,8 @@
 <li class="toctree-l1"><a class="reference internal" href="module_docs/taped/scrap/audio_pokes.html">taped.scrap.audio_pokes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="module_docs/taped/scrap/live_audio.html">taped.scrap.live_audio</a></li>
 <li class="toctree-l1"><a class="reference internal" href="module_docs/taped/scrap/live_audio_pipelining.html">taped.scrap.live_audio_pipelining</a></li>
+<li class="toctree-l1"><a class="reference internal" href="module_docs/taped/tests.html">taped.tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="module_docs/taped/tests/test_record.html">taped.tests.test_record</a></li>
 <li class="toctree-l1"><a class="reference internal" href="module_docs/taped/tools.html">taped.tools</a></li>
 <li class="toctree-l1"><a class="reference internal" href="module_docs/taped/util.html">taped.util</a></li>
 </ul>
@@ -96,6 +98,7 @@
 <li class="toctree-l2"><a class="reference internal" href="module_docs/taped/base.html#taped.base.ByteChunks"><code class="docutils literal notranslate"><span class="pre">ByteChunks</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="module_docs/taped/base.html#taped.base.LiveWf"><code class="docutils literal notranslate"><span class="pre">LiveWf</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="module_docs/taped/base.html#taped.base.WfChunks"><code class="docutils literal notranslate"><span class="pre">WfChunks</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/taped/base.html#taped.base.audio_segment_to_buffer_item_output"><code class="docutils literal notranslate"><span class="pre">audio_segment_to_buffer_item_output()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="module_docs/taped/base.html#taped.base.positive_slice_version"><code class="docutils literal notranslate"><span class="pre">positive_slice_version()</span></code></a></li>
 </ul>
 </li>
@@ -131,7 +134,11 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="module_docs/taped/scrap/live_audio_pipelining.html">taped.scrap.live_audio_pipelining</a></li>
+<li class="toctree-l1"><a class="reference internal" href="module_docs/taped/tests.html">taped.tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="module_docs/taped/tests/test_record.html">taped.tests.test_record</a></li>
 <li class="toctree-l1"><a class="reference internal" href="module_docs/taped/tools.html">taped.tools</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/taped/tools.html#taped.tools.DURATION_UNIT_TO_N_SAMPLES"><code class="docutils literal notranslate"><span class="pre">DURATION_UNIT_TO_N_SAMPLES</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/taped/tools.html#taped.tools.SUPPORTED_SAMPLE_WIDTHS"><code class="docutils literal notranslate"><span class="pre">SUPPORTED_SAMPLE_WIDTHS</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="module_docs/taped/tools.html#taped.tools.record"><code class="docutils literal notranslate"><span class="pre">record()</span></code></a></li>
 </ul>
 </li>
@@ -140,8 +147,11 @@
 <li class="toctree-l2"><a class="reference internal" href="module_docs/taped/util.html#taped.util.bytes_to_waveform_old"><code class="docutils literal notranslate"><span class="pre">bytes_to_waveform_old()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="module_docs/taped/util.html#taped.util.chunk_indices"><code class="docutils literal notranslate"><span class="pre">chunk_indices()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="module_docs/taped/util.html#taped.util.list_recording_device_index_names"><code class="docutils literal notranslate"><span class="pre">list_recording_device_index_names()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/taped/util.html#taped.util.pa_format_to_subtype"><code class="docutils literal notranslate"><span class="pre">pa_format_to_subtype</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/taped/util.html#taped.util.read_kwargs_for_sample_width"><code class="docutils literal notranslate"><span class="pre">read_kwargs_for_sample_width</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="module_docs/taped/util.html#taped.util.rechunker"><code class="docutils literal notranslate"><span class="pre">rechunker()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="module_docs/taped/util.html#taped.util.simple_chunker"><code class="docutils literal notranslate"><span class="pre">simple_chunker()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/taped/util.html#taped.util.subtype_for_sample_width"><code class="docutils literal notranslate"><span class="pre">subtype_for_sample_width()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="module_docs/taped/util.html#taped.util.waveform_to_bytes"><code class="docutils literal notranslate"><span class="pre">waveform_to_bytes()</span></code></a></li>
 </ul>
 </li>

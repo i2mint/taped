@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>taped.examples.live_audio_pipelines &mdash; taped 0.1.9 documentation</title>
+  <title>taped.examples.live_audio_pipelines &mdash; taped 0.1.10 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=8618f531"></script>
+      <script src="../../../_static/documentation_options.js?v=bafade30"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -56,6 +56,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/taped/scrap/audio_pokes.html">taped.scrap.audio_pokes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/taped/scrap/live_audio.html">taped.scrap.live_audio</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/taped/scrap/live_audio_pipelining.html">taped.scrap.live_audio_pipelining</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/taped/tests.html">taped.tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/taped/tests/test_record.html">taped.tests.test_record</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/taped/tools.html">taped.tools</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/taped/util.html">taped.util</a></li>
 </ul>
@@ -101,7 +103,7 @@
 <div class="viewcode-block" id="std">
 <a class="viewcode-back" href="../../../module_docs/taped/examples/live_audio_pipelines.html#taped.examples.live_audio_pipelines.std">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">std</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Wrapping statistics.pstdev, so it doesn&#39;t cause issues such as https://bugs.python.org/issue39218&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Wrapping statistics.pstdev, so it doesn't cause issues such as https://bugs.python.org/issue39218"""</span>
     <span class="k">return</span> <span class="n">pstdev</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">x</span><span class="p">))</span></div>
 
 
@@ -126,10 +128,10 @@
                 <span class="n">wf</span> <span class="o">=</span> <span class="n">live_wf</span>
             <span class="n">pipeline</span><span class="p">(</span><span class="n">wf</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;A KeyboardInterrupt was received. Closing down...&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"A KeyboardInterrupt was received. Closing down..."</span><span class="p">)</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">viz</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">gain</span><span class="o">=</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">20</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">disp_str</span><span class="o">=</span><span class="s2">&quot;*&quot;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">viz</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">gain</span><span class="o">=</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">20</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">disp_str</span><span class="o">=</span><span class="s2">"*"</span><span class="p">):</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">disp_str</span> <span class="o">*</span> <span class="nb">int</span><span class="p">(</span><span class="n">gain</span> <span class="o">*</span> <span class="n">val</span> <span class="o">+</span> <span class="n">offset</span><span class="p">))</span>
 
 
@@ -156,17 +158,17 @@
 <span class="nd">@wraps</span><span class="p">(</span><span class="n">mk_pipeline</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="n">max_samples</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span>
-        <span class="s2">&quot;max_samples&quot;</span><span class="p">,</span> <span class="kc">None</span>
+        <span class="s2">"max_samples"</span><span class="p">,</span> <span class="kc">None</span>
     <span class="p">)</span>  <span class="c1"># this argument will be hidden (use Sig to add it to signature?)</span>
     <span class="n">kwargs</span> <span class="o">=</span> <span class="n">Sig</span><span class="p">(</span><span class="n">mk_pipeline</span><span class="p">)</span><span class="o">.</span><span class="n">extract_kwargs</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-    <span class="k">if</span> <span class="s2">&quot;chunker&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span> <span class="ow">and</span> <span class="nb">str</span><span class="o">.</span><span class="n">isnumeric</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;chunker&quot;</span><span class="p">]):</span>
-        <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;chunker&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;chunker&quot;</span><span class="p">])</span>
+    <span class="k">if</span> <span class="s2">"chunker"</span> <span class="ow">in</span> <span class="n">kwargs</span> <span class="ow">and</span> <span class="nb">str</span><span class="o">.</span><span class="n">isnumeric</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">"chunker"</span><span class="p">]):</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s2">"chunker"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">"chunker"</span><span class="p">])</span>
     <span class="n">pipeline</span> <span class="o">=</span> <span class="n">mk_pipeline</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">launch</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">max_samples</span><span class="o">=</span><span class="n">max_samples</span><span class="p">)</span>
 
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
     <span class="kn">import</span><span class="w"> </span><span class="nn">argh</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">inspect</span><span class="w"> </span><span class="kn">import</span> <span class="n">signature</span>
 

@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>taped.scrap.live_audio &mdash; taped 0.1.9 documentation</title>
+  <title>taped.scrap.live_audio &mdash; taped 0.1.10 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=8618f531"></script>
+      <script src="../../../_static/documentation_options.js?v=bafade30"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -56,6 +56,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/taped/scrap/audio_pokes.html">taped.scrap.audio_pokes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/taped/scrap/live_audio.html">taped.scrap.live_audio</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/taped/scrap/live_audio_pipelining.html">taped.scrap.live_audio_pipelining</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/taped/tests.html">taped.tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/taped/tests/test_record.html">taped.tests.test_record</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/taped/tools.html">taped.tools</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/taped/util.html">taped.util</a></li>
 </ul>
@@ -113,7 +115,7 @@
 <div class="viewcode-block" id="VisualizationStream.open">
 <a class="viewcode-back" href="../../../module_docs/taped/scrap/live_audio.html#taped.scrap.live_audio.VisualizationStream.open">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">open</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Setup data generator&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Setup data generator"""</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_viz_gen</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mk_viz_gen</span><span class="p">()</span></div>
 
 
@@ -123,15 +125,15 @@
 <div class="viewcode-block" id="VisualizationStream.close">
 <a class="viewcode-back" href="../../../module_docs/taped/scrap/live_audio.html#taped.scrap.live_audio.VisualizationStream.close">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Clean up if needed&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Clean up if needed"""</span>
         <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viz_gen</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_viz_gen</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Whatever info is useful to you</span>
-<span class="sd">        StreamBuffer will record info right after open&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Whatever info is useful to you</span>
+<span class="sd">        StreamBuffer will record info right after open"""</span>
         <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span>
             <span class="n">mk_int16_array_gen</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mk_int16_array_gen</span><span class="p">),</span>
             <span class="n">chk_to_viz</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chk_to_viz</span><span class="p">),</span>
@@ -140,9 +142,9 @@
 <div class="viewcode-block" id="VisualizationStream.key">
 <a class="viewcode-back" href="../../../module_docs/taped/scrap/live_audio.html#taped.scrap.live_audio.VisualizationStream.key">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert data to a sortable value that increases with each read.</span>
+<span class="w">        </span><span class="sd">"""Convert data to a sortable value that increases with each read.</span>
 <span class="sd">        the enumerate index in this case</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
 </div>
 
@@ -151,19 +153,19 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">device_info_by_index</span><span class="p">(</span><span class="n">index</span><span class="p">):</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">next</span><span class="p">(</span>
-            <span class="n">d</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">PyAudioSourceReader</span><span class="o">.</span><span class="n">list_device_info</span><span class="p">()</span> <span class="k">if</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;index&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">index</span>
+            <span class="n">d</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">PyAudioSourceReader</span><span class="o">.</span><span class="n">list_device_info</span><span class="p">()</span> <span class="k">if</span> <span class="n">d</span><span class="p">[</span><span class="s2">"index"</span><span class="p">]</span> <span class="o">==</span> <span class="n">index</span>
         <span class="p">)</span>
     <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Not found for input device index: </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Not found for input device index: </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">mk_pyaudio_to_int16_array_gen_callable</span><span class="p">(</span><span class="n">audio_reader</span><span class="p">:</span> <span class="n">BufferReader</span><span class="p">):</span>
     <span class="n">_info</span> <span class="o">=</span> <span class="n">audio_reader</span><span class="o">.</span><span class="n">source_reader_info</span>
     <span class="n">specific_bytes_to_wf</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span>
         <span class="n">bytes_to_waveform_old</span><span class="p">,</span>
-        <span class="n">sr</span><span class="o">=</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;rate&quot;</span><span class="p">],</span>
-        <span class="n">n_channels</span><span class="o">=</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;channels&quot;</span><span class="p">],</span>
-        <span class="n">sample_width</span><span class="o">=</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;width&quot;</span><span class="p">],</span>
+        <span class="n">sr</span><span class="o">=</span><span class="n">_info</span><span class="p">[</span><span class="s2">"rate"</span><span class="p">],</span>
+        <span class="n">n_channels</span><span class="o">=</span><span class="n">_info</span><span class="p">[</span><span class="s2">"channels"</span><span class="p">],</span>
+        <span class="n">sample_width</span><span class="o">=</span><span class="n">_info</span><span class="p">[</span><span class="s2">"width"</span><span class="p">],</span>
     <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">mk_pyaudio_to_int16_array_gen</span><span class="p">():</span>
@@ -188,8 +190,8 @@
         <span class="n">auto_drop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="n">_info</span> <span class="o">=</span> <span class="n">device_info_by_index</span><span class="p">(</span><span class="n">input_device_index</span><span class="p">)</span>
-        <span class="n">sr</span> <span class="o">=</span> <span class="n">sr</span> <span class="ow">or</span> <span class="nb">int</span><span class="p">(</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;defaultSampleRate&quot;</span><span class="p">])</span>
-        <span class="n">channels</span> <span class="o">=</span> <span class="n">_info</span><span class="p">[</span><span class="s2">&quot;maxInputChannels&quot;</span><span class="p">]</span>
+        <span class="n">sr</span> <span class="o">=</span> <span class="n">sr</span> <span class="ow">or</span> <span class="nb">int</span><span class="p">(</span><span class="n">_info</span><span class="p">[</span><span class="s2">"defaultSampleRate"</span><span class="p">])</span>
+        <span class="n">channels</span> <span class="o">=</span> <span class="n">_info</span><span class="p">[</span><span class="s2">"maxInputChannels"</span><span class="p">]</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">source_reader</span><span class="o">=</span><span class="n">PyAudioSourceReader</span><span class="p">(</span>
@@ -222,8 +224,8 @@
 <span class="c1">#         auto_drop=True</span>
 <span class="c1"># ):</span>
 <span class="c1">#     _info = device_info_by_index(input_device_index)</span>
-<span class="c1">#     sr = sr or int(_info[&#39;defaultSampleRate&#39;])</span>
-<span class="c1">#     channels = _info[&#39;maxInputChannels&#39;]</span>
+<span class="c1">#     sr = sr or int(_info['defaultSampleRate'])</span>
+<span class="c1">#     channels = _info['maxInputChannels']</span>
 <span class="c1">#</span>
 <span class="c1">#     return StreamBuffer(</span>
 <span class="c1">#         source_reader=PyAudioSourceReader(input_device_index=input_device_index,</span>
@@ -275,7 +277,7 @@
 
                 <span class="k">yield from</span> <span class="n">viz_reader</span>
     <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;KeyboardInterrupt: So I&#39;m stopping the process&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"KeyboardInterrupt: So I'm stopping the process"</span><span class="p">)</span>
 </pre></div>
 
            </div>
