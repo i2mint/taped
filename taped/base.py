@@ -38,6 +38,7 @@ from taped.util import (
 from itertools import islice
 from creek import Creek
 
+
 class BufferItemOutput(NamedTuple):
     """One item of a ``BufferItems`` stream: a chunk of mic bytes plus its metadata.
 
@@ -51,9 +52,14 @@ class BufferItemOutput(NamedTuple):
     ------
     timestamp:
         The ``AudioSegment.start_date``: when the *first* frame of this chunk was
-        captured, as an integer number of **microseconds** since the epoch
-        (not seconds, and not a PortAudio clock reading). This is the field to
-        use to place a chunk on a wall-clock timeline.
+        captured, as a number of **microseconds** since the epoch (not seconds,
+        and not a PortAudio clock reading). This is the field to use to place a
+        chunk on a wall-clock timeline. It is an ``int`` *or* a ``float``:
+        ``AudioSegment`` declares ``start_date: int | float``, and live capture
+        normally yields floats, because most chunk dates are interpolated from
+        the frame rate rather than read off the host clock. Do not test it with
+        ``isinstance(..., int)``, and do not assume integral microsecond
+        arithmetic.
     bytes:
         The ``AudioSegment.waveform``: the raw PCM bytes of the chunk, exactly as
         the device produced them. Interpreting them as numbers needs the sample
@@ -65,9 +71,10 @@ class BufferItemOutput(NamedTuple):
         ``len(bytes) == frame_count * sample_width * n_channels``.
     time_info:
         **Not a PortAudio time-info dict.** This is the ``AudioSegment.end_date``:
-        a single integer, in the same microsecond-epoch unit as ``timestamp``,
-        marking the end of the chunk. So ``time_info - timestamp`` is the chunk's
-        duration in microseconds, and it is *not* subscriptable. PortAudio's
+        a single number, in the same microsecond-epoch unit (and of the same
+        ``int | float`` type) as ``timestamp``, marking the end of the chunk. So
+        ``time_info - timestamp`` is the chunk's duration in microseconds --
+        itself often fractional -- and it is *not* subscriptable. PortAudio's
         ``PaStreamCallbackTimeInfo`` dict (``current_time``,
         ``input_buffer_adc_time``, ``output_buffer_dac_time``) used to land here
         in older versions; ``audiostream2py`` no longer surfaces it. See the
@@ -110,12 +117,19 @@ class BufferItemOutput(NamedTuple):
     92879
     >>> item._fields
     ('timestamp', 'bytes', 'frame_count', 'time_info', 'status_flags')
+
+    The dates above are whole numbers only because they were written that way.
+    Off a live device they usually are not, and neither is the duration:
+
+    >>> item = BufferItemOutput(1608336556178995.2, b'\\x09\\x00', 1, 1608336556271875.0, 0)
+    >>> item.time_info - item.timestamp
+    92879.75
     """
 
-    timestamp: int
+    timestamp: int | float
     bytes: bytes
     frame_count: int
-    time_info: int
+    time_info: int | float
     status_flags: int
 
 

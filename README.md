@@ -38,6 +38,11 @@ below), `sr`, `sample_width`, `chk_size` and `stream_buffer_size_s`. Which
 exceptions end a recording cleanly (instead of propagating) is itself an 
 argument: `ignore_exceptions`, `(KeyboardInterrupt,)` by default.
 
+`sample_width` decides the sample dtype, and not in the way you would guess: 
+PyAudio opens the device as `int16` for 2 bytes, but as **`float32`** for 4 
+(there is no 32-bit-integer capture format), and 3 bytes comes back as 
+`float64`. The supported widths are `taped.tools.SUPPORTED_SAMPLE_WIDTHS`.
+
 ## In a nutshell:
     
 ```python
@@ -248,8 +253,13 @@ What each of those actually means is documented field by field in
 are worth calling out here, because their names mislead:
 
 - `timestamp` and `time_info` are the **start** and **end** of the chunk, both as
-  integer numbers of **microseconds since the epoch**. So `time_info - timestamp`
-  is the chunk's duration in microseconds.
+  numbers of **microseconds since the epoch**. So `time_info - timestamp` is the
+  chunk's duration in microseconds. They are `int` *or* `float` (`AudioSegment`
+  declares `int | float`), and off a live mic they are usually floats — most
+  chunk dates are interpolated from the frame rate rather than read off the host
+  clock, so the duration is typically fractional too (e.g. `92879.75`). Don't
+  write `isinstance(item.timestamp, int)`, and don't use one as an exact dict key.
+  The whole numbers printed in the examples below are from a hand-made chunk.
 - `time_info` is **not** a PortAudio `PaStreamCallbackTimeInfo` dict, despite the
   name. Older versions of the stack surfaced one here (with `current_time`,
   `input_buffer_adc_time` and `output_buffer_dac_time` keys); `audiostream2py`
