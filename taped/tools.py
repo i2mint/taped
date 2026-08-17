@@ -26,9 +26,17 @@ DurationUnit = Literal["seconds", "samples", "minutes"]
 
 SECONDS_PER_MINUTE = 60
 
-#: Sample widths (in bytes) that the waveform decoder knows how to read.
-#: Kept in sync with ``taped.util.read_kwargs_for_sample_width`` -- the single
-#: source of truth for byte-width-to-PCM-subtype mapping.
+#: Sample widths (in bytes) that work end to end: the device can be opened at
+#: that width *and* the decoder reads back what the device then sends.
+#:
+#: Two authorities have a say, and only one of them lives in this package: PyAudio
+#: picks the *capture* format from the width, and
+#: ``taped.util.read_kwargs_for_sample_width`` says how to *decode* the result.
+#: A width only belongs here when the two agree -- which is why this is derived
+#: from the decode table but not defined by it alone. See
+#: ``taped.util.subtype_for_sample_width`` for the capture side, and
+#: ``test_decode_subtype_matches_the_captured_format_at_every_width`` for the
+#: check that keeps them honest.
 SUPPORTED_SAMPLE_WIDTHS = tuple(sorted(read_kwargs_for_sample_width))
 
 #: Conversion of a ``(duration, sample_rate)`` pair to a number of samples, one
@@ -145,8 +153,10 @@ def record(
         input_device_index: Index (or name) of the input device to record from.
             None uses the default device.
         sample_width: Sample width in bytes. One of ``SUPPORTED_SAMPLE_WIDTHS``.
-            The dtype of the returned samples follows from it: 2 gives int16,
-            4 gives int32, 3 gives floats.
+            The dtype of the returned samples follows from the format PyAudio
+            opens the device with at that width, which is not the obvious
+            mapping: 2 gives int16, 3 gives float64, and 4 gives **float32**
+            (PyAudio captures 4-byte samples as float32, not as int32).
         chk_size: Number of frames read from the device per chunk.
         stream_buffer_size_s: How many seconds of audio the underlying stream
             buffer keeps (i.e. how far into the past it can see).
