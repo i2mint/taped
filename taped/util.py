@@ -63,6 +63,7 @@ from typing import Union, List, Tuple
 from collections.abc import Iterable, Callable
 
 import numpy as np
+import pyaudio
 import soundfile as sf
 from audiostream2py import PyAudioSourceReader, get_input_device_index
 
@@ -75,10 +76,65 @@ DFLT_N_CHANNELS = 1
 DFLT_SAMPLE_WIDTH = 2
 DFLT_CHK_SIZE = 1024 * 4
 DFLT_STREAM_BUF_SIZE_S = 60
+
+#: The ``soundfile`` RAW subtype that losslessly represents each PortAudio sample
+#: format. This is the bridge between the two authorities involved in a sample
+#: width, which are *not* the same table:
+#:
+#: - the **capture** side: PyAudio derives the stream format from the sample
+#:   width (``pyaudio.get_format_from_width``), and
+#:   ``audiostream2py.BasePyAudioSourceReader`` opens the input stream with
+#:   exactly that format;
+#: - the **decode** side: ``soundfile`` turns the resulting raw bytes back into
+#:   numbers, given a subtype.
+#:
+#: A disagreement between the two is silent -- the bytes decode into numbers of
+#: the wrong kind rather than raising -- so they are pinned against each other by
+#: a test rather than merely kept in sync by hand.
+pa_format_to_subtype = {
+    pyaudio.paUInt8: "PCM_U8",
+    pyaudio.paInt8: "PCM_S8",
+    pyaudio.paInt16: "PCM_16",
+    pyaudio.paInt24: "PCM_24",
+    pyaudio.paFloat32: "FLOAT",
+}
+
+
+def subtype_for_sample_width(sample_width: int, *, unsigned: bool = True) -> str:
+    """The ``soundfile`` subtype matching the format PyAudio *captures* at this width.
+
+    Note that the width-to-format map is not the obvious one: 4 bytes is
+    **float32**, not a 32-bit integer format.
+
+    >>> subtype_for_sample_width(2)
+    'PCM_16'
+    >>> subtype_for_sample_width(4)
+    'FLOAT'
+    """
+    return pa_format_to_subtype[pyaudio.get_format_from_width(sample_width, unsigned)]
+
+
+#: How to decode a chunk of raw mic bytes, per sample width. Every ``subtype``
+#: here must equal ``subtype_for_sample_width(width)``: what we decode has to be
+#: what the device was opened to capture.
+#:
+#: ===== =============== ====================================================
+#: width capture format  decoded as
+#: ===== =============== ====================================================
+#: 2     ``paInt16``     ``int16``
+#: 3     ``paInt24``     ``float64`` (soundfile has no 24-bit dtype)
+#: 4     ``paFloat32``   ``float32``
+#: ===== =============== ====================================================
+#:
+#: Width 1 (``paUInt8``/``paInt8``) is deliberately absent: soundfile offers no
+#: 8-bit dtype, so there is no lossless decode target. An entry here is a promise
+#: that the whole capture-to-waveform path works at that width -- it is what
+#: ``taped.tools.SUPPORTED_SAMPLE_WIDTHS`` is derived from -- so an untested
+#: width does not get one.
 read_kwargs_for_sample_width = {
     2: dict(format="RAW", subtype="PCM_16", dtype="int16"),
-    3: dict(format="RAW", subtype="PCM_24"),  # what dtype?
-    4: dict(format="RAW", subtype="PCM_32", dtype="int32"),
+    3: dict(format="RAW", subtype="PCM_24"),  # no 24-bit dtype: yields float64
+    4: dict(format="RAW", subtype="FLOAT", dtype="float32"),
 }
 
 # monkey patching WRAPPER_ASSIGNMENTS to get "proper" wrapping (adding defaults and kwdefaults
@@ -143,6 +199,14 @@ def bytes_to_waveform_old(
 ) -> np.array:
     """Convert raw bytes to a numpy array cast to dtype
 
+    .. warning::
+        Superseded by :func:`bytes_to_waveform`, and kept only for the scripts in
+        ``taped/scrap``. Its ``sample_width`` table below is a *second* authority
+        on how to decode, and it disagrees with the capture side at width 4: the
+        device is opened as ``paFloat32`` there (see
+        :func:`subtype_for_sample_width`), not as 32-bit PCM. Use
+        :func:`bytes_to_waveform` for anything reading from a live stream.
+
     :param b: bytes
     :param sr: sample rate
     :param n_channels: number of channels
@@ -153,7 +217,7 @@ def bytes_to_waveform_old(
     sample_width_to_subtype = {
         2: "PCM_16",
         3: "PCM_24",
-        4: "PCM_32",
+        4: "PCM_32",  # NOT what the mic captures at width 4 -- see the warning
     }
     return sf.read(
         BytesIO(b),
