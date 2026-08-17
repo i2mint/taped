@@ -94,7 +94,14 @@ class ByteChunks(BufferItems):
 
 # TODO: use more stable and flexible bytes_to_waveform
 class WfChunks(ByteChunks):
-    sample_width = 2
+    """Decode the byte chunks of ``ByteChunks`` into numerical waveform chunks.
+
+    The width used to decode is the ``sample_width`` the stream was actually
+    opened with. It is read through ``Creek``'s delegation to the wrapped
+    stream, deliberately: a ``sample_width`` class attribute here would shadow
+    the constructed value, so a ``WfChunks(sample_width=4)`` would capture
+    32-bit frames and then decode them as 16-bit ones.
+    """
 
     def data_to_obj(self, data):
         data = super().data_to_obj(data)

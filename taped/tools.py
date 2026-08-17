@@ -1,44 +1,160 @@
 """
 Recording and playback tools for audio data.
+
+The main entry point is :func:`record`, a one-call interface over the layered
+``BufferItems -> ByteChunks -> WfChunks -> LiveWf`` stack of :mod:`taped.base`.
+It records from a microphone and hands you back a waveform (a list of samples),
+optionally bounded by a duration, optionally post-processed by an ``egress``.
 """
 
-from typing import List, Literal, Optional, Tuple, Union
-from collections.abc import Callable, Iterable
+from typing import Any, Literal
+from collections.abc import Callable
 from itertools import islice
+
 import soundfile as sf
-from taped.base import BaseBufferItems, LiveWf
-from taped.util import DFLT_SR, DFLT_SAMPLE_WIDTH, DFLT_CHK_SIZE, DFLT_STREAM_BUF_SIZE_S
+
+from taped.base import BufferItems, LiveWf
+from taped.util import (
+    DFLT_SR,
+    DFLT_SAMPLE_WIDTH,
+    DFLT_CHK_SIZE,
+    DFLT_STREAM_BUF_SIZE_S,
+    read_kwargs_for_sample_width,
+)
+
+DurationUnit = Literal["seconds", "samples", "minutes"]
+
+SECONDS_PER_MINUTE = 60
+
+#: Sample widths (in bytes) that the waveform decoder knows how to read.
+#: Kept in sync with ``taped.util.read_kwargs_for_sample_width`` -- the single
+#: source of truth for byte-width-to-PCM-subtype mapping.
+SUPPORTED_SAMPLE_WIDTHS = tuple(sorted(read_kwargs_for_sample_width))
+
+#: Conversion of a ``(duration, sample_rate)`` pair to a number of samples, one
+#: entry per supported ``duration_unit``. Adding a unit means adding an entry
+#: here -- no branching in ``record`` to edit.
+DURATION_UNIT_TO_N_SAMPLES: dict[str, Callable[[float, int], int]] = {
+    "samples": lambda duration, sr: int(duration),
+    "seconds": lambda duration, sr: int(duration * sr),
+    "minutes": lambda duration, sr: int(duration * SECONDS_PER_MINUTE * sr),
+}
+
+
+def _duration_to_n_samples(
+    duration: float | None, duration_unit: DurationUnit, sr: int
+) -> int | None:
+    """Number of samples a ``duration`` of ``duration_unit`` amounts to at ``sr``.
+
+    ``None`` means "unbounded" and is passed straight through.
+
+    >>> _duration_to_n_samples(None, 'seconds', 44100) is None
+    True
+    >>> _duration_to_n_samples(2, 'seconds', 100)
+    200
+    >>> _duration_to_n_samples(0.5, 'minutes', 100)
+    3000
+    >>> _duration_to_n_samples(7, 'samples', 44100)
+    7
+    >>> _duration_to_n_samples(1, 'fortnights', 44100)  # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+      ...
+    ValueError: Unknown duration unit: 'fortnights'. Expected one of: ...
+    """
+    if duration is None:
+        return None
+    to_n_samples = DURATION_UNIT_TO_N_SAMPLES.get(duration_unit)
+    if to_n_samples is None:
+        expected = ", ".join(map(repr, DURATION_UNIT_TO_N_SAMPLES))
+        raise ValueError(
+            f"Unknown duration unit: {duration_unit!r}. Expected one of: {expected}"
+        )
+    return to_n_samples(duration, sr)
+
+
+def _resolve_egress(egress: str | Callable | None, *, sr: int) -> Callable:
+    """Make a waveform-to-output function out of the ``egress`` argument.
+
+    ``None`` gives the identity, a callable is used as is, and a string is taken
+    to be a filepath to save the waveform to (the waveform itself is still what
+    is returned, so that saving is a side effect and not a substitution).
+
+    >>> _resolve_egress(None, sr=44100)([1, 2, 3])
+    [1, 2, 3]
+    >>> _resolve_egress(sum, sr=44100)([1, 2, 3])
+    6
+    """
+    if egress is None:
+        return lambda wf: wf
+    if isinstance(egress, str):
+
+        def save_to_file(wf):
+            sf.write(egress, wf, samplerate=sr)
+            return wf
+
+        return save_to_file
+    return egress
+
+
+def _validate_sample_width(sample_width: int) -> None:
+    """Fail early, and informatively, on a sample width we cannot decode.
+
+    >>> _validate_sample_width(2)
+    >>> _validate_sample_width(5)  # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+      ...
+    ValueError: Unsupported sample_width: 5. Expected one of: ...
+    """
+    if sample_width not in SUPPORTED_SAMPLE_WIDTHS:
+        expected = ", ".join(map(str, SUPPORTED_SAMPLE_WIDTHS))
+        raise ValueError(
+            f"Unsupported sample_width: {sample_width}. Expected one of: {expected}"
+        )
 
 
 def record(
     duration: float | None = None,
     *,
-    duration_unit: Literal["seconds", "samples", "minutes"] = "seconds",
+    duration_unit: DurationUnit = "seconds",
     sr: int = DFLT_SR,
     egress: str | Callable | None = None,
-    ignore_exceptions: tuple[Exception, ...] = (KeyboardInterrupt,),
-    input_device_index: int | None = None,
+    ignore_exceptions: tuple[type[BaseException], ...] = (KeyboardInterrupt,),
+    input_device_index: int | str | None = None,
     sample_width: int = DFLT_SAMPLE_WIDTH,
     chk_size: int = DFLT_CHK_SIZE,
     stream_buffer_size_s: float = DFLT_STREAM_BUF_SIZE_S,
     verbose: bool = False,
-) -> list:
+) -> Any:
     """Record audio and return waveform data.
+
+    Records from a microphone until ``duration`` worth of samples have been
+    collected, or -- when ``duration`` is ``None`` -- until interrupted. Any
+    exception listed in ``ignore_exceptions`` (``KeyboardInterrupt`` by default)
+    ends the recording cleanly and the samples collected *so far* are returned;
+    every other exception propagates.
 
     Args:
         duration: Length of recording. If None, records until interrupted.
         duration_unit: Unit for duration ('seconds', 'samples', or 'minutes').
-        sr: Sample rate.
-        egress: Function to process waveform before returning or filename to save to.
-        ignore_exceptions: Exceptions to catch and exit cleanly.
-        input_device_index: Index of input device to use.
-        sample_width: Sample width in bytes.
-        chk_size: Chunk size for reading audio.
-        stream_buffer_size_s: Buffer size in seconds.
-        verbose: Whether to print status messages.
+        sr: Sample rate (Hz).
+        egress: Function to process the waveform before returning it, or a
+            filepath (a string) to save the waveform to. When a filepath is
+            given the waveform is still what is returned.
+        ignore_exceptions: Exception types to catch and exit cleanly on,
+            returning the partial waveform.
+        input_device_index: Index (or name) of the input device to record from.
+            None uses the default device.
+        sample_width: Sample width in bytes. One of ``SUPPORTED_SAMPLE_WIDTHS``.
+            The dtype of the returned samples follows from it: 2 gives int16,
+            4 gives int32, 3 gives floats.
+        chk_size: Number of frames read from the device per chunk.
+        stream_buffer_size_s: How many seconds of audio the underlying stream
+            buffer keeps (i.e. how far into the past it can see).
+        verbose: Whether to print status messages (also silences the input
+            device discovery printout).
 
     Returns:
-        Recorded waveform data, potentially processed by egress function.
+        The recorded waveform (a list of samples), as processed by ``egress``.
 
     >>> # Record 0.1 seconds of audio
     >>> sample = record(0.1, verbose=False)  # doctest: +SKIP
@@ -48,77 +164,30 @@ def record(
         if verbose:
             print(*args, **kwargs)
 
-    def _save_to_file(waveform, filename):
-        """Save waveform to file and return the waveform."""
-        sf.write(filename, waveform, samplerate=sr)
-        return waveform
+    _validate_sample_width(sample_width)
+    n_samples = _duration_to_n_samples(duration, duration_unit, sr)
+    _egress = _resolve_egress(egress, sr=sr)
 
-    def _convert_duration(value, unit):
-        """Convert duration from given unit to number of samples."""
-        if value is None:
-            return None
-
-        if unit == "seconds":
-            return int(value * sr)
-        elif unit == "minutes":
-            return int(value * 60 * sr)
-        elif unit == "samples":
-            return int(value)
-        else:
-            raise ValueError(f"Unknown duration unit: {unit}")
-
-    # Convert duration to samples
-    n_samples = _convert_duration(duration, duration_unit)
-
-    # Determine egress function
-    if egress is None:
-        _egress = lambda wf: wf
-    elif isinstance(egress, str):
-        _egress = lambda wf: _save_to_file(wf, egress)
-    else:
-        _egress = egress
-
-    # Initialize empty waveform before trying anything
+    # Initialize empty waveform before trying anything, so that an interruption
+    # at any point still has a (possibly empty) waveform to return.
     waveform = []
 
     try:
-        if input_device_index is None and sample_width == DFLT_SAMPLE_WIDTH:
-            # Use the simpler LiveWf approach when possible
-            _log("Starting recording with LiveWf...")
-            with LiveWf(sr=sr) as live_wf:
-                # Accumulate samples but be prepared for interruption
-                if n_samples is not None:
-                    live_iter = islice(live_wf, n_samples)
-                else:
-                    live_iter = live_wf
-
-                # Collect samples one by one to ensure we keep what we have on interrupt
-                for sample in live_iter:
-                    waveform.append(sample)
-        else:
-            # Use the more configurable BaseBufferItems approach
-            _log("Starting recording with BaseBufferItems...")
-            buffer_items = BaseBufferItems(
-                input_device_index=input_device_index,
-                sr=sr,
-                sample_width=sample_width,
-                chk_size=chk_size,
-                stream_buffer_size_s=stream_buffer_size_s,
-            )
-
-            count = 0
-
-            with buffer_items:
-                _log("Recording started (interrupt to stop)...")
-                for item in buffer_items:
-                    waveform.extend(item.data)
-                    count += len(item.data)
-
-                    if n_samples is not None and count >= n_samples:
-                        # Trim to exact length if needed
-                        waveform = waveform[:n_samples]
-                        break
-
+        _log("Starting recording with LiveWf...")
+        live_wf = LiveWf(
+            input_device_index=input_device_index,
+            sr=sr,
+            sample_width=sample_width,
+            chk_size=chk_size,
+            stream_buffer_size_s=stream_buffer_size_s,
+            verbose=verbose,
+        )
+        with live_wf as wf:
+            _log("Recording started (interrupt to stop)...")
+            samples = wf if n_samples is None else islice(wf, n_samples)
+            # Collect samples one by one so we keep what we have on interrupt
+            for sample in samples:
+                waveform.append(sample)
     except ignore_exceptions as e:
         _log(f"Recording stopped by {type(e).__name__}")
     except Exception as e:
@@ -149,7 +218,9 @@ def record_some_sound(
         if verbose:
             print(*args, **kwargs)
 
-    buffer_items = BaseBufferItems(
+    # Note: BufferItems, not BaseBufferItems: only BufferItems overrides
+    # data_to_obj, so only it yields items that have a ``.bytes``.
+    buffer_items = BufferItems(
         input_device_index=input_device_index,
         sr=sr,
         sample_width=sample_width,
