@@ -8,6 +8,36 @@ To install:	```pip install taped```
 
 # A quick (audio) peep
 
+## The simplest thing: `record`
+
+```python
+from taped import record
+
+wf = record(3)  # record 3 seconds of audio, get a waveform (a list of samples) back
+```
+
+Call it with no `duration` and it records until you interrupt it (`Ctrl-C`), 
+returning everything captured up to that point:
+
+```python
+wf = record()  # records until interrupted; you keep what was recorded
+```
+
+`duration` is in seconds by default, but `duration_unit` also takes `'minutes'` 
+and `'samples'`. Give `egress` a filepath to also save what you recorded (you 
+still get the waveform back), or a function to post-process it:
+
+```python
+wf = record(3, egress='my_recording.wav')  # saves the file, returns the waveform
+n_samples = record(3, egress=len)          # returns len(wf) instead
+```
+
+The rest of the arguments choose the audio source and how it is read: 
+`input_device_index` (index or name -- see `list_recording_device_index_names` 
+below), `sr`, `sample_width`, `chk_size` and `stream_buffer_size_s`. Which 
+exceptions end a recording cleanly (instead of propagating) is itself an 
+argument: `ignore_exceptions`, `(KeyboardInterrupt,)` by default.
+
 ## In a nutshell:
     
 ```python
@@ -156,7 +186,7 @@ disp_wf(wf, sr)
 
 The `LiveWf` class you know (and already love) is actually the forth of the following stack of layers:
 
-- `BufferItems`: Provides the items from an audio sensor (also called a mic!); namely the bytes, but also other useful information, such as timestamps (system and sensor).
+- `BufferItems`: Provides the items from an audio sensor (also called a mic!); namely the bytes, but also other useful information: the start and end timestamps of the chunk, its frame count, and PortAudio's status flags. See `taped.base.BufferItemOutput` for a field-by-field description.
 - `ByteChunks`: Provides chunks of bytes from the mic. Essentially, extracts the bytes that the `BufferItems` items give you.
 - `WfChunks`: Provides numerical waveform chunks; by default in the format of `numpy.array` `int16` integers. 
 - `LiveWf`: Gives you access to a fixed size buffer of the recent history of audio, in waveform format. Essentially, the `WfChunks` chained together in one continuous (but live/dynamic) array.
@@ -206,13 +236,27 @@ for i, x in enumerate(item):
         print(f"{i}: {item._fields[i]}: {x}")
 ```
 
-    item is a BufferItemOutput (a namedtuple) with 5 elements
+    item is a BufferItemOutput (a NamedTuple) with 5 elements
     0: timestamp: 1608336556178995
     1: bytes: 8192 bytes: b'\t\x00\x18\x00'...
     2: frame_count: 4096
-    3: time_info: {'input_buffer_adc_time': 135079.42883468725, 'current_time': 135079.60533177, 'output_buffer_dac_time': 0.0}
+    3: time_info: 1608336556271874
     4: status_flags: 0
 
+What each of those actually means is documented field by field in
+`taped.base.BufferItemOutput`'s docstring (`help(BufferItemOutput)`). Two of them
+are worth calling out here, because their names mislead:
+
+- `timestamp` and `time_info` are the **start** and **end** of the chunk, both as
+  integer numbers of **microseconds since the epoch**. So `time_info - timestamp`
+  is the chunk's duration in microseconds.
+- `time_info` is **not** a PortAudio `PaStreamCallbackTimeInfo` dict, despite the
+  name. Older versions of the stack surfaced one here (with `current_time`,
+  `input_buffer_adc_time` and `output_buffer_dac_time` keys); `audiostream2py`
+  no longer does, so `time_info` is a plain number and subscripting it raises.
+
+`status_flags` is a PortAudio status bitfield (`0` means no error); decode it with
+`audiostream2py.PaStatusFlags`.
 
 ```python
 from time import sleep
@@ -243,43 +287,41 @@ display_buffer_item(item2)
     {'bytes': "8192 bytes: b'\\x05\\x00\\x0c\\x00'...",
      'frame_count': 4096,
      'status_flags': 0,
-     'time_info': {'current_time': 84806.95996904,
-                   'input_buffer_adc_time': 84806.78105158823,
-                   'output_buffer_dac_time': 0.0},
+     'time_info': 1608236216621992,
      'timestamp': 1608236216529112}
     
     item2
     {'bytes': "8192 bytes: b'`\\xffR\\xff'...",
      'frame_count': 4096,
      'status_flags': 0,
-     'time_info': {'current_time': 84807.04517719701,
-                   'input_buffer_adc_time': 84806.87393594165,
-                   'output_buffer_dac_time': 0.0},
+     'time_info': 1608236216714871,
      'timestamp': 1608236216621991}
 
-See that the three kind of timestamps that we get are different, 
-but all around `4096 / 44100 = 0.09287...`, the chunk size, in seconds.
+See that the two timestamps we get (the start of the chunk, and the end of it) 
+each advance by about `4096 / 44100 = 0.09287...` seconds -- the chunk size, in 
+seconds -- from one item to the next. Since both are in microseconds, that's 
+about `92879` of them.
  
 ```python
 assert buffer_items.chk_size == 4096
 assert buffer_items.sr == 44100
-print("differences...")
+print("differences (in microseconds)...")
 dict(
     timestamp=item2.timestamp - item.timestamp, 
-    input_buffer_adc_time = item2.time_info['input_buffer_adc_time'] - item.time_info['input_buffer_adc_time'], 
-    current_time = item2.time_info['current_time'] - item.time_info['current_time'],
+    time_info=item2.time_info - item.time_info, 
+    chunk_duration=item.time_info - item.timestamp,
 )
 
 ```
 
-    differences...
+    differences (in microseconds)...
 
 
 
 
     {'timestamp': 92879,
-     'input_buffer_adc_time': 0.09288435342023149,
-     'current_time': 0.0852081570046721}
+     'time_info': 92879,
+     'chunk_duration': 92880}
 
 See that we have different bytes!
 
