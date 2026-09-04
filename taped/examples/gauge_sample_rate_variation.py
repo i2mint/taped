@@ -178,9 +178,3 @@ def mk_df_store(store):
 
 def mk_plot_store(store):
     return wrap_kvs(store, postget=observed_sample_rates_plot)
-
-
-if __name__ == "__main__":
-    import argh
-
-    argh.dispatch_command(run_experiments)

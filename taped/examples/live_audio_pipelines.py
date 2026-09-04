@@ -74,11 +74,3 @@ def main(*args, **kwargs):
     pipeline = mk_pipeline(**kwargs)
 
     return launch(pipeline, max_samples=max_samples)
-
-
-if __name__ == "__main__":
-    import argh
-    from inspect import signature
-
-    argh.dispatch_command(main)
-    # argh.dispatch_command(main, argv=list(signature(mk_pipeline).parameters))
