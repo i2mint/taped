@@ -46,7 +46,9 @@ def test_ensure_source_input_device_index(fake_devices):
         f(3.5)
 
 
-def test_ensure_index_falls_back_to_default_or_explains(fake_devices, monkeypatch, capsys):
+def test_ensure_index_falls_back_to_default_or_explains(
+    fake_devices, monkeypatch, capsys
+):
     monkeypatch.setattr(util, "get_input_device_index", lambda verbose=True: 7)
     assert util.ensure_source_input_device_index(None) == 7
     monkeypatch.setattr(util, "get_input_device_index", lambda verbose=True: None)
@@ -68,4 +70,6 @@ def test_waveform_bytes_roundtrip_and_old_decoder():
 def test_chunking_helpers():
     assert list(util.simple_chunker(range(7), 3)) == [(0, 1, 2), (3, 4, 5)]
     assert list(util.rechunker([[0], (1, 2, 3), [4, 5]], 2)) == [(0, 1), (2, 3), (4, 5)]
-    assert list(util.rechunker([[0, 1, 2, 3]], lambda s: iter([list(s)]))) == [[0, 1, 2, 3]]
+    assert list(util.rechunker([[0, 1, 2, 3]], lambda s: iter([list(s)]))) == [
+        [0, 1, 2, 3]
+    ]
