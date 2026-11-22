@@ -1,0 +1,29 @@
+taped.util
+==========
+
+.. automodule:: taped.util
+
+   
+   .. rubric:: Module Attributes
+
+   .. autosummary::
+   
+      pa_format_to_subtype
+      read_kwargs_for_sample_width
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      bytes_to_waveform
+      bytes_to_waveform_old
+      chunk_indices
+      ensure_source_input_device_index
+      find_a_default_input_device_index
+      find_a_device_index
+      list_recording_device_index_names
+      rechunker
+      simple_chunker
+      subtype_for_sample_width
+      waveform_to_bytes
+   

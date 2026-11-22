@@ -1,0 +1,24 @@
+taped.base
+==========
+
+.. automodule:: taped.base
+
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      audio_segment_to_buffer_item_output
+      positive_slice_version
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      BaseBufferItems
+      BufferItemOutput
+      BufferItems
+      ByteChunks
+      LiveWf
+      WfChunks
+   

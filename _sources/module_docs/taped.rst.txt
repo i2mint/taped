@@ -1,4 +1,0 @@
-taped
-=====
-.. automodule:: taped
-   :members:

@@ -1,0 +1,23 @@
+# taped
+
+> Python's serene audio accessor
+
+
+## Pages
+
+- [taped](index.html.md): Python’s serene audio accessor
+- [API reference](api.html.md): | &#96;taped&#96;   | Simple audio acquisition   |
+- [taped](_autosummary/taped.html.md): Simple audio acquisition
+- [taped.base](_autosummary/taped.base.html.md): Base of taped objects
+- [taped.display](_autosummary/taped.display.html.md): Display utilities for audio waveforms.
+- [taped.tools](_autosummary/taped.tools.html.md): Recording and playback tools for audio data.
+- [taped.util](_autosummary/taped.util.html.md): Utilities for audio processing and streaming in the taped package.
+- [About this build](about-this-build.html.md): This documentation was built on &#42;&#42;2026-11-22 20:10 UTC&#42;&#42; from commit &lt;a href="https://github.com/i2m...
+
+## Optional
+
+- [taped.md](taped.md): Complete documentation in a single file.
+
+## Build
+
+- [build_info.json](build_info.json): build provenance (commit, version, tool versions, whether the docs match the package)

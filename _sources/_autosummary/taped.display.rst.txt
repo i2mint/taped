@@ -1,0 +1,15 @@
+taped.display
+=============
+
+.. automodule:: taped.display
+
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      disp_wf
+      getmodulename
+      play_wf
+      plot_wf
+   

@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<link rel="alternate" type="text/markdown" href="taped.base.html.md">
+<link rel="describedby" href="../llms.txt" type="text/markdown">
+<link rel="alternate" type="text/markdown" href="taped.base.html.md">
+<link rel="describedby" href="llms.txt">
+    <title>taped.base &#8212; taped</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=d75fae25" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx_autodoc_typehints.css?v=057ac668" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/epythet.css?v=86bbe5a9" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=8d02545a"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=fd10adb8"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_autosummary/taped.base';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="taped.display" href="taped.display.html" />
+    <link rel="prev" title="taped" href="taped.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.1.13" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">taped</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/otosense/taped" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/otosense/taped" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button type="button" id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar">
+  <svg class="pst-icon" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="taped.html">taped</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active"><a aria-current="page" class="current reference internal" href="#">taped.base</a></li>
+<li class="toctree-l2"><a class="reference internal" href="taped.display.html">taped.display</a></li>
+<li class="toctree-l2"><a class="reference internal" href="taped.tools.html">taped.tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="taped.util.html">taped.util</a></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../api.html" class="nav-link">API reference</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="taped.html" class="nav-link">taped</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">taped.base</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="module-taped.base">
+<span id="taped-base"></span><h1>taped.base<a class="headerlink" href="#module-taped.base" title="Link to this heading">#</a></h1>
+<p>Base of taped objects</p>
+<p>This module provides classes and functions for handling audio streams and buffers.
+It includes tools for capturing live audio from microphones, buffering audio data,
+and converting between different audio representations.</p>
+<p>The layers, from the mic outwards:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">BaseBufferItems</span></code>: raw <code class="docutils literal notranslate"><span class="pre">audiostream2py.AudioSegment</span></code> objects off the device.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BufferItems</span></code>: those segments as <a class="reference internal" href="#taped.base.BufferItemOutput" title="taped.base.BufferItemOutput"><code class="xref py py-class docutils literal notranslate"><span class="pre">BufferItemOutput</span></code></a> named tuples –
+read that class’s docstring for what each of the (PortAudio-inherited, and
+partly misleading) field names actually means today.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ByteChunks</span></code>: just the PCM bytes of each chunk.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">WfChunks</span></code>: those bytes decoded into numerical waveform chunks.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">LiveWf</span></code>: the <code class="docutils literal notranslate"><span class="pre">WfChunks</span></code> flattened into one continuous live sample stream.</p></li>
+</ul>
+<p class="rubric">Examples</p>
+<p class="rubric">Functions</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#taped.base.audio_segment_to_buffer_item_output" title="taped.base.audio_segment_to_buffer_item_output"><code class="xref py py-obj docutils literal notranslate"><span class="pre">audio_segment_to_buffer_item_output</span></code></a>(segment)</p></td>
+<td><p>Convert an <code class="docutils literal notranslate"><span class="pre">audiostream2py.AudioSegment</span></code> to a <a class="reference internal" href="#taped.base.BufferItemOutput" title="taped.base.BufferItemOutput"><code class="xref py py-class docutils literal notranslate"><span class="pre">BufferItemOutput</span></code></a>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#taped.base.positive_slice_version" title="taped.base.positive_slice_version"><code class="xref py py-obj docutils literal notranslate"><span class="pre">positive_slice_version</span></code></a>(slice_, sliced_obj_len)</p></td>
+<td><p>Returns a slice where negative start and stops are replaced with their positive correspondence.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p class="rubric">Classes</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#taped.base.BaseBufferItems" title="taped.base.BaseBufferItems"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BaseBufferItems</span></code></a>([input_device_index, sr, ...])</p></td>
+<td><p>A generator of live chunks of audio bytes taken from a stream sourced from specified microphone.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#taped.base.BufferItemOutput" title="taped.base.BufferItemOutput"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BufferItemOutput</span></code></a>(timestamp, bytes, ...)</p></td>
+<td><p>One item of a <code class="docutils literal notranslate"><span class="pre">BufferItems</span></code> stream: a chunk of mic bytes plus its metadata.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#taped.base.BufferItems" title="taped.base.BufferItems"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BufferItems</span></code></a>([input_device_index, sr, ...])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#taped.base.ByteChunks" title="taped.base.ByteChunks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ByteChunks</span></code></a>([input_device_index, sr, ...])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#taped.base.LiveWf" title="taped.base.LiveWf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LiveWf</span></code></a>([input_device_index, sr, ...])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#taped.base.WfChunks" title="taped.base.WfChunks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WfChunks</span></code></a>([input_device_index, sr, ...])</p></td>
+<td><p>Decode the byte chunks of <code class="docutils literal notranslate"><span class="pre">ByteChunks</span></code> into numerical waveform chunks.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py class">
+<dt class="sig sig-object py" id="taped.base.BaseBufferItems">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">taped.base.</span></span><span class="sig-name descname"><span class="pre">BaseBufferItems</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_device_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">44100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chk_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4096</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream_buffer_size_s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/taped/base.html#BaseBufferItems"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#taped.base.BaseBufferItems" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Creek</span></code></p>
+<p>A generator of live chunks of audio bytes taken from a stream sourced from specified microphone.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_device_index</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> | <a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> | <span class="highlight sphinx_autodoc_typehints-value"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><code class="xref py py-obj docutils literal notranslate"><span class="kc"><span class="pre">None</span></span></code></a></span></span>) – Index of Input Device to use. Unspecified (or None) uses default device.</p></li>
+<li><p><strong>sr</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></span>) – Specifies the desired sample rate (in Hz)</p></li>
+<li><p><strong>sample_bytes</strong> – Sample width in bytes (1, 2, 3, or 4)</p></li>
+<li><p><strong>sample_width</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></span>) – Specifies the number of frames per buffer.</p></li>
+<li><p><strong>stream_buffer_size_s</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a> | <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></span>) – How many seconds of data to keep in the buffer (i.e. how far in the past you can see)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="taped.base.BufferItemOutput">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">taped.base.</span></span><span class="sig-name descname"><span class="pre">BufferItemOutput</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timestamp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bytes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_count</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">status_flags</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/taped/base.html#BufferItemOutput"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#taped.base.BufferItemOutput" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.NamedTuple" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">NamedTuple</span></code></a></p>
+<p>One item of a <code class="docutils literal notranslate"><span class="pre">BufferItems</span></code> stream: a chunk of mic bytes plus its metadata.</p>
+<p>The field names come from PortAudio (through PyAudio, then <code class="docutils literal notranslate"><span class="pre">audiostream2py</span></code>),
+but two of them no longer mean what the PortAudio names suggest – see
+<code class="docutils literal notranslate"><span class="pre">time_info</span></code> below. What follows is the <em>current</em> meaning of each field, as
+produced by <a class="reference internal" href="#taped.base.audio_segment_to_buffer_item_output" title="taped.base.audio_segment_to_buffer_item_output"><code class="xref py py-func docutils literal notranslate"><span class="pre">audio_segment_to_buffer_item_output()</span></code></a> from an
+<code class="docutils literal notranslate"><span class="pre">audiostream2py.AudioSegment</span></code>.</p>
+<section id="fields">
+<h2>Fields<a class="headerlink" href="#fields" title="Link to this heading">#</a></h2>
+<dl class="simple">
+<dt>timestamp:</dt><dd><p>The <code class="docutils literal notranslate"><span class="pre">AudioSegment.start_date</span></code>: when the <em>first</em> frame of this chunk was
+captured, as a number of <strong>microseconds</strong> since the epoch (not seconds,
+and not a PortAudio clock reading). This is the field to use to place a
+chunk on a wall-clock timeline. It is an <code class="docutils literal notranslate"><span class="pre">int</span></code> <em>or</em> a <code class="docutils literal notranslate"><span class="pre">float</span></code>:
+<code class="docutils literal notranslate"><span class="pre">AudioSegment</span></code> declares <code class="docutils literal notranslate"><span class="pre">start_date:</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">float</span></code>, and live capture
+normally yields floats, because most chunk dates are interpolated from
+the frame rate rather than read off the host clock. Do not test it with
+<code class="docutils literal notranslate"><span class="pre">isinstance(...,</span> <span class="pre">int)</span></code>, and do not assume integral microsecond
+arithmetic.</p>
+</dd>
+<dt>bytes:</dt><dd><p>The <code class="docutils literal notranslate"><span class="pre">AudioSegment.waveform</span></code>: the raw PCM bytes of the chunk, exactly as
+the device produced them. Interpreting them as numbers needs the sample
+width and channel count the stream was opened with – which is what
+<code class="docutils literal notranslate"><span class="pre">ByteChunks</span></code>/<code class="docutils literal notranslate"><span class="pre">WfChunks</span></code> do for you (see <code class="docutils literal notranslate"><span class="pre">taped.util.bytes_to_waveform</span></code>).</p>
+</dd>
+<dt>frame_count:</dt><dd><p>Number of frames (samples per channel) in this chunk. With the default
+<code class="docutils literal notranslate"><span class="pre">chk_size</span></code> of 4096 and a sample width of 2, <code class="docutils literal notranslate"><span class="pre">len(bytes)</span> <span class="pre">==</span> <span class="pre">8192</span></code>, i.e.
+<code class="docutils literal notranslate"><span class="pre">len(bytes)</span> <span class="pre">==</span> <span class="pre">frame_count</span> <span class="pre">*</span> <span class="pre">sample_width</span> <span class="pre">*</span> <span class="pre">n_channels</span></code>.</p>
+</dd>
+<dt>time_info:</dt><dd><p><strong>Not a PortAudio time-info dict.</strong> This is the <code class="docutils literal notranslate"><span class="pre">AudioSegment.end_date</span></code>:
+a single number, in the same microsecond-epoch unit (and of the same
+<code class="docutils literal notranslate"><span class="pre">int</span> <span class="pre">|</span> <span class="pre">float</span></code> type) as <code class="docutils literal notranslate"><span class="pre">timestamp</span></code>, marking the end of the chunk. So
+<code class="docutils literal notranslate"><span class="pre">time_info</span> <span class="pre">-</span> <span class="pre">timestamp</span></code> is the chunk’s duration in microseconds –
+itself often fractional – and it is <em>not</em> subscriptable. PortAudio’s
+<code class="docutils literal notranslate"><span class="pre">PaStreamCallbackTimeInfo</span></code> dict (<code class="docutils literal notranslate"><span class="pre">current_time</span></code>,
+<code class="docutils literal notranslate"><span class="pre">input_buffer_adc_time</span></code>, <code class="docutils literal notranslate"><span class="pre">output_buffer_dac_time</span></code>) used to land here
+in older versions; <code class="docutils literal notranslate"><span class="pre">audiostream2py</span></code> no longer surfaces it. See the
+“Historical” note below for what those keys meant.</p>
+</dd>
+<dt>status_flags:</dt><dd><p>A PortAudio status bitfield reporting stream health for this chunk.
+<code class="docutils literal notranslate"><span class="pre">0</span></code> means no error. Decode it with <code class="docutils literal notranslate"><span class="pre">audiostream2py.PaStatusFlags</span></code>,
+an <code class="docutils literal notranslate"><span class="pre">IntFlag</span></code> whose members are <code class="docutils literal notranslate"><span class="pre">paNoError</span></code>, <code class="docutils literal notranslate"><span class="pre">paInputUnderflow</span></code>,
+<code class="docutils literal notranslate"><span class="pre">paInputOverflow</span></code>, <code class="docutils literal notranslate"><span class="pre">paOutputUnderflow</span></code>, <code class="docutils literal notranslate"><span class="pre">paOutputOverflow</span></code>,
+<code class="docutils literal notranslate"><span class="pre">paPrimingOutput</span></code> and <code class="docutils literal notranslate"><span class="pre">hostTimeSync</span></code>. For a worked example of acting
+on it (starting a new file whenever a chunk reports an error), see
+<code class="docutils literal notranslate"><span class="pre">taped/examples/record_audio_to_files.py</span></code>.</p>
+</dd>
+</dl>
+</section>
+<section id="historical-the-portaudio-pastreamcallbacktimeinfo-fields">
+<h2>Historical: the PortAudio <code class="docutils literal notranslate"><span class="pre">PaStreamCallbackTimeInfo</span></code> fields<a class="headerlink" href="#historical-the-portaudio-pastreamcallbacktimeinfo-fields" title="Link to this heading">#</a></h2>
+<p>These are documented here because the <code class="docutils literal notranslate"><span class="pre">time_info</span></code> <em>name</em> comes from them,
+and older <code class="docutils literal notranslate"><span class="pre">taped</span></code> output (and the README examples that recorded it) shows
+them. They are <strong>no longer available</strong> through this class. All three are
+<code class="docutils literal notranslate"><span class="pre">PaTime</span></code> values on PortAudio’s own stream clock – seconds, monotonic-ish,
+with an arbitrary origin – and so are not comparable with <code class="docutils literal notranslate"><span class="pre">timestamp</span></code>.
+From <a class="reference external" href="http://portaudio.com/docs/v19-doxydocs/structPaStreamCallbackTimeInfo.html">http://portaudio.com/docs/v19-doxydocs/structPaStreamCallbackTimeInfo.html</a>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">currentTime</span></code> (<code class="docutils literal notranslate"><span class="pre">current_time</span></code>): the time when the stream callback was
+invoked.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">inputBufferAdcTime</span></code> (<code class="docutils literal notranslate"><span class="pre">input_buffer_adc_time</span></code>): the time when the first
+sample of the input buffer was captured at the ADC input.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">outputBufferDacTime</span></code> (<code class="docutils literal notranslate"><span class="pre">output_buffer_dac_time</span></code>): the time when the
+first sample of the output buffer will output the DAC. (Always <code class="docutils literal notranslate"><span class="pre">0.0</span></code> for
+an input-only stream, which is what <code class="docutils literal notranslate"><span class="pre">taped</span></code> opens.)</p></li>
+</ul>
+<p>Being a <code class="docutils literal notranslate"><span class="pre">NamedTuple</span></code>, an item is both a 5-tuple and an attribute-access
+object, and it carries the usual <code class="docutils literal notranslate"><span class="pre">_fields</span></code>/<code class="docutils literal notranslate"><span class="pre">_asdict</span></code> helpers:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">item</span> <span class="o">=</span> <span class="n">BufferItemOutput</span><span class="p">(</span><span class="mi">1608336556178995</span><span class="p">,</span> <span class="sa">b</span><span class="s1">'</span><span class="se">\x09\x00</span><span class="s1">'</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1608336556271874</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">item</span><span class="o">.</span><span class="n">timestamp</span>
+<span class="go">1608336556178995</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">item</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="go">b'\t\x00'</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">item</span><span class="o">.</span><span class="n">time_info</span> <span class="o">-</span> <span class="n">item</span><span class="o">.</span><span class="n">timestamp</span>  <span class="c1"># chunk duration, in microseconds</span>
+<span class="go">92879</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">item</span><span class="o">.</span><span class="n">_fields</span>
+<span class="go">('timestamp', 'bytes', 'frame_count', 'time_info', 'status_flags')</span>
+</pre></div>
+</div>
+<p>The dates above are whole numbers only because they were written that way.
+Off a live device they usually are not, and neither is the duration:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">item</span> <span class="o">=</span> <span class="n">BufferItemOutput</span><span class="p">(</span><span class="mf">1608336556178995.2</span><span class="p">,</span> <span class="sa">b</span><span class="s1">'</span><span class="se">\x09\x00</span><span class="s1">'</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">1608336556271875.0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">item</span><span class="o">.</span><span class="n">time_info</span> <span class="o">-</span> <span class="n">item</span><span class="o">.</span><span class="n">timestamp</span>
+<span class="go">92879.75</span>
+</pre></div>
+</div>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="taped.base.BufferItemOutput.bytes">
+<span class="sig-name descname"><span class="pre">bytes</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#taped.base.BufferItemOutput.bytes" title="taped.base.BufferItemOutput.bytes"><span class="pre">bytes</span></a></span><a class="headerlink" href="#taped.base.BufferItemOutput.bytes" title="Link to this definition">#</a></dt>
+<dd><p>Alias for field number 1</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="taped.base.BufferItemOutput.frame_count">
+<span class="sig-name descname"><span class="pre">frame_count</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><span class="pre">int</span></a></span><a class="headerlink" href="#taped.base.BufferItemOutput.frame_count" title="Link to this definition">#</a></dt>
+<dd><p>Alias for field number 2</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="taped.base.BufferItemOutput.status_flags">
+<span class="sig-name descname"><span class="pre">status_flags</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><span class="pre">int</span></a></span><a class="headerlink" href="#taped.base.BufferItemOutput.status_flags" title="Link to this definition">#</a></dt>
+<dd><p>Alias for field number 4</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="taped.base.BufferItemOutput.time_info">
+<span class="sig-name descname"><span class="pre">time_info</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><span class="pre">float</span></a></span><a class="headerlink" href="#taped.base.BufferItemOutput.time_info" title="Link to this definition">#</a></dt>
+<dd><p>Alias for field number 3</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="taped.base.BufferItemOutput.timestamp">
+<span class="sig-name descname"><span class="pre">timestamp</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><span class="pre">float</span></a></span><a class="headerlink" href="#taped.base.BufferItemOutput.timestamp" title="Link to this definition">#</a></dt>
+<dd><p>Alias for field number 0</p>
+</dd></dl>
+
+</section>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="taped.base.BufferItems">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">taped.base.</span></span><span class="sig-name descname"><span class="pre">BufferItems</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_device_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">44100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chk_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4096</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream_buffer_size_s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/taped/base.html#BufferItems"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#taped.base.BufferItems" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#taped.base.BaseBufferItems" title="taped.base.BaseBufferItems"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseBufferItems</span></code></a></p>
+<dl class="field-list simple">
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="taped.base.BufferItems.data_to_obj">
+<span class="sig-name descname"><span class="pre">data_to_obj</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/taped/base.html#BufferItems.data_to_obj"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#taped.base.BufferItems.data_to_obj" title="Link to this definition">#</a></dt>
+<dd><p>Return <code class="docutils literal notranslate"><span class="pre">x</span></code> unchanged.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="taped.base.ByteChunks">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">taped.base.</span></span><span class="sig-name descname"><span class="pre">ByteChunks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_device_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">44100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chk_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4096</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream_buffer_size_s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/taped/base.html#ByteChunks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#taped.base.ByteChunks" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#taped.base.BufferItems" title="taped.base.BufferItems"><code class="xref py py-class docutils literal notranslate"><span class="pre">BufferItems</span></code></a></p>
+<dl class="field-list simple">
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="taped.base.ByteChunks.data_to_obj">
+<span class="sig-name descname"><span class="pre">data_to_obj</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/taped/base.html#ByteChunks.data_to_obj"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#taped.base.ByteChunks.data_to_obj" title="Link to this definition">#</a></dt>
+<dd><p>Return <code class="docutils literal notranslate"><span class="pre">x</span></code> unchanged.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="taped.base.LiveWf">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">taped.base.</span></span><span class="sig-name descname"><span class="pre">LiveWf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_device_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">44100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chk_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4096</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream_buffer_size_s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/taped/base.html#LiveWf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#taped.base.LiveWf" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#taped.base.WfChunks" title="taped.base.WfChunks"><code class="xref py py-class docutils literal notranslate"><span class="pre">WfChunks</span></code></a></p>
+<dl class="field-list simple">
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="taped.base.LiveWf.available_samples_in_buffer">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">available_samples_in_buffer</span></span><a class="headerlink" href="#taped.base.LiveWf.available_samples_in_buffer" title="Link to this definition">#</a></dt>
+<dd><p>Returns the actual max number of samples available.
+This is maxlen * chk_size when buffer is full.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="taped.base.LiveWf.post_iter">
+<span class="sig-name descname"><span class="pre">post_iter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/taped/base.html#LiveWf.post_iter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#taped.base.LiveWf.post_iter" title="Link to this definition">#</a></dt>
+<dd><p>Return <code class="docutils literal notranslate"><span class="pre">x</span></code> unchanged.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="taped.base.WfChunks">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">taped.base.</span></span><span class="sig-name descname"><span class="pre">WfChunks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_device_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">44100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chk_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4096</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream_buffer_size_s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/taped/base.html#WfChunks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#taped.base.WfChunks" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#taped.base.ByteChunks" title="taped.base.ByteChunks"><code class="xref py py-class docutils literal notranslate"><span class="pre">ByteChunks</span></code></a></p>
+<p>Decode the byte chunks of <code class="docutils literal notranslate"><span class="pre">ByteChunks</span></code> into numerical waveform chunks.</p>
+<p>The width used to decode is the <code class="docutils literal notranslate"><span class="pre">sample_width</span></code> the stream was actually
+opened with. It is read through <code class="docutils literal notranslate"><span class="pre">Creek</span></code>’s delegation to the wrapped
+stream, deliberately: a <code class="docutils literal notranslate"><span class="pre">sample_width</span></code> class attribute here would shadow
+the constructed value, so a <code class="docutils literal notranslate"><span class="pre">WfChunks(sample_width=4)</span></code> would capture
+32-bit frames and then decode them as 16-bit ones.</p>
+<dl class="field-list simple">
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="taped.base.WfChunks.data_to_obj">
+<span class="sig-name descname"><span class="pre">data_to_obj</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/taped/base.html#WfChunks.data_to_obj"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#taped.base.WfChunks.data_to_obj" title="Link to this definition">#</a></dt>
+<dd><p>Return <code class="docutils literal notranslate"><span class="pre">x</span></code> unchanged.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="taped.base.audio_segment_to_buffer_item_output">
+<span class="sig-prename descclassname"><span class="pre">taped.base.</span></span><span class="sig-name descname"><span class="pre">audio_segment_to_buffer_item_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">segment</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/taped/base.html#audio_segment_to_buffer_item_output"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#taped.base.audio_segment_to_buffer_item_output" title="Link to this definition">#</a></dt>
+<dd><p>Convert an <code class="docutils literal notranslate"><span class="pre">audiostream2py.AudioSegment</span></code> to a <a class="reference internal" href="#taped.base.BufferItemOutput" title="taped.base.BufferItemOutput"><code class="xref py py-class docutils literal notranslate"><span class="pre">BufferItemOutput</span></code></a>.</p>
+<p>Note <code class="docutils literal notranslate"><span class="pre">time_info=segment.end_date</span></code> – see <a class="reference internal" href="#taped.base.BufferItemOutput" title="taped.base.BufferItemOutput"><code class="xref py py-class docutils literal notranslate"><span class="pre">BufferItemOutput</span></code></a> for why
+that field does not hold a PortAudio time-info dict.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#taped.base.BufferItemOutput" title="taped.base.BufferItemOutput"><code class="xref py py-class docutils literal notranslate"><span class="pre">BufferItemOutput</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="taped.base.positive_slice_version">
+<span class="sig-prename descclassname"><span class="pre">taped.base.</span></span><span class="sig-name descname"><span class="pre">positive_slice_version</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slice_</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sliced_obj_len</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/taped/base.html#positive_slice_version"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#taped.base.positive_slice_version" title="Link to this definition">#</a></dt>
+<dd><p>Returns a slice where negative start and stops are replaced with their positive correspondence.
+This is because <code class="code docutils literal notranslate"><span class="pre">itertools.islice</span></code> doesn’t accept negative entries, so we need to tell it
+explicitly what we mean by -3 (we mean sliced_obj_len - 3).</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">positive_slice_version</span><span class="p">(</span><span class="nb">slice</span><span class="p">(</span><span class="o">-</span><span class="mi">7</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="mi">10</span><span class="p">)</span>
+<span class="go">slice(3, 9, 3)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">positive_slice_version</span><span class="p">(</span><span class="nb">slice</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">),</span> <span class="mi">7</span><span class="p">)</span>
+<span class="go">slice(2, 5, None)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="taped.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">taped</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="taped.display.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">taped.display</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#taped.base.BaseBufferItems"><code class="docutils literal notranslate"><span class="pre">BaseBufferItems</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#taped.base.BufferItemOutput"><code class="docutils literal notranslate"><span class="pre">BufferItemOutput</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#taped.base.BufferItemOutput.bytes"><code class="docutils literal notranslate"><span class="pre">BufferItemOutput.bytes</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#taped.base.BufferItemOutput.frame_count"><code class="docutils literal notranslate"><span class="pre">BufferItemOutput.frame_count</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#taped.base.BufferItemOutput.status_flags"><code class="docutils literal notranslate"><span class="pre">BufferItemOutput.status_flags</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#taped.base.BufferItemOutput.time_info"><code class="docutils literal notranslate"><span class="pre">BufferItemOutput.time_info</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#taped.base.BufferItemOutput.timestamp"><code class="docutils literal notranslate"><span class="pre">BufferItemOutput.timestamp</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#taped.base.BufferItems"><code class="docutils literal notranslate"><span class="pre">BufferItems</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#taped.base.BufferItems.data_to_obj"><code class="docutils literal notranslate"><span class="pre">BufferItems.data_to_obj()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#taped.base.ByteChunks"><code class="docutils literal notranslate"><span class="pre">ByteChunks</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#taped.base.ByteChunks.data_to_obj"><code class="docutils literal notranslate"><span class="pre">ByteChunks.data_to_obj()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#taped.base.LiveWf"><code class="docutils literal notranslate"><span class="pre">LiveWf</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#taped.base.LiveWf.available_samples_in_buffer"><code class="docutils literal notranslate"><span class="pre">LiveWf.available_samples_in_buffer</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#taped.base.LiveWf.post_iter"><code class="docutils literal notranslate"><span class="pre">LiveWf.post_iter()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#taped.base.WfChunks"><code class="docutils literal notranslate"><span class="pre">WfChunks</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#taped.base.WfChunks.data_to_obj"><code class="docutils literal notranslate"><span class="pre">WfChunks.data_to_obj()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#taped.base.audio_segment_to_buffer_item_output"><code class="docutils literal notranslate"><span class="pre">audio_segment_to_buffer_item_output()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#taped.base.positive_slice_version"><code class="docutils literal notranslate"><span class="pre">positive_slice_version()</span></code></a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../_sources/_autosummary/taped.base.rst.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.24.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

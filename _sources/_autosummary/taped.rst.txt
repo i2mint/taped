@@ -1,0 +1,16 @@
+﻿taped
+=====
+
+.. automodule:: taped
+
+   
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :recursive:
+
+   base
+   display
+   tools
+   util

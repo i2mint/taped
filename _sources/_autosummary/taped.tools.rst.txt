@@ -1,0 +1,20 @@
+taped.tools
+===========
+
+.. automodule:: taped.tools
+
+   
+   .. rubric:: Module Attributes
+
+   .. autosummary::
+   
+      SUPPORTED_SAMPLE_WIDTHS
+      DURATION_UNIT_TO_N_SAMPLES
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      record
+      record_some_sound
+   
