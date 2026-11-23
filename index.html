@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="_static/documentation_options.js?v=8d02545a"></script>
+    <script src="_static/documentation_options.js?v=468bc497"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -57,7 +57,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.1.13" />
+  <meta name="docsearch:version" content="0.1.14" />
   
     
     <script src="_static/searchtools.js"></script>
@@ -324,41 +324,37 @@
 <section id="taped">
 <h1>taped<a class="headerlink" href="#taped" title="Link to this heading">#</a></h1>
 <p>Python’s serene audio accessor</p>
-<p>To install:	<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">taped</span></code></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>taped
+</pre></div>
+</div>
 </section>
 <section id="a-quick-audio-peep">
 <h1>A quick (audio) peep<a class="headerlink" href="#a-quick-audio-peep" title="Link to this heading">#</a></h1>
 <section id="the-simplest-thing-record">
 <h2>The simplest thing: <code class="docutils literal notranslate"><span class="pre">record</span></code><a class="headerlink" href="#the-simplest-thing-record" title="Link to this heading">#</a></h2>
+<!-- wads-docs: skip needs a microphone or audio device -->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">taped</span><span class="w"> </span><span class="kn">import</span> <span class="n">record</span>
 
 <span class="n">wf</span> <span class="o">=</span> <span class="n">record</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>  <span class="c1"># record 3 seconds of audio, get a waveform (a list of samples) back</span>
 </pre></div>
 </div>
-<p>Call it with no <code class="docutils literal notranslate"><span class="pre">duration</span></code> and it records until you interrupt it (<code class="docutils literal notranslate"><span class="pre">Ctrl-C</span></code>),
-returning everything captured up to that point:</p>
+<p>Call it with no <code class="docutils literal notranslate"><span class="pre">duration</span></code> and it records until you interrupt it (<code class="docutils literal notranslate"><span class="pre">Ctrl-C</span></code>), returning everything captured up to that point:</p>
+<!-- wads-docs: skip needs a microphone or audio device -->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">wf</span> <span class="o">=</span> <span class="n">record</span><span class="p">()</span>  <span class="c1"># records until interrupted; you keep what was recorded</span>
 </pre></div>
 </div>
-<p><code class="docutils literal notranslate"><span class="pre">duration</span></code> is in seconds by default, but <code class="docutils literal notranslate"><span class="pre">duration_unit</span></code> also takes <code class="docutils literal notranslate"><span class="pre">'minutes'</span></code>
-and <code class="docutils literal notranslate"><span class="pre">'samples'</span></code>. Give <code class="docutils literal notranslate"><span class="pre">egress</span></code> a filepath to also save what you recorded (you
-still get the waveform back), or a function to post-process it:</p>
+<p><code class="docutils literal notranslate"><span class="pre">duration</span></code> is in seconds by default, but <code class="docutils literal notranslate"><span class="pre">duration_unit</span></code> also takes <code class="docutils literal notranslate"><span class="pre">'minutes'</span></code> and <code class="docutils literal notranslate"><span class="pre">'samples'</span></code>. Give <code class="docutils literal notranslate"><span class="pre">egress</span></code> a filepath to also save what you recorded (you still get the waveform back), or a function to post-process it:</p>
+<!-- wads-docs: skip needs a microphone or audio device -->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">wf</span> <span class="o">=</span> <span class="n">record</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">egress</span><span class="o">=</span><span class="s1">'my_recording.wav'</span><span class="p">)</span>  <span class="c1"># saves the file, returns the waveform</span>
 <span class="n">n_samples</span> <span class="o">=</span> <span class="n">record</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">egress</span><span class="o">=</span><span class="nb">len</span><span class="p">)</span>          <span class="c1"># returns len(wf) instead</span>
 </pre></div>
 </div>
-<p>The rest of the arguments choose the audio source and how it is read:
-<code class="docutils literal notranslate"><span class="pre">input_device_index</span></code> (index or name – see <code class="docutils literal notranslate"><span class="pre">list_recording_device_index_names</span></code>
-below), <code class="docutils literal notranslate"><span class="pre">sr</span></code>, <code class="docutils literal notranslate"><span class="pre">sample_width</span></code>, <code class="docutils literal notranslate"><span class="pre">chk_size</span></code> and <code class="docutils literal notranslate"><span class="pre">stream_buffer_size_s</span></code>. Which
-exceptions end a recording cleanly (instead of propagating) is itself an
-argument: <code class="docutils literal notranslate"><span class="pre">ignore_exceptions</span></code>, <code class="docutils literal notranslate"><span class="pre">(KeyboardInterrupt,)</span></code> by default.</p>
-<p><code class="docutils literal notranslate"><span class="pre">sample_width</span></code> decides the sample dtype, and not in the way you would guess:
-PyAudio opens the device as <code class="docutils literal notranslate"><span class="pre">int16</span></code> for 2 bytes, but as <strong><code class="docutils literal notranslate"><span class="pre">float32</span></code></strong> for 4
-(there is no 32-bit-integer capture format), and 3 bytes comes back as
-<code class="docutils literal notranslate"><span class="pre">float64</span></code>. The supported widths are <code class="docutils literal notranslate"><span class="pre">taped.tools.SUPPORTED_SAMPLE_WIDTHS</span></code>.</p>
+<p>The rest of the arguments choose the audio source and how it is read: <code class="docutils literal notranslate"><span class="pre">input_device_index</span></code> (index or name – see <code class="docutils literal notranslate"><span class="pre">list_recording_device_index_names</span></code> below), <code class="docutils literal notranslate"><span class="pre">sr</span></code>, <code class="docutils literal notranslate"><span class="pre">sample_width</span></code>, <code class="docutils literal notranslate"><span class="pre">chk_size</span></code> and <code class="docutils literal notranslate"><span class="pre">stream_buffer_size_s</span></code>. Which exceptions end a recording cleanly (instead of propagating) is itself an argument: <code class="docutils literal notranslate"><span class="pre">ignore_exceptions</span></code>, <code class="docutils literal notranslate"><span class="pre">(KeyboardInterrupt,)</span></code> by default.</p>
+<p><code class="docutils literal notranslate"><span class="pre">sample_width</span></code> decides the sample dtype, and not in the way you would guess: PyAudio opens the device as <code class="docutils literal notranslate"><span class="pre">int16</span></code> for 2 bytes, but as <strong><code class="docutils literal notranslate"><span class="pre">float32</span></code></strong> for 4 (there is no 32-bit-integer capture format), and 3 bytes comes back as <code class="docutils literal notranslate"><span class="pre">float64</span></code>. The supported widths are <code class="docutils literal notranslate"><span class="pre">taped.tools.SUPPORTED_SAMPLE_WIDTHS</span></code>.</p>
 </section>
 <section id="in-a-nutshell">
 <h2>In a nutshell:<a class="headerlink" href="#in-a-nutshell" title="Link to this heading">#</a></h2>
+<!-- wads-docs: skip needs a microphone or audio device -->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">taped</span><span class="w"> </span><span class="kn">import</span> <span class="n">LiveWf</span>
 <span class="n">live_wf</span> <span class="o">=</span> <span class="n">LiveWf</span><span class="p">()</span>  <span class="c1"># make a live audio waveform object (using defaults for every thing)</span>
 <span class="n">live_wf</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>  <span class="c1"># start "recording"</span>
@@ -372,6 +368,7 @@ PyAudio opens the device as <code class="docutils literal notranslate"><span cla
 <li><p><strong>context manager</strong>: <code class="docutils literal notranslate"><span class="pre">LiveWf</span></code>, like most stream providing objects, is best used as a context manager (it’s that <code class="docutils literal notranslate"><span class="pre">with...</span></code> thing), to automatically “clean up” when finished using.</p></li>
 <li><p><strong>input_device_index</strong>: If you don’t specify any arguments when making a <code class="docutils literal notranslate"><span class="pre">LiveWf</span></code>, you’ll get defaults. You might want to check them out in case they’re not what you want. One crucial argument is the <code class="docutils literal notranslate"><span class="pre">input_device_index</span></code>, which specifies what the audio source actually is. You can get a list of choices by using the <code class="docutils literal notranslate"><span class="pre">list_recording_device_index_names</span></code> function:</p></li>
 </ul>
+<!-- wads-docs: skip needs a microphone or audio device -->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">taped</span><span class="w"> </span><span class="kn">import</span> <span class="n">list_recording_device_index_names</span>
 
 <span class="n">list_recording_device_index_names</span><span class="p">()</span>
@@ -380,6 +377,7 @@ PyAudio opens the device as <code class="docutils literal notranslate"><span cla
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>[(0, 'MacBook Pro Microphone'), (2, 'ZoomAudioDevice')]
 </pre></div>
 </div>
+<!-- wads-docs: skip needs a microphone or audio device -->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">taped</span><span class="w"> </span><span class="kn">import</span> <span class="n">LiveWf</span>
 
 <span class="o">&amp;</span><span class="c1">#35; you can specify as an integer, a string, or a (int, string) tuple. </span>
@@ -398,14 +396,14 @@ PyAudio opens the device as <code class="docutils literal notranslate"><span cla
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>(22050, list)
 </pre></div>
 </div>
+<!-- wads-docs: skip needs a microphone or audio device -->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">taped</span><span class="w"> </span><span class="kn">import</span> <span class="n">disp_wf</span>
 <span class="n">disp_wf</span><span class="p">(</span><span class="n">chk</span><span class="p">,</span> <span class="n">sr</span><span class="o">=</span><span class="n">live_wf</span><span class="o">.</span><span class="n">sr</span><span class="p">)</span>  <span class="c1"># will sound faster than normal because (remember) we down-sampled.</span>
 </pre></div>
 </div>
 <p><img alt="image" src="https://user-images.githubusercontent.com/1906276/102552725-81a00a80-4076-11eb-9aba-2ecb8b71e36f.png" /></p>
-<p>Note, you can use <code class="docutils literal notranslate"><span class="pre">find_a_default_input_device_index</span></code> to find an input device index for you automatically.
-That’s what happens if you don’t specify any inputs to <code class="docutils literal notranslate"><span class="pre">LiveWf()</span></code>.
-But don’t trust that it will work every time. It’s behavior may change, but right now, it just looks for the first name with word <code class="docutils literal notranslate"><span class="pre">&quot;microphone&quot;</span></code> in the list of names, and if that’s not found, the first containing <code class="docutils literal notranslate"><span class="pre">&quot;mic&quot;</span></code>.</p>
+<p>Note, you can use <code class="docutils literal notranslate"><span class="pre">find_a_default_input_device_index</span></code> to find an input device index for you automatically. That’s what happens if you don’t specify any inputs to <code class="docutils literal notranslate"><span class="pre">LiveWf()</span></code>. But don’t trust that it will work every time. It’s behavior may change, but right now, it just looks for the first name with word <code class="docutils literal notranslate"><span class="pre">&quot;microphone&quot;</span></code> in the list of names, and if that’s not found, the first containing <code class="docutils literal notranslate"><span class="pre">&quot;mic&quot;</span></code>.</p>
+<!-- wads-docs: skip needs a microphone or audio device -->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">taped</span><span class="w"> </span><span class="kn">import</span> <span class="n">find_a_default_input_device_index</span>
 <span class="n">input_device_index</span> <span class="o">=</span> <span class="n">find_a_default_input_device_index</span><span class="p">()</span>
 </pre></div>
@@ -440,6 +438,7 @@ But don’t trust that it will work every time. It’s behavior may change, but 
 </section>
 <section id="record-and-display-audio-from-a-microphone">
 <h2>Record and display audio from a microphone<a class="headerlink" href="#record-and-display-audio-from-a-microphone" title="Link to this heading">#</a></h2>
+<!-- wads-docs: skip needs a microphone or audio device -->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">taped</span><span class="w"> </span><span class="kn">import</span> <span class="n">LiveWf</span><span class="p">,</span> <span class="n">disp_wf</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">itertools</span><span class="w"> </span><span class="kn">import</span> <span class="n">islice</span>
 
@@ -455,6 +454,7 @@ But don’t trust that it will work every time. It’s behavior may change, but 
 </section>
 <section id="record-and-save-audio-from-microphone">
 <h2>Record and save audio from microphone<a class="headerlink" href="#record-and-save-audio-from-microphone" title="Link to this heading">#</a></h2>
+<!-- wads-docs: skip needs a microphone or audio device -->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">taped</span><span class="w"> </span><span class="kn">import</span> <span class="n">LiveWf</span><span class="p">,</span> <span class="n">disp_wf</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">soundfile</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sf</span>  <span class="c1"># pip install soundfile (or get your waveform_to_file function elsewhere)</span>
 
@@ -485,6 +485,7 @@ But don’t trust that it will work every time. It’s behavior may change, but 
 <li><p><code class="docutils literal notranslate"><span class="pre">LiveWf</span></code>: Gives you access to a fixed size buffer of the recent history of audio, in waveform format. Essentially, the <code class="docutils literal notranslate"><span class="pre">WfChunks</span></code> chained together in one continuous (but live/dynamic) array.</p></li>
 </ul>
 <p>Defining a waveform “displayer”: if you want to display audio as a spectrogram, and actually play it (in a jupyter notebook), <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">hum</span></code>.</p>
+<!-- wads-docs: skip needs a microphone or audio device -->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">contextlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">suppress</span>
 
 <span class="k">try</span><span class="p">:</span>
@@ -495,6 +496,7 @@ But don’t trust that it will work every time. It’s behavior may change, but 
 </pre></div>
 </div>
 <p>Let’s get an <code class="docutils literal notranslate"><span class="pre">input_device_index</span></code> to use throughout our demo.</p>
+<!-- wads-docs: skip needs a microphone or audio device -->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">taped</span><span class="w"> </span><span class="kn">import</span> <span class="n">find_a_default_input_device_index</span>
 
 <span class="n">input_device_index</span> <span class="o">=</span> <span class="n">find_a_default_input_device_index</span><span class="p">()</span>
@@ -502,10 +504,9 @@ But don’t trust that it will work every time. It’s behavior may change, but 
 </div>
 <section id="bufferitems">
 <h2>BufferItems<a class="headerlink" href="#bufferitems" title="Link to this heading">#</a></h2>
-<p><code class="docutils literal notranslate"><span class="pre">BufferItems</span></code> gives you a stream of 5-tuples containing sensor bytes, along with other information (timestamp etc.)
-that <code class="docutils literal notranslate"><span class="pre">stream2py</span></code>, which wraps <code class="docutils literal notranslate"><span class="pre">PyAudio</span></code> (itself a wrapper of <code class="docutils literal notranslate"><span class="pre">PortAudio</span></code>) gives us.</p>
-<p>If you’re okay with the high level interfaces that <code class="docutils literal notranslate"><span class="pre">taped</span></code> offers, you may want to skip this <code class="docutils literal notranslate"><span class="pre">BufferItems</span></code> section.
-But if you want (or need) to peep under (the first level of) the hood, here’s what <code class="docutils literal notranslate"><span class="pre">BufferItems</span></code> is about.</p>
+<p><code class="docutils literal notranslate"><span class="pre">BufferItems</span></code> gives you a stream of 5-tuples containing sensor bytes, along with other information (timestamp etc.) that <code class="docutils literal notranslate"><span class="pre">stream2py</span></code>, which wraps <code class="docutils literal notranslate"><span class="pre">PyAudio</span></code> (itself a wrapper of <code class="docutils literal notranslate"><span class="pre">PortAudio</span></code>) gives us.</p>
+<p>If you’re okay with the high level interfaces that <code class="docutils literal notranslate"><span class="pre">taped</span></code> offers, you may want to skip this <code class="docutils literal notranslate"><span class="pre">BufferItems</span></code> section. But if you want (or need) to peep under (the first level of) the hood, here’s what <code class="docutils literal notranslate"><span class="pre">BufferItems</span></code> is about.</p>
+<!-- wads-docs: skip needs a microphone or audio device -->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">taped.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BufferItems</span>
 
 <span class="k">with</span> <span class="n">BufferItems</span><span class="p">(</span><span class="n">input_device_index</span><span class="p">)</span> <span class="k">as</span> <span class="n">buffer_items</span><span class="p">:</span>
@@ -527,25 +528,13 @@ But if you want (or need) to peep under (the first level of) the hood, here’s 
 4: status_flags: 0
 </pre></div>
 </div>
-<p>What each of those actually means is documented field by field in
-<code class="docutils literal notranslate"><span class="pre">taped.base.BufferItemOutput</span></code>’s docstring (<code class="docutils literal notranslate"><span class="pre">help(BufferItemOutput)</span></code>). Two of them
-are worth calling out here, because their names mislead:</p>
+<p>What each of those actually means is documented field by field in <code class="docutils literal notranslate"><span class="pre">taped.base.BufferItemOutput</span></code>’s docstring (<code class="docutils literal notranslate"><span class="pre">help(BufferItemOutput)</span></code>). Two of them are worth calling out here, because their names mislead:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">timestamp</span></code> and <code class="docutils literal notranslate"><span class="pre">time_info</span></code> are the <strong>start</strong> and <strong>end</strong> of the chunk, both as
-numbers of <strong>microseconds since the epoch</strong>. So <code class="docutils literal notranslate"><span class="pre">time_info</span> <span class="pre">-</span> <span class="pre">timestamp</span></code> is the
-chunk’s duration in microseconds. They are <code class="docutils literal notranslate"><span class="pre">int</span></code> <em>or</em> <code class="docutils literal notranslate"><span class="pre">float</span></code> (<code class="docutils literal notranslate"><span class="pre">AudioSegment</span></code>
-declares <code class="docutils literal notranslate"><span class="pre">int</span> <span class="pre">|</span> <span class="pre">float</span></code>), and off a live mic they are usually floats — most
-chunk dates are interpolated from the frame rate rather than read off the host
-clock, so the duration is typically fractional too (e.g. <code class="docutils literal notranslate"><span class="pre">92879.75</span></code>). Don’t
-write <code class="docutils literal notranslate"><span class="pre">isinstance(item.timestamp,</span> <span class="pre">int)</span></code>, and don’t use one as an exact dict key.
-The whole numbers printed in the examples below are from a hand-made chunk.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">time_info</span></code> is <strong>not</strong> a PortAudio <code class="docutils literal notranslate"><span class="pre">PaStreamCallbackTimeInfo</span></code> dict, despite the
-name. Older versions of the stack surfaced one here (with <code class="docutils literal notranslate"><span class="pre">current_time</span></code>,
-<code class="docutils literal notranslate"><span class="pre">input_buffer_adc_time</span></code> and <code class="docutils literal notranslate"><span class="pre">output_buffer_dac_time</span></code> keys); <code class="docutils literal notranslate"><span class="pre">audiostream2py</span></code>
-no longer does, so <code class="docutils literal notranslate"><span class="pre">time_info</span></code> is a plain number and subscripting it raises.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">timestamp</span></code> and <code class="docutils literal notranslate"><span class="pre">time_info</span></code> are the <strong>start</strong> and <strong>end</strong> of the chunk, both as numbers of <strong>microseconds since the epoch</strong>. So <code class="docutils literal notranslate"><span class="pre">time_info</span> <span class="pre">-</span> <span class="pre">timestamp</span></code> is the chunk’s duration in microseconds. They are <code class="docutils literal notranslate"><span class="pre">int</span></code> <em>or</em> <code class="docutils literal notranslate"><span class="pre">float</span></code> (<code class="docutils literal notranslate"><span class="pre">AudioSegment</span></code> declares <code class="docutils literal notranslate"><span class="pre">int</span> <span class="pre">|</span> <span class="pre">float</span></code>), and off a live mic they are usually floats — most chunk dates are interpolated from the frame rate rather than read off the host clock, so the duration is typically fractional too (e.g. <code class="docutils literal notranslate"><span class="pre">92879.75</span></code>). Don’t write <code class="docutils literal notranslate"><span class="pre">isinstance(item.timestamp,</span> <span class="pre">int)</span></code>, and don’t use one as an exact dict key. The whole numbers printed in the examples below are from a hand-made chunk.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">time_info</span></code> is <strong>not</strong> a PortAudio <code class="docutils literal notranslate"><span class="pre">PaStreamCallbackTimeInfo</span></code> dict, despite the name. Older versions of the stack surfaced one here (with <code class="docutils literal notranslate"><span class="pre">current_time</span></code>, <code class="docutils literal notranslate"><span class="pre">input_buffer_adc_time</span></code> and <code class="docutils literal notranslate"><span class="pre">output_buffer_dac_time</span></code> keys); <code class="docutils literal notranslate"><span class="pre">audiostream2py</span></code> no longer does, so <code class="docutils literal notranslate"><span class="pre">time_info</span></code> is a plain number and subscripting it raises.</p></li>
 </ul>
-<p><code class="docutils literal notranslate"><span class="pre">status_flags</span></code> is a PortAudio status bitfield (<code class="docutils literal notranslate"><span class="pre">0</span></code> means no error); decode it with
-<code class="docutils literal notranslate"><span class="pre">audiostream2py.PaStatusFlags</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">status_flags</span></code> is a PortAudio status bitfield (<code class="docutils literal notranslate"><span class="pre">0</span></code> means no error); decode it with <code class="docutils literal notranslate"><span class="pre">audiostream2py.PaStatusFlags</span></code>.</p>
+<!-- wads-docs: skip needs a microphone or audio device -->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">time</span><span class="w"> </span><span class="kn">import</span> <span class="n">sleep</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">namedtuple</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pprint</span><span class="w"> </span><span class="kn">import</span> <span class="n">pprint</span>
@@ -584,10 +573,8 @@ item2
  'timestamp': 1608236216621991}
 </pre></div>
 </div>
-<p>See that the two timestamps we get (the start of the chunk, and the end of it)
-each advance by about <code class="docutils literal notranslate"><span class="pre">4096</span> <span class="pre">/</span> <span class="pre">44100</span> <span class="pre">=</span> <span class="pre">0.09287...</span></code> seconds – the chunk size, in
-seconds – from one item to the next. Since both are in microseconds, that’s
-about <code class="docutils literal notranslate"><span class="pre">92879</span></code> of them.</p>
+<p>See that the two timestamps we get (the start of the chunk, and the end of it) each advance by about <code class="docutils literal notranslate"><span class="pre">4096</span> <span class="pre">/</span> <span class="pre">44100</span> <span class="pre">=</span> <span class="pre">0.09287...</span></code> seconds – the chunk size, in seconds – from one item to the next. Since both are in microseconds, that’s about <code class="docutils literal notranslate"><span class="pre">92879</span></code> of them.</p>
+<!-- wads-docs: skip needs a microphone or audio device -->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">assert</span> <span class="n">buffer_items</span><span class="o">.</span><span class="n">chk_size</span> <span class="o">==</span> <span class="mi">4096</span>
 <span class="k">assert</span> <span class="n">buffer_items</span><span class="o">.</span><span class="n">sr</span> <span class="o">==</span> <span class="mi">44100</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">"differences (in microseconds)..."</span><span class="p">)</span>
@@ -610,16 +597,14 @@ about <code class="docutils literal notranslate"><span class="pre">92879</span><
 </pre></div>
 </div>
 <p>See that we have different bytes!</p>
+<!-- wads-docs: skip needs a microphone or audio device -->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">assert</span> <span class="n">item</span><span class="o">.</span><span class="n">bytes</span> <span class="o">!=</span> <span class="n">item2</span><span class="o">.</span><span class="n">bytes</span>
 </pre></div>
 </div>
 <p>But add we used <code class="docutils literal notranslate"><span class="pre">it</span> <span class="pre">=</span> <span class="pre">buffer_items</span></code> directly instead of <code class="docutils literal notranslate"><span class="pre">it</span> <span class="pre">=</span> <span class="pre">iter(buffer_items)</span></code>, we would have gotten the same bytes.</p>
-<p>Indeed, using <code class="docutils literal notranslate"><span class="pre">iter(...)</span></code> ensures that we “move forward” in our iteration, where as doing a <code class="docutils literal notranslate"><span class="pre">next(buffer_items)</span></code>
-would just give us the first chunk of the queue (that is, the oldest one).
-Until the buffer is full, that oldest chunk is always the same first one.
-Once the buffer is full, the <code class="docutils literal notranslate"><span class="pre">next(buffer_items)</span></code> will give us something different (at the rate of incoming chunks).</p>
-<p>We can see this by making the buffer size (<code class="docutils literal notranslate"><span class="pre">stream_buffer_size_s</span></code>, whose default is 60 seconds) smaller.
-Study the following code to see what’s happening.</p>
+<p>Indeed, using <code class="docutils literal notranslate"><span class="pre">iter(...)</span></code> ensures that we “move forward” in our iteration, where as doing a <code class="docutils literal notranslate"><span class="pre">next(buffer_items)</span></code> would just give us the first chunk of the queue (that is, the oldest one). Until the buffer is full, that oldest chunk is always the same first one. Once the buffer is full, the <code class="docutils literal notranslate"><span class="pre">next(buffer_items)</span></code> will give us something different (at the rate of incoming chunks).</p>
+<p>We can see this by making the buffer size (<code class="docutils literal notranslate"><span class="pre">stream_buffer_size_s</span></code>, whose default is 60 seconds) smaller. Study the following code to see what’s happening.</p>
+<!-- wads-docs: skip needs a microphone or audio device -->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">take_a_nap</span><span class="p">(</span><span class="n">nap_time</span><span class="p">):</span>
@@ -658,6 +643,7 @@ After a 1 seconds nap...
 <section id="bytechunks">
 <h2>ByteChunks<a class="headerlink" href="#bytechunks" title="Link to this heading">#</a></h2>
 <p>If you just want the bytes of the sensor, use this.</p>
+<!-- wads-docs: skip needs a microphone or audio device -->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">taped.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">ByteChunks</span>
 
 
@@ -676,6 +662,7 @@ After a 1 seconds nap...
 <section id="wfchunks">
 <h2>WfChunks<a class="headerlink" href="#wfchunks" title="Link to this heading">#</a></h2>
 <p>If you want to consume your waveform chunks numpy arrays instead of bytes, use this.</p>
+<!-- wads-docs: skip needs a microphone or audio device -->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">taped.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">WfChunks</span>
 
 
@@ -695,6 +682,7 @@ After a 1 seconds nap...
 <section id="livewf">
 <h2>LiveWf<a class="headerlink" href="#livewf" title="Link to this heading">#</a></h2>
 <p>And finally, if you’d like to imagine you had a single waveform, as an array (populated continuously with live data from your sensor), use this.</p>
+<!-- wads-docs: skip needs a microphone or audio device -->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">taped.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">LiveWf</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">itertools</span><span class="w"> </span><span class="kn">import</span> <span class="n">islice</span>
 
@@ -706,11 +694,13 @@ After a 1 seconds nap...
 <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">chk</span><span class="p">)</span> <span class="o">==</span> <span class="mi">20000</span>  <span class="c1"># chk is an array of 20K samples</span>
 </pre></div>
 </div>
+<!-- wads-docs: skip needs a microphone or audio device -->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">disp_wf</span><span class="p">(</span><span class="n">chk</span><span class="p">)</span>
 </pre></div>
 </div>
 <p><img alt="image" src="https://user-images.githubusercontent.com/1906276/102552830-aeecb880-4076-11eb-8b3e-f02d2b4d42b5.png" /></p>
 <p>You can also access the <code class="docutils literal notranslate"><span class="pre">list(islice(...,</span> <span class="pre">start,</span> <span class="pre">stop,</span> <span class="pre">step))</span></code> samples through the <code class="docutils literal notranslate"><span class="pre">[...]</span></code> brackets interface.</p>
+<!-- wads-docs: skip needs a microphone or audio device -->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">LiveWf</span><span class="p">(</span><span class="n">input_device_index</span><span class="p">)</span> <span class="k">as</span> <span class="n">live_wf</span><span class="p">:</span>
     <span class="n">chk</span> <span class="o">=</span> <span class="n">live_wf</span><span class="p">[</span><span class="mi">10000</span><span class="p">:</span><span class="mi">54100</span><span class="p">]</span>  <span class="c1"># skip the first 10000, and get 44100 samples after that</span>
     
@@ -718,6 +708,7 @@ After a 1 seconds nap...
 </pre></div>
 </div>
 <p><img alt="image" src="https://user-images.githubusercontent.com/1906276/102552877-c461e280-4076-11eb-86fb-4e5ba338edcb.png" /></p>
+<!-- wads-docs: skip needs a microphone or audio device -->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">LiveWf</span><span class="p">(</span><span class="n">input_device_index</span><span class="p">)</span> <span class="k">as</span> <span class="n">live_wf</span><span class="p">:</span>
     <span class="n">chk</span> <span class="o">=</span> <span class="n">live_wf</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">44100</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span>  <span class="c1"># get samples 0 through 44100, but only every other sample (so, downsampling)</span>
     
@@ -731,7 +722,7 @@ After a 1 seconds nap...
 </section>
 </section>
 
-<p class="epythet-provenance" style="font-size:.8em;opacity:.65;margin-top:2.5em;text-align:right">built 2026-11-22 20:10 UTC from <a href="https://github.com/i2mint/taped/commit/05d399634d6fdf786d69c9c1ad265daa0da324e5">05d3996</a> (master) · taped 0.1.13 · <a href="about-this-build.html">about this build</a></p>
+<p class="epythet-provenance" style="font-size:.8em;opacity:.65;margin-top:2.5em;text-align:right">built 2026-11-23 07:36 UTC from <a href="https://github.com/i2mint/taped/commit/547c5337ad303ec02278c022e46141327e149327">547c533</a> (master) · taped 0.1.14 · <a href="about-this-build.html">about this build</a></p>
 
                 </article>
               

@@ -5,7 +5,7 @@ orphan: true
 
 # About this build
 
-This documentation was built on **2026-11-22 20:10 UTC** from commit <a href="https://github.com/i2mint/taped/commit/05d399634d6fdf786d69c9c1ad265daa0da324e5"><code>05d3996</code></a> on branch <code>master</code>, for **taped 0.1.13** (from <code>setup.cfg</code>).
+This documentation was built on **2026-11-23 07:36 UTC** from commit <a href="https://github.com/i2mint/taped/commit/547c5337ad303ec02278c022e46141327e149327"><code>547c533</code></a> on branch <code>master</code>, for **taped 0.1.14** (from <code>setup.cfg</code>).
 
 :::{note}
 Nothing suggests a mismatch: the tree was clean at the commit above, and the documented version is the one on PyPI.
@@ -15,9 +15,9 @@ Nothing suggests a mismatch: the tree was clean at the commit above, and the doc
 
 | | |
 |---|---|
-| Commit | <a href="https://github.com/i2mint/taped/commit/05d399634d6fdf786d69c9c1ad265daa0da324e5"><code>05d399634d6fdf786d69c9c1ad265daa0da324e5</code></a> |
+| Commit | <a href="https://github.com/i2mint/taped/commit/547c5337ad303ec02278c022e46141327e149327"><code>547c5337ad303ec02278c022e46141327e149327</code></a> |
 | Branch | <code>master</code> |
-| Tags at this commit | <code>0.1.13</code> |
+| Tags at this commit | <code>0.1.14</code> |
 | Working tree | clean |
 | Remote | <code>https://github.com/i2mint/taped</code> |
 
@@ -26,15 +26,15 @@ Nothing suggests a mismatch: the tree was clean at the commit above, and the doc
 | | |
 |---|---|
 | Repository | <code>i2mint/taped</code> |
-| Run | <a href="https://github.com/i2mint/taped/actions/runs/45064702353">45064702353</a> |
+| Run | <a href="https://github.com/i2mint/taped/actions/runs/45131974869">45131974869</a> |
 | Ref | <code>refs/heads/master</code> |
-| Event commit | <code>4ab478542f4e0d2f382f152fecf8738798996ef9</code> (in the history of the built commit) |
+| Event commit | <code>9b41c0669ca6bd39fc1197833179cbf33487bfe9</code> (in the history of the built commit) |
 
 ## Tools
 
 | | |
 |---|---|
-| epythet | 0.2.23 |
+| epythet | 0.2.24 |
 | Sphinx | 9.1.1 |
 | docutils | 0.22.4 |
 | Python | 3.12.16 |
@@ -53,14 +53,14 @@ Nothing suggests a mismatch: the tree was clean at the commit above, and the doc
 
 ## Package on PyPI
 
-Latest release: <a href="https://pypi.org/project/taped/0.1.13/">0.1.13</a>, the same as the documented version.
+Latest release: <a href="https://pypi.org/project/taped/0.1.14/">0.1.14</a>, the same as the documented version.
 
 ## Reproduce
 
 ```bash
 git clone https://github.com/i2mint/taped && cd taped
-git checkout 05d399634d6fdf786d69c9c1ad265daa0da324e5
-pip install "epythet==0.2.23"
+git checkout 547c5337ad303ec02278c022e46141327e149327
+pip install "epythet==0.2.24"
 epythet quickstart . --ignore tests/ scrap/ examples/
 ```
 

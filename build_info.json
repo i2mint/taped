@@ -1,38 +1,38 @@
 {
   "schema_version": 1,
-  "built_at": "2026-11-22T20:10:41Z",
+  "built_at": "2026-11-23T07:36:21Z",
   "package": {
     "name": "taped",
-    "version": "0.1.13",
+    "version": "0.1.14",
     "display_name": "taped",
     "source": "setup.cfg"
   },
   "git": {
     "available": true,
-    "commit": "05d399634d6fdf786d69c9c1ad265daa0da324e5",
-    "short_commit": "05d3996",
+    "commit": "547c5337ad303ec02278c022e46141327e149327",
+    "short_commit": "547c533",
     "branch": "master",
     "tags": [
-      "0.1.13"
+      "0.1.14"
     ],
     "dirty": false,
     "remote_url": "https://github.com/i2mint/taped",
-    "commit_url": "https://github.com/i2mint/taped/commit/05d399634d6fdf786d69c9c1ad265daa0da324e5",
+    "commit_url": "https://github.com/i2mint/taped/commit/547c5337ad303ec02278c022e46141327e149327",
     "error": null
   },
   "ci": {
     "provider": "github",
     "repository": "i2mint/taped",
-    "sha": "4ab478542f4e0d2f382f152fecf8738798996ef9",
+    "sha": "9b41c0669ca6bd39fc1197833179cbf33487bfe9",
     "sha_in_history": true,
     "ref": "refs/heads/master",
     "ref_name": "master",
-    "run_id": "45064702353",
-    "run_url": "https://github.com/i2mint/taped/actions/runs/45064702353",
+    "run_id": "45131974869",
+    "run_url": "https://github.com/i2mint/taped/actions/runs/45131974869",
     "server_url": "https://github.com"
   },
   "tools": {
-    "epythet": "0.2.23",
+    "epythet": "0.2.24",
     "sphinx": "9.1.1",
     "docutils": "0.22.4",
     "python": "3.12.16"
@@ -62,11 +62,11 @@
   },
   "pypi": {
     "checked": true,
-    "latest": "0.1.13",
+    "latest": "0.1.14",
     "relation": "same",
     "error": null
   },
-  "reproduce": "git clone https://github.com/i2mint/taped && cd taped\ngit checkout 05d399634d6fdf786d69c9c1ad265daa0da324e5\npip install \"epythet==0.2.23\"\nepythet quickstart . --ignore tests/ scrap/ examples/",
+  "reproduce": "git clone https://github.com/i2mint/taped && cd taped\ngit checkout 547c5337ad303ec02278c022e46141327e149327\npip install \"epythet==0.2.24\"\nepythet quickstart . --ignore tests/ scrap/ examples/",
   "warnings": [],
   "alignment": {
     "aligned": true,
