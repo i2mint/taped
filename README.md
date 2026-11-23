@@ -3,48 +3,44 @@
 Python's serene audio accessor
 
 
-To install:	```pip install taped```
+```bash
+pip install taped
+```
 
 
 # A quick (audio) peep
 
 ## The simplest thing: `record`
 
+<!-- wads-docs: skip needs a microphone or audio device -->
 ```python
 from taped import record
 
 wf = record(3)  # record 3 seconds of audio, get a waveform (a list of samples) back
 ```
 
-Call it with no `duration` and it records until you interrupt it (`Ctrl-C`), 
-returning everything captured up to that point:
+Call it with no `duration` and it records until you interrupt it (`Ctrl-C`), returning everything captured up to that point:
 
+<!-- wads-docs: skip needs a microphone or audio device -->
 ```python
 wf = record()  # records until interrupted; you keep what was recorded
 ```
 
-`duration` is in seconds by default, but `duration_unit` also takes `'minutes'` 
-and `'samples'`. Give `egress` a filepath to also save what you recorded (you 
-still get the waveform back), or a function to post-process it:
+`duration` is in seconds by default, but `duration_unit` also takes `'minutes'` and `'samples'`. Give `egress` a filepath to also save what you recorded (you still get the waveform back), or a function to post-process it:
 
+<!-- wads-docs: skip needs a microphone or audio device -->
 ```python
 wf = record(3, egress='my_recording.wav')  # saves the file, returns the waveform
 n_samples = record(3, egress=len)          # returns len(wf) instead
 ```
 
-The rest of the arguments choose the audio source and how it is read: 
-`input_device_index` (index or name -- see `list_recording_device_index_names` 
-below), `sr`, `sample_width`, `chk_size` and `stream_buffer_size_s`. Which 
-exceptions end a recording cleanly (instead of propagating) is itself an 
-argument: `ignore_exceptions`, `(KeyboardInterrupt,)` by default.
+The rest of the arguments choose the audio source and how it is read: `input_device_index` (index or name -- see `list_recording_device_index_names` below), `sr`, `sample_width`, `chk_size` and `stream_buffer_size_s`. Which exceptions end a recording cleanly (instead of propagating) is itself an argument: `ignore_exceptions`, `(KeyboardInterrupt,)` by default.
 
-`sample_width` decides the sample dtype, and not in the way you would guess: 
-PyAudio opens the device as `int16` for 2 bytes, but as **`float32`** for 4 
-(there is no 32-bit-integer capture format), and 3 bytes comes back as 
-`float64`. The supported widths are `taped.tools.SUPPORTED_SAMPLE_WIDTHS`.
+`sample_width` decides the sample dtype, and not in the way you would guess: PyAudio opens the device as `int16` for 2 bytes, but as **`float32`** for 4 (there is no 32-bit-integer capture format), and 3 bytes comes back as `float64`. The supported widths are `taped.tools.SUPPORTED_SAMPLE_WIDTHS`.
 
 ## In a nutshell:
     
+<!-- wads-docs: skip needs a microphone or audio device -->
 ```python
 from taped import LiveWf
 live_wf = LiveWf()  # make a live audio waveform object (using defaults for every thing)
@@ -59,6 +55,7 @@ But obviously, there's more to it. For a quick peep we'll mention just two:
 - **input_device_index**: If you don't specify any arguments when making a `LiveWf`, you'll get defaults. You might want to check them out in case they're not what you want. One crucial argument is the `input_device_index`, which specifies what the audio source actually is. You can get a list of choices by using the `list_recording_device_index_names` function:
 
 
+<!-- wads-docs: skip needs a microphone or audio device -->
 ```python
 from taped import list_recording_device_index_names
 
@@ -72,6 +69,7 @@ list_recording_device_index_names()
 
 
 
+<!-- wads-docs: skip needs a microphone or audio device -->
 ```python
 from taped import LiveWf
 
@@ -95,6 +93,7 @@ len(chk), type(chk)
 
 
 
+<!-- wads-docs: skip needs a microphone or audio device -->
 ```python
 from taped import disp_wf
 disp_wf(chk, sr=live_wf.sr)  # will sound faster than normal because (remember) we down-sampled.
@@ -107,10 +106,9 @@ disp_wf(chk, sr=live_wf.sr)  # will sound faster than normal because (remember) 
 
     
 
-Note, you can use `find_a_default_input_device_index` to find an input device index for you automatically. 
-That's what happens if you don't specify any inputs to `LiveWf()`. 
-But don't trust that it will work every time. It's behavior may change, but right now, it just looks for the first name with word `"microphone"` in the list of names, and if that's not found, the first containing `"mic"`.
+Note, you can use `find_a_default_input_device_index` to find an input device index for you automatically. That's what happens if you don't specify any inputs to `LiveWf()`. But don't trust that it will work every time. It's behavior may change, but right now, it just looks for the first name with word `"microphone"` in the list of names, and if that's not found, the first containing `"mic"`.
 
+<!-- wads-docs: skip needs a microphone or audio device -->
 ```python
 from taped import find_a_default_input_device_index
 input_device_index = find_a_default_input_device_index()
@@ -148,6 +146,7 @@ For instance...
 
 ## Record and display audio from a microphone
 
+<!-- wads-docs: skip needs a microphone or audio device -->
 ```python
 from taped import LiveWf, disp_wf
 from itertools import islice
@@ -165,6 +164,7 @@ record_and_display_audio_from_microphone()
 
 ## Record and save audio from microphone
 
+<!-- wads-docs: skip needs a microphone or audio device -->
 ```python
 from taped import LiveWf, disp_wf
 import soundfile as sf  # pip install soundfile (or get your waveform_to_file function elsewhere)
@@ -187,18 +187,19 @@ disp_wf(wf, sr)
 
 # A few more details
 
-`taped` uses a layered approach. 
+`taped` uses a layered approach.
 
 The `LiveWf` class you know (and already love) is actually the forth of the following stack of layers:
 
 - `BufferItems`: Provides the items from an audio sensor (also called a mic!); namely the bytes, but also other useful information: the start and end timestamps of the chunk, its frame count, and PortAudio's status flags. See `taped.base.BufferItemOutput` for a field-by-field description.
 - `ByteChunks`: Provides chunks of bytes from the mic. Essentially, extracts the bytes that the `BufferItems` items give you.
-- `WfChunks`: Provides numerical waveform chunks; by default in the format of `numpy.array` `int16` integers. 
+- `WfChunks`: Provides numerical waveform chunks; by default in the format of `numpy.array` `int16` integers.
 - `LiveWf`: Gives you access to a fixed size buffer of the recent history of audio, in waveform format. Essentially, the `WfChunks` chained together in one continuous (but live/dynamic) array.
 
-Defining a waveform "displayer": if you want to display audio as a spectrogram, and actually play it (in a jupyter notebook), `pip install hum`. 
+Defining a waveform "displayer": if you want to display audio as a spectrogram, and actually play it (in a jupyter notebook), `pip install hum`.
 
 
+<!-- wads-docs: skip needs a microphone or audio device -->
 ```python
 from contextlib import suppress
 
@@ -212,6 +213,7 @@ except ModuleNotFoundError:
 Let's get an `input_device_index` to use throughout our demo.
 
 
+<!-- wads-docs: skip needs a microphone or audio device -->
 ```python
 from taped import find_a_default_input_device_index
 
@@ -220,13 +222,12 @@ input_device_index = find_a_default_input_device_index()
 
 ## BufferItems
 
-`BufferItems` gives you a stream of 5-tuples containing sensor bytes, along with other information (timestamp etc.) 
-that `stream2py`, which wraps `PyAudio` (itself a wrapper of `PortAudio`) gives us. 
+`BufferItems` gives you a stream of 5-tuples containing sensor bytes, along with other information (timestamp etc.) that `stream2py`, which wraps `PyAudio` (itself a wrapper of `PortAudio`) gives us.
 
-If you're okay with the high level interfaces that `taped` offers, you may want to skip this `BufferItems` section.
-But if you want (or need) to peep under (the first level of) the hood, here's what `BufferItems` is about.
+If you're okay with the high level interfaces that `taped` offers, you may want to skip this `BufferItems` section. But if you want (or need) to peep under (the first level of) the hood, here's what `BufferItems` is about.
 
 
+<!-- wads-docs: skip needs a microphone or audio device -->
 ```python
 from taped.base import BufferItems
 
@@ -248,26 +249,14 @@ for i, x in enumerate(item):
     3: time_info: 1608336556271874
     4: status_flags: 0
 
-What each of those actually means is documented field by field in
-`taped.base.BufferItemOutput`'s docstring (`help(BufferItemOutput)`). Two of them
-are worth calling out here, because their names mislead:
+What each of those actually means is documented field by field in `taped.base.BufferItemOutput`'s docstring (`help(BufferItemOutput)`). Two of them are worth calling out here, because their names mislead:
 
-- `timestamp` and `time_info` are the **start** and **end** of the chunk, both as
-  numbers of **microseconds since the epoch**. So `time_info - timestamp` is the
-  chunk's duration in microseconds. They are `int` *or* `float` (`AudioSegment`
-  declares `int | float`), and off a live mic they are usually floats — most
-  chunk dates are interpolated from the frame rate rather than read off the host
-  clock, so the duration is typically fractional too (e.g. `92879.75`). Don't
-  write `isinstance(item.timestamp, int)`, and don't use one as an exact dict key.
-  The whole numbers printed in the examples below are from a hand-made chunk.
-- `time_info` is **not** a PortAudio `PaStreamCallbackTimeInfo` dict, despite the
-  name. Older versions of the stack surfaced one here (with `current_time`,
-  `input_buffer_adc_time` and `output_buffer_dac_time` keys); `audiostream2py`
-  no longer does, so `time_info` is a plain number and subscripting it raises.
+- `timestamp` and `time_info` are the **start** and **end** of the chunk, both as numbers of **microseconds since the epoch**. So `time_info - timestamp` is the chunk's duration in microseconds. They are `int` *or* `float` (`AudioSegment` declares `int | float`), and off a live mic they are usually floats — most chunk dates are interpolated from the frame rate rather than read off the host clock, so the duration is typically fractional too (e.g. `92879.75`). Don't write `isinstance(item.timestamp, int)`, and don't use one as an exact dict key. The whole numbers printed in the examples below are from a hand-made chunk.
+- `time_info` is **not** a PortAudio `PaStreamCallbackTimeInfo` dict, despite the name. Older versions of the stack surfaced one here (with `current_time`, `input_buffer_adc_time` and `output_buffer_dac_time` keys); `audiostream2py` no longer does, so `time_info` is a plain number and subscripting it raises.
 
-`status_flags` is a PortAudio status bitfield (`0` means no error); decode it with
-`audiostream2py.PaStatusFlags`.
+`status_flags` is a PortAudio status bitfield (`0` means no error); decode it with `audiostream2py.PaStatusFlags`.
 
+<!-- wads-docs: skip needs a microphone or audio device -->
 ```python
 from time import sleep
 from collections import namedtuple
@@ -307,11 +296,9 @@ display_buffer_item(item2)
      'time_info': 1608236216714871,
      'timestamp': 1608236216621991}
 
-See that the two timestamps we get (the start of the chunk, and the end of it) 
-each advance by about `4096 / 44100 = 0.09287...` seconds -- the chunk size, in 
-seconds -- from one item to the next. Since both are in microseconds, that's 
-about `92879` of them.
+See that the two timestamps we get (the start of the chunk, and the end of it) each advance by about `4096 / 44100 = 0.09287...` seconds -- the chunk size, in seconds -- from one item to the next. Since both are in microseconds, that's about `92879` of them.
  
+<!-- wads-docs: skip needs a microphone or audio device -->
 ```python
 assert buffer_items.chk_size == 4096
 assert buffer_items.sr == 44100
@@ -335,20 +322,18 @@ dict(
 
 See that we have different bytes!
 
+<!-- wads-docs: skip needs a microphone or audio device -->
 ```python
 assert item.bytes != item2.bytes
 ```
 
 But add we used `it = buffer_items` directly instead of `it = iter(buffer_items)`, we would have gotten the same bytes.
 
-Indeed, using `iter(...)` ensures that we "move forward" in our iteration, where as doing a `next(buffer_items)` 
-would just give us the first chunk of the queue (that is, the oldest one). 
-Until the buffer is full, that oldest chunk is always the same first one. 
-Once the buffer is full, the `next(buffer_items)` will give us something different (at the rate of incoming chunks).
+Indeed, using `iter(...)` ensures that we "move forward" in our iteration, where as doing a `next(buffer_items)` would just give us the first chunk of the queue (that is, the oldest one). Until the buffer is full, that oldest chunk is always the same first one. Once the buffer is full, the `next(buffer_items)` will give us something different (at the rate of incoming chunks).
 
-We can see this by making the buffer size (`stream_buffer_size_s`, whose default is 60 seconds) smaller. 
-Study the following code to see what's happening.
+We can see this by making the buffer size (`stream_buffer_size_s`, whose default is 60 seconds) smaller. Study the following code to see what's happening.
 
+<!-- wads-docs: skip needs a microphone or audio device -->
 ```python
 import time
 
@@ -388,6 +373,7 @@ with BufferItems(stream_buffer_size_s=2) as s:
 If you just want the bytes of the sensor, use this.
 
 
+<!-- wads-docs: skip needs a microphone or audio device -->
 ```python
 from taped.base import ByteChunks
 
@@ -412,6 +398,7 @@ len(byte_chk)
 If you want to consume your waveform chunks numpy arrays instead of bytes, use this.
 
 
+<!-- wads-docs: skip needs a microphone or audio device -->
 ```python
 from taped.base import WfChunks
 
@@ -437,6 +424,7 @@ len(chk)
 And finally, if you'd like to imagine you had a single waveform, as an array (populated continuously with live data from your sensor), use this.
 
 
+<!-- wads-docs: skip needs a microphone or audio device -->
 ```python
 from taped.base import LiveWf
 from itertools import islice
@@ -450,6 +438,7 @@ assert len(chk) == 20000  # chk is an array of 20K samples
 ```
 
 
+<!-- wads-docs: skip needs a microphone or audio device -->
 ```python
 disp_wf(chk)
 ```
@@ -465,6 +454,7 @@ disp_wf(chk)
 You can also access the `list(islice(..., start, stop, step))` samples through the `[...]` brackets interface.
 
 
+<!-- wads-docs: skip needs a microphone or audio device -->
 ```python
 with LiveWf(input_device_index) as live_wf:
     chk = live_wf[10000:54100]  # skip the first 10000, and get 44100 samples after that
@@ -478,6 +468,7 @@ disp_wf(chk)
 
 
 
+<!-- wads-docs: skip needs a microphone or audio device -->
 ```python
 with LiveWf(input_device_index) as live_wf:
     chk = live_wf[0:44100:2]  # get samples 0 through 44100, but only every other sample (so, downsampling)
